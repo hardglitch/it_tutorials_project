@@ -1,0 +1,51 @@
+version: "3.9"
+
+networks:
+  default:
+    driver: bridge
+
+services:
+  postgres:
+    container_name: "postgres"
+    image: postgres:15.2-alpine
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${PG_USER}
+      - POSTGRES_PASSWORD=${PG_PASS}
+      - POSTGRES_DB=${PG_NAME}
+    networks:
+      - default
+    ports:
+      - "${PG_PORT}:5432"
+    volumes:
+      - postgres:/etc/postgresql/15/main
+
+#  redis:
+#    container_name: "redis"
+#    env_file:
+#      - .env
+#    image: redis:7.0-alpine
+#    restart: always
+#    entrypoint: redis-server --loglevel warning
+##      --requirepass ${REDIS_PASS}
+#    networks:
+#      - default
+#    ports:
+#      - "${REDIS_PORT}:6379"
+#    volumes:
+#      - redis:/data
+
+#  adminer:
+#    container_name: "adminer"
+#    image: adminer
+#    restart: always
+#    ports:
+#      - "8080:8080"
+
+volumes:
+  postgres:
+    driver: local
+#  redis:
+#    driver: local
