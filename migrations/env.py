@@ -6,6 +6,8 @@ from sqlalchemy import pool
 from alembic import context
 
 from src.config import PG_HOST, PG_NAME, PG_PASS, PG_PORT, PG_USER, SECRET_COOKIE
+from src.db import Base
+from src.user.models import User, Tutorial
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -28,7 +30,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = None
+target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
