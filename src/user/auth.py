@@ -1,7 +1,7 @@
 from fastapi import Depends
 from passlib.context import CryptContext
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from sqlalchemy import Result, Row, select
+from fastapi.security import OAuth2PasswordBearer
+from sqlalchemy import Result, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db import get_session

@@ -5,7 +5,6 @@ from src.user.models import Credential
 
 
 class User(BaseModel):
-    # id: int
     name: str = Field(min_length=1, max_length=1024)
     email: EmailStr
     credential: Credential
