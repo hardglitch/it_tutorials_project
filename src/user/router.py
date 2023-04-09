@@ -1,3 +1,4 @@
+from datetime import timedelta
 from typing import Dict
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
@@ -5,13 +6,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.db import get_session
 from src.user.models import User
 from src.user.schemas import UserCreate
-from src.user.auth import authenticate_user, get_hashed_password
+from src.user.auth import authenticate_user, create_access_token, get_hashed_password
+from src.exceptions import AuthenticateExceptions
 
 
-user_router = APIRouter(
-    prefix="/user",
-    tags=["user"]
-)
+user_router = APIRouter(prefix="/user", tags=["user"])
 
 
 @user_router.post("/create")
@@ -31,16 +30,16 @@ async def create_user(user: UserCreate, async_session: AsyncSession = Depends(ge
             raise                                         # TODO: Exception
 
 
-
-@user_router.post("/token")
+@user_router.post("/login")
 async def login_for_access_token(
         form_data: OAuth2PasswordRequestForm = Depends(),
         async_session: AsyncSession = Depends(get_session)
-    ):
-    return {"response": "User not found"} \
-        if not await authenticate_user(form_data.username, form_data.password, async_session) \
-        else {"response": "User validate"}
-
+    ) -> Dict[str, str]:
+    user = await authenticate_user(form_data.username, form_data.password, async_session)
+    if not user: raise AuthenticateExceptions.TokenException
+    return {
+        "token": create_access_token(user_name=user.name, user_id=user.id, expires_delta=timedelta(minutes=20))
+    }
 
 
 # @user_router.post("/get")

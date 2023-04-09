@@ -17,11 +17,16 @@ class User(BaseModel):
 
 class UserCreate(User):
     credential = Credential.user
-    password: str = Field(min_length=10, max_length=1024)
+    password: str = Field(min_length=10, max_length=100)
 
 
 class UserRead(User):
     pass
+
+
+class UserFullRead(UserRead):
+    id: int
+    hashed_password: str = Field(max_length=1024)
 
 
 class UserUpdate(User):

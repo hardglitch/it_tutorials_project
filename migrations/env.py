@@ -5,7 +5,7 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from src.config import PG_HOST, PG_NAME, PG_PASS, PG_PORT, PG_USER, SECRET_COOKIE
+from src.config import PG_HOST, PG_NAME, PG_PASS, PG_PORT, PG_USER, SECRET_KEY
 from src.db import Base
 from src.user.models import User, Tutorial
 
@@ -19,7 +19,7 @@ config.set_section_option(section, "PG_PORT", str(PG_PORT))
 config.set_section_option(section, "PG_USER", PG_USER)
 config.set_section_option(section, "PG_NAME", PG_NAME)
 config.set_section_option(section, "PG_PASS", PG_PASS)
-config.set_section_option(section, "SECRET_COOKIE", SECRET_COOKIE)
+config.set_section_option(section, "SECRET_KEY", SECRET_KEY)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
