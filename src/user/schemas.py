@@ -1,7 +1,7 @@
 # Pydantic models
 
 from pydantic import BaseModel, EmailStr, Field
-from src.user.models import Credential
+from src.models import Credential
 
 
 class User(BaseModel):

@@ -8,7 +8,7 @@ from sqlalchemy import Result, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.config import SECRET_KEY
 from src.db import get_session
-from src.user.models import User
+from src.models import User
 from src.user.schemas import UserFullRead
 from src.exceptions import AuthenticateExceptions
 

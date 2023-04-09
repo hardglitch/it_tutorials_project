@@ -1,23 +1,33 @@
 from dataclasses import dataclass
-from enum import StrEnum
-from typing import Literal
+from enum import IntEnum
 
 
-class Language(StrEnum):
-    rus: str = "rus"
-    eng: str = "eng"
+class Credential(IntEnum):
+    user: int = 0
+    moderator: int = 1
+    admin: int = 2
 
-@dataclass()
+
+class Language(IntEnum):
+    rus: int = 0
+    eng: int = 1
+
+
+class ShareType(IntEnum):
+    free: int = 0
+    unfree: int = 1
+
+
+@dataclass
 class Table:
 
-    @dataclass()
+    @dataclass
     class User:
         table_name: str = "user"
-        id: str = "id"
+        id: str = table_name + ".id"
         tutorial: str = "tutorial"
 
-    @dataclass()
+    @dataclass
     class Tutorial:
         table_name: str = "tutorial"
         who_added: str = "who_added"
-        language: Literal[Language.eng, Language.rus] = Language.rus

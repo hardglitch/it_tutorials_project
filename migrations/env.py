@@ -7,7 +7,6 @@ from alembic import context
 
 from src.config import PG_HOST, PG_NAME, PG_PASS, PG_PORT, PG_USER, SECRET_KEY
 from src.db import Base
-from src.user.models import User, Tutorial
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
