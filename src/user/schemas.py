@@ -7,7 +7,7 @@ from src.models import Credential
 class User(BaseModel):
     name: str = Field(min_length=1, max_length=1024)
     email: EmailStr
-    credential: Credential
+    credential: int = Field(default=Credential.user)
     is_active: bool = True
     rating: int = Field(gt=-1, default=0)
 
@@ -16,7 +16,6 @@ class User(BaseModel):
 
 
 class UserCreate(User):
-    credential = Credential.user
     password: str = Field(min_length=10, max_length=100)
 
 

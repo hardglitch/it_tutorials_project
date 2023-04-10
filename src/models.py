@@ -15,7 +15,7 @@ class User(Base):
     name: Mapped[str] = mapped_column(String, nullable=False, unique=True, index=True)
     email: Mapped[EmailStr] = mapped_column(String(length=320), nullable=False, unique=True, index=True)
     hashed_password: Mapped[str] = mapped_column(String(length=1024), nullable=False)
-    credential: Mapped[Credential] = mapped_column(String, default=Credential.user)
+    credential: Mapped[Credential] = mapped_column(Integer, default=Credential.user)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     rating: Mapped[int] = mapped_column(Integer, default=0)
 
@@ -30,9 +30,9 @@ class Tutorial(Base):
     type: Mapped[str] = mapped_column(String, nullable=False)
     theme: Mapped[str] = mapped_column(String, nullable=False)
     description: Mapped[str] = mapped_column(String(length=10000), nullable=False)
-    language: Mapped[Language] = mapped_column(String, default=Language.rus)
+    language: Mapped[Language] = mapped_column(Integer, default=Language.rus)
     source_link: Mapped[str] = mapped_column(String, nullable=False)
-    share_type: Mapped[ShareType] = mapped_column(String, default=ShareType.free)
+    share_type: Mapped[ShareType] = mapped_column(Integer, default=ShareType.free)
     who_added_id: Mapped[int] = mapped_column(Integer, ForeignKey(Table.User.id))
 
     who_added: Mapped["User"] = relationship(back_populates=Table.User.tutorial)

@@ -5,12 +5,15 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import Result, select
+from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
 from src.config import SECRET_KEY
 from src.db import get_session
 from src.models import User
-from src.user.schemas import UserFullRead
-from src.exceptions import AuthenticateExceptions
+from src.user.schemas import UserCreate, UserFullRead
+from src.responses import UserResponses
+
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 bcrypt_context = CryptContext(schemes="bcrypt", deprecated="auto")
@@ -24,6 +27,22 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return bcrypt_context.verify(plain_password, hashed_password)
 
 
+async def create_user(user: UserCreate, async_session: AsyncSession = Depends(get_session)) -> bool | Dict[str, str]:
+    async with async_session as session:
+        try:
+            new_user = User(
+                name=user.name,
+                email=user.email,
+                hashed_password=get_hashed_password(user.password),
+            )
+            session.add(new_user)
+            await session.commit()
+            await session.refresh(new_user)
+            return True
+        except IntegrityError:
+            return UserResponses.USER_ALREADY_EXISTS
+
+
 async def authenticate_user(username: str, password: str, async_session: AsyncSession = Depends(get_session)) -> User | None:
     async with async_session as session:
         try:
@@ -31,6 +50,8 @@ async def authenticate_user(username: str, password: str, async_session: AsyncSe
             user: UserFullRead | None = result.scalar_one_or_none()
             return None if not user or not verify_password(password, user.hashed_password) else user
         except HTTPException:
+            raise
+        except DBAPIError:
             raise
 
 
