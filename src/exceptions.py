@@ -17,6 +17,11 @@ class AuthenticateExceptions:
         headers={"WWW-Authenticate": "Bearer"},
     )
 
+    FAILED_TO_CREATE_TOKEN_EXCEPTION = {
+        "response": "Failed to create token"
+    }
+
+
 class DatabaseExceptions:
     COMMON_EXCEPTION = HTTPException(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

@@ -30,9 +30,9 @@ class Tutorial(Base):
     type: Mapped[str] = mapped_column(String, nullable=False)
     theme: Mapped[str] = mapped_column(String, nullable=False)
     description: Mapped[str] = mapped_column(String(length=10000), nullable=False)
-    language: Mapped[Language] = mapped_column(Integer, default=Language.rus)
+    language: Mapped[int] = mapped_column(Integer, default=Language.rus)
     source_link: Mapped[str] = mapped_column(String, nullable=False)
-    share_type: Mapped[ShareType] = mapped_column(Integer, default=ShareType.free)
-    who_added_id: Mapped[int] = mapped_column(Integer, ForeignKey(Table.User.id))
+    share_type: Mapped[int] = mapped_column(Integer, default=ShareType.free)
+    who_added_id: Mapped[int] = mapped_column(Integer, ForeignKey(Table.User.user_id))
 
     who_added: Mapped["User"] = relationship(back_populates=Table.User.tutorial)

@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Dict
+from typing import Annotated, Dict
 from fastapi import Depends, HTTPException
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -10,8 +10,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from src.config import SECRET_KEY
 from src.db import get_session
+from src.exceptions import AuthenticateExceptions
 from src.models import User
-from src.user.schemas import UserCreate, UserFullRead
+from src.user.schemas import UserCreateScheme, UserFullReadScheme
 from src.responses import UserResponses
 
 
@@ -27,7 +28,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return bcrypt_context.verify(plain_password, hashed_password)
 
 
-async def create_user(user: UserCreate, async_session: AsyncSession = Depends(get_session)) -> bool | Dict[str, str]:
+async def create_user(user: UserCreateScheme, async_session: AsyncSession = Depends(get_session)) -> Dict[str, str]:
     async with async_session as session:
         try:
             new_user = User(
@@ -38,7 +39,7 @@ async def create_user(user: UserCreate, async_session: AsyncSession = Depends(ge
             session.add(new_user)
             await session.commit()
             await session.refresh(new_user)
-            return True
+            return UserResponses.USER_CREATED
         except IntegrityError:
             return UserResponses.USER_ALREADY_EXISTS
 
@@ -47,7 +48,7 @@ async def authenticate_user(username: str, password: str, async_session: AsyncSe
     async with async_session as session:
         try:
             result: Result = await session.execute(select(User).where(User.name == username))
-            user: UserFullRead | None = result.scalar_one_or_none()
+            user: UserFullReadScheme | None = result.scalar_one_or_none()
             return None if not user or not verify_password(password, user.hashed_password) else user
         except HTTPException:
             raise
@@ -64,12 +65,12 @@ def create_access_token(user_name: str, user_id: int, expires_delta: timedelta =
     return jwt.encode(claims=claims, key=SECRET_KEY, algorithm="HS256")
 
 
-def decode_access_token(token: str = Depends(oauth2_scheme)) -> Dict[str, str]:
+def decode_access_token(token: Annotated[str, Depends(oauth2_scheme)]) -> Dict[str, str]:
     try:
         payload = jwt.decode(token=token, key=SECRET_KEY, algorithms="HS256")
         username = payload.get("sub")
         user_id = payload.get("uid")
-        if not username or not user_id: raise AuthenticateExceptions.CredentialsException
+        if not username or not user_id: raise AuthenticateExceptions.CREDENTIAL_EXCEPTION
         return {"username": username, "id": user_id}
     except JWTError:
-        raise AuthenticateExceptions.CredentialsException
+        raise AuthenticateExceptions.CREDENTIAL_EXCEPTION

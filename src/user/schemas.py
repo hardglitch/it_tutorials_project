@@ -4,7 +4,7 @@ from pydantic import BaseModel, EmailStr, Field
 from src.models import Credential
 
 
-class User(BaseModel):
+class UserScheme(BaseModel):
     name: str = Field(min_length=1, max_length=1024)
     email: EmailStr
     credential: int = Field(default=Credential.user)
@@ -15,22 +15,22 @@ class User(BaseModel):
         orm_mode = True
 
 
-class UserCreate(User):
+class UserCreateScheme(UserScheme):
     password: str = Field(min_length=10, max_length=100)
 
 
-class UserRead(User):
+class UserReadScheme(UserScheme):
     pass
 
 
-class UserFullRead(UserRead):
+class UserFullReadScheme(UserReadScheme):
     id: int
     hashed_password: str = Field(max_length=1024)
 
 
-class UserUpdate(User):
+class UserUpdate(UserScheme):
     pass
 
 
-class UserDelete(User):
+class UserDelete(UserScheme):
     pass
