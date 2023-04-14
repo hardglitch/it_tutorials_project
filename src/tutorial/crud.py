@@ -3,9 +3,10 @@ from fastapi import Depends
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.db import get_session
+from src.db_const import Language, ShareType
 from src.models import Tutorial
 from src.responses import TutorialResponses
-from src.tutorial.schemas import TutorialScheme
+from src.tutorial.schemas import DecryptedTutorialScheme, TutorialScheme
 
 
 async def create_tutorial(
@@ -40,3 +41,15 @@ async def get_tutorial_from_db(tutorial_id: int, async_session: AsyncSession = D
             return await session.get(Tutorial, tutorial_id)
         except Exception:
             raise
+
+
+def decrypt_tutorial(tutor: Tutorial | TutorialScheme) -> DecryptedTutorialScheme:
+    return DecryptedTutorialScheme(
+        title=tutor.title,
+        type=tutor.type,
+        theme=tutor.theme,
+        description=tutor.description,
+        language=Language(tutor.language).name,
+        source_link=tutor.source_link,
+        share_type=ShareType(tutor.share_type).name
+    )

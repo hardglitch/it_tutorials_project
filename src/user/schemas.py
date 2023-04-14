@@ -6,7 +6,6 @@ from src.models import Credential
 
 class UserScheme(BaseModel):
     name: str = Field(min_length=1, max_length=1024)
-    email: EmailStr
     credential: int = Field(default=Credential.user)
     is_active: bool = True
     rating: int = Field(gt=-1, default=0)
@@ -16,11 +15,17 @@ class UserScheme(BaseModel):
 
 
 class UserCreateScheme(UserScheme):
+    email: EmailStr
     password: str = Field(min_length=10, max_length=100)
 
 
 class UserReadScheme(UserScheme):
+    # tutorial: List[TutorialScheme] | None
     pass
+
+
+class DecryptedUserReadScheme(UserReadScheme):
+    credential: str
 
 
 class UserFullReadScheme(UserReadScheme):

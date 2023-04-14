@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from src.db_const import Language, ShareType
 
 
 class TutorialScheme(BaseModel):
