@@ -13,7 +13,7 @@ async def create_tutorial(
         tutorial: TutorialScheme,
         user_id: int,
         async_session: AsyncSession = Depends(get_session)
-) -> Dict[str, str]:
+) -> str:
 
     async with async_session as session:
         try:

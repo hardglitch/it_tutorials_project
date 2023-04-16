@@ -30,7 +30,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return bcrypt_context.verify(plain_password, hashed_password)
 
 
-async def create_user(user: UserCreateScheme, async_session: AsyncSession = Depends(get_session)) -> Dict[str, str]:
+async def create_user(user: UserCreateScheme, async_session: AsyncSession = Depends(get_session)) -> bool:
     async with async_session as session:
         try:
             new_user = User(
@@ -41,13 +41,13 @@ async def create_user(user: UserCreateScheme, async_session: AsyncSession = Depe
             session.add(new_user)
             await session.commit()
             await session.refresh(new_user)
-            return UserResponses.USER_CREATED
+            return True
         except IntegrityError:
-            return UserResponses.USER_ALREADY_EXISTS
+            return False
 
 
 async def authenticate_user(username: str, password: str,
-                            async_session: AsyncSession = Depends(get_session)) -> User | None:
+                            async_session: AsyncSession = Depends(get_session)) -> UserFullReadScheme | None:
     async with async_session as session:
         try:
             result: Result = await session.execute(select(User).where(User.name == username))
@@ -59,7 +59,7 @@ async def authenticate_user(username: str, password: str,
             raise
 
 
-async def safe_get_user(user_id: int, async_session: AsyncSession = Depends(get_session)) -> User | None:
+async def safe_get_user(user_id: int, async_session: AsyncSession = Depends(get_session)) -> UserReadScheme | None:
     async with async_session as session:
         try:
             result: Result = await session.execute(

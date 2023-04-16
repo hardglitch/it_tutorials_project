@@ -19,8 +19,14 @@ user_router = APIRouter(prefix="/user", tags=["user"])
 
 
 @user_router.post("/registration")
-async def user_registration(user: UserCreateScheme, async_session: AsyncSession = Depends(get_session)) -> Dict[str, str]:
-    return await create_user(user=user, async_session=async_session)
+async def user_registration(
+        user: UserCreateScheme,
+        async_session: AsyncSession = Depends(get_session)
+) -> str:
+
+    return UserResponses.USER_CREATED\
+        if await create_user(user, async_session)\
+        else UserResponses.USER_ALREADY_EXISTS
 
 
 # This creates an Access Token and redirects to the Current User profile
@@ -44,11 +50,18 @@ async def login_for_access_token(
     return response
 
 
+@user_router.post("/logout", response_class=HTMLResponse)
+async def logout(request: Request, response: Response) -> None:
+    token: Annotated[str, Depends(oauth2_scheme)] = request.cookies.get("access_token")
+    if token: return response.delete_cookie(key="access_token")
+
+
 @user_router.get("/{user_id}")
 async def safe_read_user(
         user_id: Annotated[int, Path(title="User ID")],
         async_session: AsyncSession = Depends(get_session)
-):
+) -> DecryptedUserReadScheme | str:
+
     user = await safe_get_user(user_id, async_session)
     decrypted_user = DecryptedUserReadScheme(
         name=user.name,
@@ -65,7 +78,7 @@ async def secure_update_user(
         user_id: Annotated[int, Path(title="User ID")],
         new_user_data: UserUpdateScheme,
         async_session: AsyncSession = Depends(get_session)
-):
+) -> str:
     token: Annotated[str, Depends(oauth2_scheme)] = request.cookies.get("access_token")
     if validate_access(user_id, token):
         return UserResponses.USER_UPDATED \
