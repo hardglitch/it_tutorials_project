@@ -27,6 +27,21 @@ class UserResponses:
         detail="User not found",
     )
 
+    ACCESS_DENIED = HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Access denied",
+    )
+
+    USER_UPDATED = HTTPException(
+        status_code=status.HTTP_200_OK,
+        detail="User updated",
+    )
+
+    USER_NOT_UPDATED = HTTPException(
+        status_code=status.HTTP_304_NOT_MODIFIED,
+        detail="User not updated",
+    )
+
 
 @dataclass()
 class TutorialResponses:

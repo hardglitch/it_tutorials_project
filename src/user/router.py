@@ -4,12 +4,14 @@ from fastapi import APIRouter, Depends, Path, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
+from starlette.requests import Request
 from starlette.responses import HTMLResponse, RedirectResponse
 from src.db import get_session
 from src.db_const import Credential
 from src.responses import UserResponses
-from src.user.schemas import DecryptedUserReadScheme, UserCreateScheme
-from src.user.auth import authenticate_user, create_access_token, create_user, safe_get_user
+from src.user.schemas import DecryptedUserReadScheme, UserCreateScheme, UserUpdateScheme
+from src.user.auth import authenticate_user, create_access_token, create_user, oauth2_scheme, safe_get_user,\
+    update_user, validate_access
 from src.exceptions import AuthenticateExceptions
 
 
@@ -27,7 +29,7 @@ async def login_for_access_token(
         response: Response,
         form_data: OAuth2PasswordRequestForm = Depends(),
         async_session: AsyncSession = Depends(get_session)
-    ) -> RedirectResponse:
+) -> RedirectResponse:
 
     user = await authenticate_user(form_data.username, form_data.password, async_session)
     if not user: raise AuthenticateExceptions.TOKEN_EXCEPTION
@@ -36,13 +38,13 @@ async def login_for_access_token(
     if not token: raise AuthenticateExceptions.FAILED_TO_CREATE_TOKEN_EXCEPTION
 
     # Redirect to the Current User profile
-    response = RedirectResponse(url="/", status_code=status.HTTP_302_FOUND)    # TODO: Redirect to the Current User profile
+    response = RedirectResponse(url=f"/user/{user.id}", status_code=status.HTTP_302_FOUND)
     response.set_cookie(key="access_token", value=token, httponly=True, max_age=60)
 
     return response
 
 
-@user_router.post("/{user_id}")
+@user_router.get("/{user_id}")
 async def safe_read_user(
         user_id: Annotated[int, Path(title="User ID")],
         async_session: AsyncSession = Depends(get_session)
@@ -55,3 +57,19 @@ async def safe_read_user(
         rating=user.rating,
     )
     return decrypted_user if user else UserResponses.USER_NOT_FOUND
+
+
+@user_router.patch("/{user_id}")
+async def secure_update_user(
+        request: Request,
+        user_id: Annotated[int, Path(title="User ID")],
+        new_user_data: UserUpdateScheme,
+        async_session: AsyncSession = Depends(get_session)
+):
+    token: Annotated[str, Depends(oauth2_scheme)] = request.cookies.get("access_token")
+    if validate_access(user_id, token):
+        return UserResponses.USER_UPDATED \
+            if await update_user(user_id, new_user_data, async_session) \
+            else UserResponses.USER_NOT_UPDATED
+    else:
+        return UserResponses.ACCESS_DENIED

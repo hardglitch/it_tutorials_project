@@ -6,7 +6,7 @@ from src.models import Credential
 
 class UserScheme(BaseModel):
     name: str = Field(min_length=1, max_length=1024)
-    credential: int = Field(default=Credential.user)
+    credential: Credential = Field(default=Credential.user)
     is_active: bool = True
     rating: int = Field(gt=-1, default=0)
 
@@ -33,9 +33,12 @@ class UserFullReadScheme(UserReadScheme):
     hashed_password: str = Field(max_length=1024)
 
 
-class UserUpdate(UserScheme):
-    pass
+class UserUpdateScheme(BaseModel):
+    name: str | None = Field(min_length=1, max_length=1024, default=None)
+    email: EmailStr | None = None
+    password: str | None = Field(min_length=10, max_length=100, default=None)
+    credential: Credential | None = None
 
 
-class UserDelete(UserScheme):
+class UserDeleteScheme(UserScheme):
     pass
