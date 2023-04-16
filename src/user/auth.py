@@ -1,3 +1,4 @@
+from copy import deepcopy
 from datetime import datetime, timedelta
 from typing import Annotated, Dict
 from fastapi import Depends, HTTPException
@@ -10,10 +11,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from src.config import SECRET_KEY
 from src.db import get_session
+from src.db_const import Credential
 from src.exceptions import AuthenticateExceptions
 from src.models import User
 from src.user.schemas import UserCreateScheme, UserFullReadScheme, UserReadScheme, UserUpdateScheme
 from src.responses import UserResponses
+
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 bcrypt_context = CryptContext(schemes="bcrypt", deprecated="auto")
@@ -121,6 +124,7 @@ async def update_user(
     async with async_session as session:
         try:
             user = await session.get(User, user_id)
+            user_snapshot = deepcopy(user)
 
             if user.name and new_user_data.name and user.name != new_user_data.name:
                 user.name = new_user_data.name
@@ -133,14 +137,21 @@ async def update_user(
                 if user.hashed_password != new_hashed_password:
                     user.hashed_password = new_hashed_password
 
-            if user.credential and new_user_data.credential and user.credential != new_user_data.credential:
+            if user.credential == Credential.admin and new_user_data.credential\
+                    and user.credential != new_user_data.credential:
                 user.credential = new_user_data.credential
 
-            session.add(user)
-            await session.commit()
-            await session.refresh(user)
+            if user.name != user_snapshot.name or \
+               user.email != user_snapshot.email or \
+               user.hashed_password != user_snapshot.hashed_password or \
+               user.credential != user_snapshot.credential:
 
-            return True
+                session.add(user)
+                await session.commit()
+                await session.refresh(user)
+                return True
+            else:
+                return False
 
         except HTTPException:
             raise
