@@ -32,3 +32,13 @@ class Table:
     class Tutorial:
         table_name: str = "tutorial"
         who_added: str = "who_added"
+
+
+@dataclass
+class AccessToken:
+    name: str = "access_token_to_it_tutorial_project"
+    algorithm: str = "HS256"
+    subject: str = "sub"
+    user_id: str = "uid"
+    expired: str = "exp"
+    expiration_time: int = 15  # minutes

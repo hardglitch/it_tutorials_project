@@ -5,7 +5,7 @@ from pydantic import EmailStr
 from sqlalchemy import Boolean, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.db import Base
-from src.db_const import Credential, ShareType, Table, Language
+from src.constants.constants import Credential, ShareType, Table, Language
 
 
 class User(Base):

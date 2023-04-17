@@ -11,12 +11,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from src.config import SECRET_KEY
 from src.db import get_session
-from src.db_const import Credential
-from src.exceptions import AuthenticateExceptions
+from src.constants.constants import AccessToken, Credential
+from src.constants.exceptions import AuthenticateExceptions
 from src.models import User
 from src.user.schemas import UserCreateScheme, UserFullReadScheme, UserReadScheme, UserUpdateScheme
-from src.responses import UserResponses
-
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 bcrypt_context = CryptContext(schemes="bcrypt", deprecated="auto")
@@ -159,29 +157,31 @@ async def update_user(
             raise
 
 
-def create_access_token(user_name: str, user_id: int, expires_delta: timedelta = timedelta(minutes=15)) -> str:
+def create_access_token(
+        user_name: str,
+        user_id: int,
+        expires_delta: timedelta = timedelta(minutes=AccessToken.expiration_time)
+) -> str:
+
     claims = {
-        "sub": user_name,
-        "uid": user_id,
-        "exp": datetime.utcnow() + expires_delta
+        AccessToken.subject: user_name,
+        AccessToken.user_id: user_id,
+        AccessToken.expired: datetime.utcnow() + expires_delta
     }
-    return jwt.encode(claims=claims, key=SECRET_KEY, algorithm="HS256")
+    return jwt.encode(claims=claims, key=SECRET_KEY, algorithm=AccessToken.algorithm)
 
 
 def decode_access_token(token: Annotated[str, Depends(oauth2_scheme)]) -> Dict[str, str]:
     try:
-        payload = jwt.decode(token=token, key=SECRET_KEY, algorithms="HS256")
-        username = payload.get("sub")
-        user_id = payload.get("uid")
-        if not username or not user_id: raise AuthenticateExceptions.CREDENTIAL_EXCEPTION
-        return {"username": username, "id": user_id}
+        payload = jwt.decode(token=token, key=SECRET_KEY, algorithms=AccessToken.algorithm)
+        user_name = payload.get(AccessToken.subject)
+        user_id = payload.get(AccessToken.user_id)
+        if not user_name or not user_id: raise AuthenticateExceptions.CREDENTIAL_EXCEPTION
+        return {AccessToken.subject: user_name, AccessToken.user_id: user_id}
     except JWTError:
         raise AuthenticateExceptions.CREDENTIAL_EXCEPTION
 
 
 def validate_access(user_id: int, token: Annotated[str, Depends(oauth2_scheme)]) -> bool:
-    try:
-        user_id_from_token = decode_access_token(token)["id"]
-        return user_id_from_token == user_id
-    except Exception:
-        return False
+    try: return user_id == decode_access_token(token)[AccessToken.user_id]
+    except Exception: return False

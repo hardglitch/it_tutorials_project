@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from src.db_const import Language, ShareType
+from src.constants.constants import Language, ShareType
 
 
 class TutorialScheme(BaseModel):

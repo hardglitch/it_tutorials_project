@@ -4,12 +4,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
 
 from src.db import get_session
-from src.db_const import Table
+from src.constants.constants import Table, AccessToken
 from src.models import Tutorial
 from src.tutorial.crud import create_tutorial, decrypt_tutorial, get_tutorial_from_db
 from src.tutorial.schemas import DecryptedTutorialScheme, TutorialScheme
 from src.user.auth import decode_access_token, oauth2_scheme
-from src.responses import TutorialResponses
+from src.constants.responses import TutorialResponses
 
 
 tutorial_router = APIRouter(prefix="/tutorial", tags=["tutorial"])
@@ -21,7 +21,7 @@ async def add_tutorial(
         tutorial: TutorialScheme,
         async_session: AsyncSession = Depends(get_session)
 ):
-    token: Annotated[str, Depends(oauth2_scheme)] = request.cookies.get("access_token")
+    token: Annotated[str, Depends(oauth2_scheme)] = request.cookies.get(AccessToken.name)
     user = decode_access_token(token)
     return await create_tutorial(
         tutorial=tutorial,

@@ -1,11 +1,10 @@
-from typing import Dict
 from fastapi import Depends
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.db import get_session
-from src.db_const import Language, ShareType
+from src.constants.constants import Language, ShareType
 from src.models import Tutorial
-from src.responses import TutorialResponses
+from src.constants.responses import TutorialResponses
 from src.tutorial.schemas import DecryptedTutorialScheme, TutorialScheme
 
 
