@@ -25,7 +25,7 @@ class UserReadScheme(UserScheme):
 
 
 class DecryptedUserReadScheme(UserReadScheme):
-    credential: str
+    credential: str      # TODO: make a stronger check
 
 
 class UserFullReadScheme(UserReadScheme):

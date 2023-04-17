@@ -25,7 +25,7 @@ class Table:
     class User:
         table_name: str = "user"
         id: str = "id"
-        user_id: str = "user.id"
+        user_id: str = table_name + "." + id
         tutorial: str = "tutorial"
 
     @dataclass

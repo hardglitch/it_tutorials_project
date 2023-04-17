@@ -2,7 +2,6 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
-
 from src.db import get_session
 from src.constants.constants import Table, AccessToken
 from src.models import Tutorial
@@ -31,6 +30,6 @@ async def add_tutorial(
 
 
 @tutorial_router.post("/{tutorial_id}")
-async def get_tutorial(tutorial_id: int, async_session: AsyncSession = Depends(get_session)) -> DecryptedTutorialScheme:
+async def get_tutorial(tutorial_id: int, async_session: AsyncSession = Depends(get_session)) -> DecryptedTutorialScheme | str:
     tutor: Tutorial = await get_tutorial_from_db(tutorial_id=tutorial_id, async_session=async_session)
-    return TutorialResponses.TUTORIAL_NOT_FOUND if not tutor else decrypt_tutorial(tutor)
+    return decrypt_tutorial(tutor) if tutor else TutorialResponses.TUTORIAL_NOT_FOUND
