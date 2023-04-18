@@ -77,35 +77,6 @@ async def safe_get_user(user_id: int, async_session: AsyncSession = Depends(get_
                 rating=res[3]
             )
             return user
-        except HTTPException:
-            raise
-        except DBAPIError:
-            raise
-
-
-async def get_user_data_before_update(
-        user_id: int,
-        async_session: AsyncSession = Depends(get_session)
-) -> UserUpdateScheme | None:
-
-    async with async_session as session:
-        try:
-            result: Result = await session.execute(
-                select(
-                    User.name,
-                    User.email,
-                    User.hashed_password,
-                    User.credential
-                )
-                .where(User.id == user_id)
-            )
-            res = result.fetchone()
-            return UserUpdateScheme(
-                name=res[0],
-                email=res[1],
-                password=res[2],
-                credential=res[3]
-            )
 
         except HTTPException:
             raise
@@ -135,8 +106,8 @@ async def update_user(
                 if user.hashed_password != new_hashed_password:
                     user.hashed_password = new_hashed_password
 
-            if user.credential == Credential.admin and new_user_data.credential\
-                    and user.credential != new_user_data.credential:
+            if user.credential and user.credential == Credential.admin and \
+               new_user_data.credential and user.credential != new_user_data.credential:
                 user.credential = new_user_data.credential
 
             if user.name != user_snapshot.name or \
@@ -157,12 +128,48 @@ async def update_user(
             raise
 
 
+async def delete_user_from_database(
+        user_id: int,
+        async_session: AsyncSession = Depends(get_session)
+) -> bool:
+
+    async with async_session as session:
+        try:
+            user = await session.get(User, user_id)
+            user.is_active = False
+            session.add(user)
+            await session.commit()
+            await session.refresh(user)
+            return True
+
+        except HTTPException:
+            raise
+        except DBAPIError:
+            raise
+
+
+async def is_admin(
+        user_id_or_token: int | Annotated[str, Depends(oauth2_scheme)],
+        async_session: AsyncSession
+) -> bool:
+
+    async with async_session as session:
+        try:
+            user_id = user_id_or_token if user_id_or_token.isnumeric() \
+                else decode_access_token(user_id_or_token)[AccessToken.user_id]
+
+            result: Result = await session.execute(select(User.credential).where(User.id == user_id))
+            res = result.fetchone()
+            return True if res[0] == Credential.admin else False
+        except Exception:
+            return False
+
+
 def create_access_token(
         user_name: str,
         user_id: int,
         expires_delta: timedelta = timedelta(minutes=AccessToken.expiration_time)
 ) -> str:
-
     claims = {
         AccessToken.subject: user_name,
         AccessToken.user_id: user_id,
@@ -183,5 +190,7 @@ def decode_access_token(token: Annotated[str, Depends(oauth2_scheme)]) -> Dict[s
 
 
 def validate_access(user_id: int, token: Annotated[str, Depends(oauth2_scheme)]) -> bool:
-    try: return user_id == decode_access_token(token)[AccessToken.user_id]
-    except Exception: return False
+    try:
+        return user_id == decode_access_token(token)[AccessToken.user_id]
+    except Exception:
+        return False

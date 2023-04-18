@@ -7,6 +7,7 @@ class UserResponses:
     USER_CREATED = "User registered"
     USER_NOT_CREATED = "User not created"
     USER_ALREADY_EXISTS = "User with the same name or email already exists"
+    THIS_USER_HAS_BEEN_DELETED = "This user has been deleted"
     SUCCESS = "Success"
     USER_NOT_FOUND = "User not found"
     ACCESS_DENIED = "Access denied"
