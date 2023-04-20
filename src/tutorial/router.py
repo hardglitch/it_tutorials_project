@@ -20,9 +20,10 @@ async def add_tutorial(
         tutorial: TutorialScheme,
         async_session: AsyncSession = Depends(get_session)
 ):
+
     token: Annotated[str, Depends(oauth2_scheme)] = request.cookies.get(AccessToken.name)
     user = decode_access_token(token)
-    return await create_tutorial(
+    result = await create_tutorial(
         tutorial=tutorial,
         user_id=int(user[Table.User.id]),
         async_session=async_session
@@ -30,6 +31,10 @@ async def add_tutorial(
 
 
 @tutorial_router.post("/{tutorial_id}")
-async def get_tutorial(tutorial_id: int, async_session: AsyncSession = Depends(get_session)) -> DecryptedTutorialScheme | str:
+async def get_tutorial(
+        tutorial_id: int,
+        async_session: AsyncSession = Depends(get_session)
+) -> DecryptedTutorialScheme | str:
+
     tutor: Tutorial = await get_tutorial_from_db(tutorial_id=tutorial_id, async_session=async_session)
     return decrypt_tutorial(tutor) if tutor else TutorialResponses.TUTORIAL_NOT_FOUND

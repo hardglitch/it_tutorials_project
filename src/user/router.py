@@ -8,7 +8,7 @@ from starlette.requests import Request
 from starlette.responses import HTMLResponse, RedirectResponse
 from src.db import get_session
 from src.constants.constants import AccessToken, Credential
-from src.constants.responses import UserResponses
+from src.constants.responses import CommonResponses, UserResponses
 from src.user.schemas import DecryptedUserReadScheme, UserCreateScheme, UserUpdateScheme
 from src.user.auth import authenticate_user, create_access_token, create_user, delete_user_from_database, is_admin, \
     oauth2_scheme, safe_get_user, \
@@ -102,7 +102,7 @@ async def delete_user(
 
     token: Annotated[str, Depends(oauth2_scheme)] = request.cookies.get(AccessToken.name)
     if validate_access(user_id, token) or await is_admin(token, async_session):
-        return UserResponses.SUCCESS if await delete_user_from_database(user_id, async_session) \
+        return CommonResponses.SUCCESS if await delete_user_from_database(user_id, async_session) \
             else UserResponses.ACCESS_DENIED
     else:
         return UserResponses.ACCESS_DENIED

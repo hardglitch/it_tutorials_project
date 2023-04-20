@@ -6,12 +6,12 @@ from src.models import Credential
 
 class UserScheme(BaseModel):
     name: str = Field(min_length=1, max_length=1024)
-    credential: Credential = Field(default=Credential.user)
+    credential: int = Field(gt=Credential.user-1, lt=Credential.admin+1, default=Credential.user)
     is_active: bool = True
     rating: int = Field(gt=-1, default=0)
-
-    class Config:
-        orm_mode = True
+    #
+    # class Config:
+    #     orm_mode = True
 
 
 class UserCreateScheme(UserScheme):
@@ -20,16 +20,15 @@ class UserCreateScheme(UserScheme):
 
 
 class UserReadScheme(UserScheme):
-    # tutorial: List[TutorialScheme] | None
     pass
 
 
 class DecryptedUserReadScheme(UserReadScheme):
-    credential: str      # TODO: make a stronger check
+    credential: str
 
 
 class UserFullReadScheme(UserReadScheme):
-    id: int
+    id: int = Field(gt=-1)
     hashed_password: str = Field(max_length=1024)
 
 
@@ -37,8 +36,7 @@ class UserUpdateScheme(BaseModel):
     name: str | None = Field(min_length=1, max_length=1024, default=None)
     email: EmailStr | None = None
     password: str | None = Field(min_length=10, max_length=100, default=None)
-    credential: Credential | None = None
+    credential: int | None = Field(gt=Credential.user-1, lt=Credential.admin+1, default=None)
 
-
-class UserDeleteScheme(UserScheme):
-    pass
+    class Config:
+        orm_mode = True

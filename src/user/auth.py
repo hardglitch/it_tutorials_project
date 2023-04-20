@@ -153,6 +153,8 @@ async def is_admin(
         async_session: AsyncSession
 ) -> bool:
 
+    if not user_id_or_token: return False
+
     async with async_session as session:
         try:
             user_id = user_id_or_token if user_id_or_token.isnumeric() \

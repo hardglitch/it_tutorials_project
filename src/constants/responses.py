@@ -2,13 +2,17 @@ from dataclasses import dataclass
 
 
 @dataclass()
+class CommonResponses:
+    SUCCESS = "Success"
+    FAILED = "Failed"
+
+@dataclass()
 class UserResponses:
 
     USER_CREATED = "User registered"
     USER_NOT_CREATED = "User not created"
     USER_ALREADY_EXISTS = "User with the same name or email already exists"
     THIS_USER_HAS_BEEN_DELETED = "This user has been deleted"
-    SUCCESS = "Success"
     USER_NOT_FOUND = "User not found"
     ACCESS_DENIED = "Access denied"
     USER_UPDATED = "User updated"
@@ -20,3 +24,9 @@ class TutorialResponses:
     TUTORIAL_ALREADY_EXISTS = "A tutorial with the same parameters already exists"
     TUTORIAL_CREATED = "Your tutorial added"
     TUTORIAL_NOT_FOUND = "A tutorial not found"
+
+
+@dataclass()
+class LanguageResponses:
+    FAILED_TO_ADD_LANGUAGE = "Failed to add language"
+

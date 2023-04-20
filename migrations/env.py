@@ -9,7 +9,7 @@ from src.config import PG_HOST, PG_NAME, PG_PASS, PG_PORT, PG_USER, SECRET_KEY
 from src.db import Base
 
 # @formatter:off
-from src.models import User, Tutorial
+from src.models import User, Tutorial, Language, TutorialTheme, TutorialType
 # @formatter:on
 
 # this is the Alembic Config object, which provides
