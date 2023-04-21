@@ -22,20 +22,19 @@ services:
     volumes:
       - postgres:/var/lib/postgresql/data
 
-#  redis:
-#    container_name: "redis"
-#    env_file:
-#      - .env
-#    image: redis:7.0-alpine
-#    restart: always
-#    entrypoint: redis-server --loglevel warning
-##      --requirepass ${REDIS_PASS}
-#    networks:
-#      - default
-#    ports:
-#      - "${REDIS_PORT}:6379"
-#    volumes:
-#      - redis:/data
+  redis:
+    container_name: "redis"
+    env_file:
+      - .env
+    image: redis:7.0-alpine
+    restart: always
+    entrypoint: redis-server --port ${REDIS_PORT} --requirepass ${REDIS_PASS} --loglevel warning
+    networks:
+      - default
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - redis:/data
 
 #  adminer:
 #    container_name: "adminer"
@@ -47,5 +46,5 @@ services:
 volumes:
   postgres:
     driver: local
-#  redis:
-#    driver: local
+  redis:
+    driver: local

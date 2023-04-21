@@ -5,7 +5,7 @@ from fastapi import Depends, HTTPException
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
-from sqlalchemy import Result, select
+from sqlalchemy import Result, select, update
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
@@ -60,7 +60,7 @@ async def authenticate_user(username: str, password: str,
 async def safe_get_user(user_id: int, async_session: AsyncSession = Depends(get_session)) -> UserReadScheme | None:
     async with async_session as session:
         try:
-            result: Result = await session.execute(
+            result = await session.execute(
                 select(
                     User.name,
                     User.credential,
@@ -69,14 +69,23 @@ async def safe_get_user(user_id: int, async_session: AsyncSession = Depends(get_
                 )
                 .where(User.id == user_id)
             )
-            res = result.fetchone()
-            user: UserReadScheme | None = UserReadScheme(
-                name=res[0],
-                credential=res[1],
-                is_active=res[2],
-                rating=res[3]
-            )
-            return user
+            for row in result:
+                user_name = row.name
+                user_credential = row.credential
+                user_is_active = row.is_active
+                user_rating = row.rating
+
+            return UserReadScheme(
+                name=user_name,
+                credential=user_credential,
+                is_active=user_is_active,
+                rating=user_rating
+            ) \
+                if user_name and\
+                   user_credential is not None and\
+                   user_rating is not None and\
+                   user_is_active is not None\
+                else None
 
         except HTTPException:
             raise
@@ -135,11 +144,10 @@ async def delete_user_from_database(
 
     async with async_session as session:
         try:
-            user = await session.get(User, user_id)
-            user.is_active = False
-            session.add(user)
+            await session.execute(
+                update(User).where(User.id == user_id).values(is_active=False)
+            )
             await session.commit()
-            await session.refresh(user)
             return True
 
         except HTTPException:

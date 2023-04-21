@@ -1,6 +1,8 @@
 from copy import deepcopy
+from typing import Sequence
 from fastapi import Depends
-from sqlalchemy import Result, select
+from fastapi_cache.decorator import cache
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.constants.constants import LANGUAGES, LanguageAbbreviation, UILanguage
 from src.db import get_session
@@ -8,39 +10,16 @@ from src.language.schemas import EditLanguageScheme, LanguageScheme
 from src.models import Language
 
 
+@cache()
 async def get_all_languages(async_session: AsyncSession = Depends(get_session)) -> None:
     async with async_session as session:
         try:
-            result: Result = await session.execute(
-                select(
-                    Language.code,
-                    Language.abbreviation,
-                    Language.value
-                )
-            )
-            res = result.fetchall()
-            for row in res:
-                setattr(LanguageAbbreviation, row[1], row[0])
-                LANGUAGES[row[0]] = row[2]
-
-        except Exception:
-            raise
-
-
-async def get_all_ui_languages(async_session: AsyncSession = Depends(get_session)) -> None:
-    async with async_session as session:
-        try:
-            result: Result = await session.execute(
-                select(
-                    Language.code,
-                    Language.abbreviation,
-                )
-                .where(Language.is_ui_lang == True)
-            )
-            res = result.fetchall()
-            for row in res:
-                setattr(UILanguage, row[1], row[0])
-
+            result = await session.scalars(select(Language))
+            langs: Sequence[LanguageScheme] = result.all()
+            for lang in langs:
+                setattr(LanguageAbbreviation, lang.abbreviation, lang.code)
+                LANGUAGES[lang.code] = lang.value
+                if lang.is_ui_lang: setattr(UILanguage, lang.abbreviation, lang.code)
         except Exception:
             raise
 

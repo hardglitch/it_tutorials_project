@@ -9,9 +9,6 @@ class UserScheme(BaseModel):
     credential: int = Field(gt=Credential.user-1, lt=Credential.admin+1, default=Credential.user)
     is_active: bool = True
     rating: int = Field(gt=-1, default=0)
-    #
-    # class Config:
-    #     orm_mode = True
 
 
 class UserCreateScheme(UserScheme):

@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
-from src.config import PG_HOST, PG_NAME, PG_PASS, PG_PORT, PG_USER
+from src.config import PG_HOST, PG_NAME, PG_PASS, PG_PORT, PG_USER, REDIS_HOST, REDIS_PASS, REDIS_PORT
 
 
 PG_URL: str = f"postgresql+asyncpg://{PG_USER}:{PG_PASS}@{PG_HOST}:{PG_PORT}/{PG_NAME}"

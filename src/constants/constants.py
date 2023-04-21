@@ -3,7 +3,7 @@ from enum import IntEnum
 from typing import Dict
 
 
-UI_LANGUAGE: int = 0
+UI_LANGUAGE = 0
 LANGUAGES: Dict[int, str] = {}          # {0: 'english'}   from DB
 TUTORIAL_TYPES: Dict[int, str] = {}     # {0: 'Programming'}   from DB
 TUTORIAL_THEMES: Dict[int, str] = {}    # {0: 'Some very important theme'}   from DB
