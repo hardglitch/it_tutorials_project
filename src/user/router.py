@@ -12,7 +12,7 @@ from src.constants.responses import CommonResponses, UserResponses
 from src.user.schemas import DecryptedUserReadScheme, UserCreateScheme, UserUpdateScheme
 from src.user.auth import authenticate_user, create_access_token, create_user, delete_user_from_database, is_admin, \
     oauth2_scheme, safe_get_user, \
-    update_user, validate_access
+    update_user, validate_access_token
 from src.constants.exceptions import AuthenticateExceptions
 
 
@@ -85,7 +85,7 @@ async def secure_update_user(
 ) -> str:
 
     token: Annotated[str, Depends(oauth2_scheme)] = request.cookies.get(AccessToken.name)
-    if validate_access(user_id, token):
+    if validate_access_token(user_id, token):
         return UserResponses.USER_UPDATED \
             if await update_user(user_id, new_user_data, async_session) \
             else UserResponses.USER_NOT_UPDATED
@@ -101,7 +101,7 @@ async def delete_user(
 ) -> str:
 
     token: Annotated[str, Depends(oauth2_scheme)] = request.cookies.get(AccessToken.name)
-    if validate_access(user_id, token) or await is_admin(token, async_session):
+    if validate_access_token(user_id, token) or await is_admin(token, async_session):
         return CommonResponses.SUCCESS if await delete_user_from_database(user_id, async_session) \
             else UserResponses.ACCESS_DENIED
     else:

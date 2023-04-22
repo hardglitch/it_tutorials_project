@@ -13,24 +13,40 @@ from src.config import SECRET_KEY
 from src.db import get_session
 from src.constants.constants import AccessToken, Credential
 from src.constants.exceptions import AuthenticateExceptions
-from src.models import User
+from src.dictionary.models import User
 from src.user.schemas import UserCreateScheme, UserFullReadScheme, UserReadScheme, UserUpdateScheme
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 bcrypt_context = CryptContext(schemes="bcrypt", deprecated="auto")
 
 
-def get_hashed_password(password: str) -> str:
+def get_hashed_password(password: str) -> str | None:
+    if not all([
+        password,
+        isinstance(password, str)
+    ]): return None
     return bcrypt_context.hash(password)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
+    if not all([
+        plain_password,
+        hashed_password,
+        isinstance(plain_password, str),
+        isinstance(hashed_password, str)
+    ]): return False
     return bcrypt_context.verify(plain_password, hashed_password)
 
 
-async def create_user(user: UserCreateScheme, async_session: AsyncSession = Depends(get_session)) -> bool:
+async def create_user(
+        user: UserCreateScheme,
+        async_session: AsyncSession = Depends(get_session)
+) -> bool:
+
     async with async_session as session:
         try:
+            if not all([param is not None for param in user]): return False
+
             new_user = User(
                 name=user.name,
                 email=user.email,
@@ -44,8 +60,12 @@ async def create_user(user: UserCreateScheme, async_session: AsyncSession = Depe
             return False
 
 
-async def authenticate_user(username: str, password: str,
-                            async_session: AsyncSession = Depends(get_session)) -> UserFullReadScheme | None:
+async def authenticate_user(
+        username: str,
+        password: str,
+        async_session: AsyncSession = Depends(get_session)
+) -> UserFullReadScheme | None:
+
     async with async_session as session:
         try:
             result: Result = await session.execute(select(User).where(User.name == username))
@@ -57,10 +77,14 @@ async def authenticate_user(username: str, password: str,
             raise
 
 
-async def safe_get_user(user_id: int, async_session: AsyncSession = Depends(get_session)) -> UserReadScheme | None:
+async def safe_get_user(
+        user_id: int,
+        async_session: AsyncSession = Depends(get_session)
+) -> UserReadScheme | None:
+
     async with async_session as session:
         try:
-            result = await session.execute(
+            result: Result = await session.execute(
                 select(
                     User.name,
                     User.credential,
@@ -79,7 +103,7 @@ async def safe_get_user(user_id: int, async_session: AsyncSession = Depends(get_
                 name=user_name,
                 credential=user_credential,
                 is_active=user_is_active,
-                rating=user_rating
+                rating=user_rating,
             ) \
                 if user_name and\
                    user_credential is not None and\
@@ -112,7 +136,7 @@ async def update_user(
 
             if new_user_data.password and user.hashed_password:
                 new_hashed_password = get_hashed_password(new_user_data.password)
-                if user.hashed_password != new_hashed_password:
+                if new_hashed_password and user.hashed_password != new_hashed_password:
                     user.hashed_password = new_hashed_password
 
             if user.credential and user.credential == Credential.admin and \
@@ -169,8 +193,9 @@ async def is_admin(
                 else decode_access_token(user_id_or_token)[AccessToken.user_id]
 
             result: Result = await session.execute(select(User.credential).where(User.id == user_id))
-            res = result.fetchone()
-            return True if res[0] == Credential.admin else False
+            row = result.one()
+            return True if row[0] == Credential.admin else False
+
         except Exception:
             return False
 
@@ -199,7 +224,7 @@ def decode_access_token(token: Annotated[str, Depends(oauth2_scheme)]) -> Dict[s
         raise AuthenticateExceptions.CREDENTIAL_EXCEPTION
 
 
-def validate_access(user_id: int, token: Annotated[str, Depends(oauth2_scheme)]) -> bool:
+def validate_access_token(user_id: int, token: Annotated[str, Depends(oauth2_scheme)]) -> bool:
     try:
         return user_id == decode_access_token(token)[AccessToken.user_id]
     except Exception:

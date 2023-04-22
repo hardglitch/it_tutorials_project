@@ -1,5 +1,4 @@
 from pydantic import BaseModel, Field
-from src.constants.constants import ShareType, UILanguage
 
 
 class TutorialScheme(BaseModel):
@@ -7,9 +6,10 @@ class TutorialScheme(BaseModel):
     type: int
     theme: int
     description: str = Field(min_length=1, max_length=10000)
-    language: int = Field(default=0)
+    language: int
     source_link: str = Field(min_length=1, max_length=1024)
-    share_type: int = Field(default=ShareType.free)
+    share_type: int
+    who_added: int | None = None
 
 
 class DecryptedTutorialScheme(TutorialScheme):
@@ -17,9 +17,4 @@ class DecryptedTutorialScheme(TutorialScheme):
     theme: str = Field(min_length=1, max_length=256)
     language: str = Field(min_length=1, max_length=100)
     share_type: str = Field(min_length=1, max_length=100)
-
-
-# class TutorialThemeScheme(BaseModel):
-#     eng = Field(min_length=1, max_length=256)
-#     rus = Field(min_length=1, max_length=256)
-#     ukr = Field(min_length=1, max_length=256)
+    who_added: str = Field(min_length=1, max_length=256)

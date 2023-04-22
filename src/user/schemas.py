@@ -1,7 +1,7 @@
 # Pydantic models
 
 from pydantic import BaseModel, EmailStr, Field
-from src.models import Credential
+from src.dictionary.models import Credential
 
 
 class UserScheme(BaseModel):
@@ -17,6 +17,7 @@ class UserCreateScheme(UserScheme):
 
 
 class UserReadScheme(UserScheme):
+    # added_tutorials: List[TutorialScheme]
     pass
 
 

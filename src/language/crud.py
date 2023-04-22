@@ -1,27 +1,27 @@
 from copy import deepcopy
-from typing import Sequence
+# from typing import Sequence
 from fastapi import Depends
-from fastapi_cache.decorator import cache
+# from fastapi_cache.decorator import cache
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.constants.constants import LANGUAGES, LanguageAbbreviation, UILanguage
+# from src.constants.constants import LANGUAGES, LanguageAbbreviation, UILanguage
 from src.db import get_session
 from src.language.schemas import EditLanguageScheme, LanguageScheme
-from src.models import Language
+from src.dictionary.models import Language
 
 
-@cache()
-async def get_all_languages(async_session: AsyncSession = Depends(get_session)) -> None:
-    async with async_session as session:
-        try:
-            result = await session.scalars(select(Language))
-            langs: Sequence[LanguageScheme] = result.all()
-            for lang in langs:
-                setattr(LanguageAbbreviation, lang.abbreviation, lang.code)
-                LANGUAGES[lang.code] = lang.value
-                if lang.is_ui_lang: setattr(UILanguage, lang.abbreviation, lang.code)
-        except Exception:
-            raise
+# @cache()
+# async def get_all_languages(async_session: AsyncSession = Depends(get_session)) -> None:
+#     async with async_session as session:
+#         try:
+#             result = await session.scalars(select(Language))
+#             langs: Sequence[LanguageScheme] = result.all()
+#             for lang in langs:
+#                 setattr(LanguageAbbreviation, lang.abbreviation, lang.code)
+#                 LANGUAGES[lang.code] = lang.value
+#                 if lang.is_ui_lang: setattr(UILanguage, lang.abbreviation, lang.code)
+#         except Exception:
+#             raise
 
 
 async def add_language(
@@ -29,7 +29,7 @@ async def add_language(
         async_session: AsyncSession = Depends(get_session)
 ) -> bool:
 
-    if not lang: return False
+    if not lang or not async_session: return False
     async with async_session as session:
         try:
             new_lang = Language(
@@ -83,3 +83,20 @@ async def edit_language(
 
         except Exception:
             raise
+
+
+async def delete_language(
+        lang_code: int,
+        async_session: AsyncSession = Depends(get_session)
+) -> bool:
+
+    if not lang_code or not async_session: return False
+    async with async_session as session:
+        try:
+            lang = await session.get(Language, lang_code)
+            await session.delete(lang)
+            await session.commit()
+            return True
+
+        except Exception:
+            return False

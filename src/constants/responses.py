@@ -22,8 +22,9 @@ class UserResponses:
 @dataclass()
 class TutorialResponses:
     TUTORIAL_ALREADY_EXISTS = "A tutorial with the same parameters already exists"
-    TUTORIAL_CREATED = "Your tutorial added"
+    TUTORIAL_ADDED = "Your tutorial has been added"
     TUTORIAL_NOT_FOUND = "A tutorial not found"
+    PARAMETER_ERRORS = "Error(s) in parameter(s)"
 
 
 @dataclass()

@@ -1,34 +1,11 @@
 from dataclasses import dataclass
 from enum import IntEnum
-from typing import Dict
-
-
-UI_LANGUAGE = 0
-LANGUAGES: Dict[int, str] = {}          # {0: 'english'}   from DB
-TUTORIAL_TYPES: Dict[int, str] = {}     # {0: 'Programming'}   from DB
-TUTORIAL_THEMES: Dict[int, str] = {}    # {0: 'Some very important theme'}   from DB
-
-
-class UILanguage(IntEnum):
-    # Default values. They need to be retrieved from the database.
-    eng = 0
-    rus = 1
-    ukr = 2
-
-
-class LanguageAbbreviation(IntEnum):
-    pass
 
 
 class Credential(IntEnum):
     user: int = 0
     moderator: int = 1
     admin: int = 2
-
-
-class ShareType(IntEnum):
-    free: int = 0
-    unfree: int = 1
 
 
 @dataclass
@@ -38,26 +15,44 @@ class Table:
     class User:
         table_name: str = "user"
         id: str = "id"
-        user_id: str = table_name + "." + id
-        tutorial: str = "tutorial"
+        user_id: str = ".".join([table_name, id])
+        added_tutorials: str = "added_tutorials"
 
     @dataclass
     class Tutorial:
         table_name: str = "tutorial"
-        who_added: str = "who_added"
+        id: str = "id"
+        tutorial_id: str = ".".join([table_name, id])
 
     @dataclass
     class Language:
         table_name: str = "language"
-        id: str = "id"
+        code: str = "code"
+        language_code: str = ".".join([table_name, code])
 
     @dataclass
     class Theme:
         table_name: str = "theme"
+        code: str = "code"
+        theme_code: str = ".".join([table_name, code])
 
     @dataclass
     class Type:
         table_name: str = "type"
+        code: str = "code"
+        type_code: str = ".".join([table_name, code])
+
+    @dataclass
+    class DistributionType:
+        table_name: str = "distribution_type"
+        code: str = "code"
+        distribution_type_code: str = ".".join([table_name, code])
+
+    @dataclass
+    class Dictionary:
+        table_name: str = "dictionary"
+        word_code: str = "word_code"
+        dictionary_word_code: str = ".".join([table_name, word_code])
 
 
 @dataclass
