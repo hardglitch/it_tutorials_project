@@ -1,7 +1,7 @@
 # Pydantic models
 
 from pydantic import BaseModel, EmailStr, Field
-from src.dictionary.models import Credential
+from src.constants.constants import Credential
 
 
 class UserScheme(BaseModel):
@@ -35,6 +35,3 @@ class UserUpdateScheme(BaseModel):
     email: EmailStr | None = None
     password: str | None = Field(min_length=10, max_length=100, default=None)
     credential: int | None = Field(gt=Credential.user-1, lt=Credential.admin+1, default=None)
-
-    class Config:
-        orm_mode = True

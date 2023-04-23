@@ -1,6 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class TutorialTypeScheme(BaseModel):
-    code: int
-    word_code: int
+    code: int = Field(gt=-1)
+    word_code: int = Field(gt=-1)

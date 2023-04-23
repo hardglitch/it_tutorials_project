@@ -6,8 +6,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 # from src.constants.constants import LANGUAGES, LanguageAbbreviation, UILanguage
 from src.db import get_session
+from src.language.models import Language
 from src.language.schemas import EditLanguageScheme, LanguageScheme
-from src.dictionary.models import Language
 
 
 # @cache()
@@ -27,23 +27,23 @@ from src.dictionary.models import Language
 async def add_language(
         lang: LanguageScheme,
         async_session: AsyncSession = Depends(get_session)
-) -> bool:
+) -> int | None:
 
-    if not lang or not async_session: return False
+    if not lang or not async_session: return None
     async with async_session as session:
         try:
             new_lang = Language(
-                code=lang.code,
                 abbreviation=lang.abbreviation,
                 value=lang.value,
                 is_ui_lang=lang.is_ui_lang
             )
             session.add(new_lang)
             await session.commit()
-            return True
+            await session.refresh(new_lang)
+            return new_lang.code
 
         except Exception:
-            return False
+            raise
 
 
 async def edit_language(

@@ -2,9 +2,11 @@ from fastapi import Depends
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.db import get_session
-from src.dictionary.models import Tutorial, TutorialTheme, TutorialType
 from src.constants.responses import TutorialResponses
+from src.tutorial.models import Tutorial
 from src.tutorial.schemas import TutorialScheme
+from src.tutorial.theme.models import TutorialTheme
+from src.tutorial.type.models import TutorialType
 
 
 async def create_tutorial(

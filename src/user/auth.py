@@ -13,7 +13,7 @@ from src.config import SECRET_KEY
 from src.db import get_session
 from src.constants.constants import AccessToken, Credential
 from src.constants.exceptions import AuthenticateExceptions
-from src.dictionary.models import User
+from src.user.models import User
 from src.user.schemas import UserCreateScheme, UserFullReadScheme, UserReadScheme, UserUpdateScheme
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
