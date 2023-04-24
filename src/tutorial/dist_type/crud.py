@@ -1,13 +1,40 @@
-from typing import Annotated
+from typing import Annotated, List
 from fastapi import Depends, Path
-from sqlalchemy import ScalarResult, select, text
+from sqlalchemy import Result, ScalarResult, delete, func, join, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.constants.constants import Table
 from src.db import get_session
 from src.dictionary.models import Dictionary
 from src.dictionary.schemas import DictionaryScheme
 from src.tutorial.dist_type.models import TutorialDistributionType
+from src.tutorial.dist_type.schemas import ReadTutorialDistributionTypeScheme
+
+
+async def get_all_distribution_types(
+        async_session: AsyncSession = Depends(get_session)
+) -> List[ReadTutorialDistributionTypeScheme] | None:
+
+    if not async_session: return None
+
+    async with async_session as session:
+        try:
+            # SELECT code, value FROM distribution_type dt, dictionary d WHERE dt.word_code = d.word_code;
+            result: Result = await session.execute(
+                select(TutorialDistributionType.code, Dictionary.value)
+                .where(TutorialDistributionType.word_code == Dictionary.word_code)
+            )
+
+            dist_type_list = list()
+            for res in result.all():
+                dist_type_list.append(
+                    ReadTutorialDistributionTypeScheme(
+                        code=res.code,
+                        value=res.value,
+                    )
+                )
+
+        except IntegrityError:
+            raise
 
 
 async def add_distribution_type(
@@ -15,13 +42,11 @@ async def add_distribution_type(
         async_session: AsyncSession = Depends(get_session)
 ) -> bool | None:
 
-    if not dist_type or not async_session or \
-       not all([param is not None for param in dist_type]): return False
+    if not dist_type or not async_session: return False
 
     async with async_session as session:
         try:
-            result: ScalarResult = await session.scalars(
-                text(f"SELECT MAX({Dictionary.word_code}) FROM {Table.Dictionary.table_name}"))
+            result: ScalarResult = await session.scalars(func.max(Dictionary.word_code))
             max_word_code: int | None = result.one_or_none()
             word_code = max_word_code + 1 if max_word_code else 1
 
@@ -43,6 +68,8 @@ async def add_distribution_type(
 
         except IntegrityError:
             raise
+        except (TypeError, ValueError):
+            return False
 
 
 async def edit_distribution_type(
@@ -54,20 +81,12 @@ async def edit_distribution_type(
 
     async with async_session as session:
         try:
-            result = await session.execute(
-                select(Dictionary)
+            await session.execute(
+                update(Dictionary)
                 .where(Dictionary.word_code == dist_type.word_code and Dictionary.lang_code == dist_type.lang_code)
+                .values(value=dist_type.value)
             )
-            for row in result.one():
-                new_dist_type = Dictionary(
-                    word_code=row.word_code,
-                    lang_code=row.lang_code,
-                    value=dist_type.value,
-                )
-
-            session.add(new_dist_type)
             await session.commit()
-            await session.refresh(new_dist_type)
             return True
 
         except Exception:
@@ -84,7 +103,16 @@ async def delete_distribution_type(
     async with async_session as session:
         try:
             dist_type_from_db = await session.get(TutorialDistributionType, code)
+
+            # delete record in the 'dictionary' table
+            await session.execute(
+                delete(Dictionary)
+                .where(Dictionary.word_code == dist_type_from_db.word_code)
+            )
+
+            # delete record in the 'distribution type' table
             await session.delete(dist_type_from_db)
+
             await session.commit()
             return True
 

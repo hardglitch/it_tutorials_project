@@ -8,7 +8,7 @@ class UserScheme(BaseModel):
     name: str = Field(min_length=1, max_length=1024)
     credential: int = Field(gt=Credential.user-1, lt=Credential.admin+1, default=Credential.user)
     is_active: bool = True
-    rating: int = Field(gt=-1, default=0)
+    rating: int = Field(ge=0, default=0)
 
 
 class UserCreateScheme(UserScheme):
@@ -26,12 +26,12 @@ class DecryptedUserReadScheme(UserReadScheme):
 
 
 class UserFullReadScheme(UserReadScheme):
-    id: int = Field(gt=-1)
+    id: int = Field(ge=0)
     hashed_password: str = Field(max_length=1024)
 
 
 class UserUpdateScheme(BaseModel):
+    id: int | None = Field(ge=0)
     name: str | None = Field(min_length=1, max_length=1024, default=None)
     email: EmailStr | None = None
     password: str | None = Field(min_length=10, max_length=100, default=None)
-    credential: int | None = Field(gt=Credential.user-1, lt=Credential.admin+1, default=None)

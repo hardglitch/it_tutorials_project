@@ -1,14 +1,15 @@
-from copy import deepcopy
 from datetime import datetime, timedelta
 from typing import Annotated, Dict
 from fastapi import Depends, HTTPException
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
-from sqlalchemy import Result, select, update
+from sqlalchemy import Result, ScalarResult, select, update
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
+from starlette.requests import Request
+
 from src.config import SECRET_KEY
 from src.db import get_session
 from src.constants.constants import AccessToken, Credential
@@ -71,7 +72,8 @@ async def authenticate_user(
             result: Result = await session.execute(select(User).where(User.name == username))
             user: UserFullReadScheme | None = result.scalar_one_or_none()
             return None if not user or not verify_password(password, user.hashed_password) else user
-        except HTTPException:
+
+        except IntegrityError:
             raise
         except DBAPIError:
             raise
@@ -81,6 +83,8 @@ async def safe_get_user(
         user_id: int,
         async_session: AsyncSession = Depends(get_session)
 ) -> UserReadScheme | None:
+
+    if not user_id or not isinstance(user_id, int) or not async_session: return None
 
     async with async_session as session:
         try:
@@ -111,51 +115,35 @@ async def safe_get_user(
                    user_is_active is not None\
                 else None
 
-        except HTTPException:
+        except IntegrityError:
             raise
         except DBAPIError:
             raise
 
 
-async def update_user(
-        user_id: int,
-        new_user_data: UserUpdateScheme,
+async def edit_user(
+        user_data: UserUpdateScheme,
         async_session: AsyncSession = Depends(get_session)
-) -> bool:
+) -> bool | None:
+
+    if not user_data or not async_session: return None
 
     async with async_session as session:
         try:
-            user = await session.get(User, user_id)
-            user_snapshot = deepcopy(user)
+            values = {}
+            if user_data.name: values[User.name] = user_data.name
+            if user_data.email: values[User.email] = user_data.email
+            if user_data.password: values[User.hashed_password] = get_hashed_password(user_data.password)
 
-            if user.name and new_user_data.name and user.name != new_user_data.name:
-                user.name = new_user_data.name
+            await session.execute(
+                update(User)
+                .where(User.id == user_data.id)
+                .values(values)
+            )
+            await session.commit()
+            return True
 
-            if user.email and new_user_data.email and user.email != new_user_data.email:
-                user.email = new_user_data.email
-
-            if new_user_data.password and user.hashed_password:
-                new_hashed_password = get_hashed_password(new_user_data.password)
-                if new_hashed_password and user.hashed_password != new_hashed_password:
-                    user.hashed_password = new_hashed_password
-
-            if user.credential and user.credential == Credential.admin and \
-               new_user_data.credential and user.credential != new_user_data.credential:
-                user.credential = new_user_data.credential
-
-            if user.name != user_snapshot.name or \
-               user.email != user_snapshot.email or \
-               user.hashed_password != user_snapshot.hashed_password or \
-               user.credential != user_snapshot.credential:
-
-                session.add(user)
-                await session.commit()
-                await session.refresh(user)
-                return True
-            else:
-                return False
-
-        except HTTPException:
+        except IntegrityError:
             raise
         except DBAPIError:
             raise
@@ -165,6 +153,13 @@ async def delete_user_from_database(
         user_id: int,
         async_session: AsyncSession = Depends(get_session)
 ) -> bool:
+
+    """
+    This function doesn't remove 'User' from the DB,
+    it changes 'is_active' to False.
+    """
+
+    if not user_id or not isinstance(user_id, int) or not async_session: return False
 
     async with async_session as session:
         try:
@@ -185,16 +180,16 @@ async def is_admin(
         async_session: AsyncSession
 ) -> bool:
 
-    if not user_id_or_token: return False
+    if not user_id_or_token or not async_session: return False
 
     async with async_session as session:
         try:
-            user_id = user_id_or_token if user_id_or_token.isnumeric() \
+            user_id: str = user_id_or_token if user_id_or_token.isnumeric() \
                 else decode_access_token(user_id_or_token)[AccessToken.user_id]
 
-            result: Result = await session.execute(select(User.credential).where(User.id == user_id))
-            row = result.one()
-            return True if row[0] == Credential.admin else False
+            result: ScalarResult = await session.scalars(select(User.credential).where(User.id == user_id))
+            credential: int = result.one()
+            return True if credential == Credential.admin else False
 
         except Exception:
             return False

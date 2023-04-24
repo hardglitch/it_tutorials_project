@@ -20,7 +20,7 @@ class MainRouter:
         @app.post("/_init_data", tags=["INIT"])
         async def _init_data(async_session: AsyncSession = Depends(get_session)):
             # await insert_languages(async_session)
-            # await insert_distribution_types(async_session)
+            await insert_distribution_types(async_session)
             pass
 
         @app.on_event("startup")

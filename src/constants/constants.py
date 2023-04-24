@@ -57,9 +57,9 @@ class Table:
 
 @dataclass
 class AccessToken:
-    name: str = "access_token_to_it_tutorial_project"
+    name: str = "access_token"
     algorithm: str = "HS256"
     subject: str = "sub"
     user_id: str = "uid"
     expired: str = "exp"
-    expiration_time: int = 15  # minutes
+    expiration_time: int = 60  # minutes
