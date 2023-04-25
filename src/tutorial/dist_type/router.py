@@ -29,7 +29,6 @@ async def add_new_distribution_type(
         return UserResponses.ACCESS_DENIED
 
 
-
 @dist_type_router.patch("/edit")
 async def edit_existing_distribution_type(
         request: Request,

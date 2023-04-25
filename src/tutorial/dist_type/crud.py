@@ -1,6 +1,6 @@
 from typing import Annotated, List
 from fastapi import Depends, Path
-from sqlalchemy import Result, ScalarResult, delete, func, join, select, update
+from sqlalchemy import Result, ScalarResult, delete, func, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.db import get_session
@@ -22,6 +22,7 @@ async def get_all_distribution_types(
             result: Result = await session.execute(
                 select(TutorialDistributionType.code, Dictionary.value)
                 .where(TutorialDistributionType.word_code == Dictionary.word_code)
+                .order_by(Dictionary.value)
             )
 
             dist_type_list = list()
