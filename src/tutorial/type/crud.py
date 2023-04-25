@@ -4,7 +4,7 @@ from sqlalchemy import Result, ScalarResult, delete, func, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.dictionary.models import Dictionary
-from src.dictionary.schemas import DictionaryScheme
+from src.dictionary.schemas import AddWordToDictionaryScheme, EditDictionaryScheme
 from src.tutorial.type.models import TutorialType
 from src.tutorial.type.schemas import ReadTutorialTypeScheme
 
@@ -17,18 +17,17 @@ async def get_all_tutorial_types(
 
     async with async_session as session:
         try:
-            # SELECT code, value FROM type dt, dictionary d WHERE dt.word_code = d.word_code;
             result: Result = await session.execute(
                 select(TutorialType.code, Dictionary.value)
                 .where(TutorialType.word_code == Dictionary.word_code)
                 .order_by(Dictionary.value)
             )
 
-            tutor_type_list = list()
+            tutor_type_list = []
             for res in result.all():
                 tutor_type_list.append(
                     ReadTutorialTypeScheme(
-                        code=res.code,
+                        type_code=res.code,
                         value=res.value,
                     )
                 )
@@ -38,7 +37,7 @@ async def get_all_tutorial_types(
 
 
 async def add_tutorial_type(
-        tutor_type: DictionaryScheme,
+        tutor_type: AddWordToDictionaryScheme,
         async_session: AsyncSession
 ) -> bool | None:
 
@@ -73,7 +72,7 @@ async def add_tutorial_type(
 
 
 async def edit_tutorial_type(
-        tutor_type: DictionaryScheme,
+        tutor_type: EditDictionaryScheme,
         async_session: AsyncSession
 ) -> bool | None:
 
@@ -89,12 +88,12 @@ async def edit_tutorial_type(
             await session.commit()
             return True
 
-        except Exception:
+        except IntegrityError:
             raise
 
 
 async def delete_tutorial_type(
-        code: Annotated[int, Path(title="A Code of a Distribution Type")],
+        code: Annotated[int, Path(title="A Code of a Distribution Type", ge=0)],
         async_session: AsyncSession
 ) -> bool | None:
 
@@ -116,6 +115,6 @@ async def delete_tutorial_type(
             await session.commit()
             return True
 
-        except Exception:
+        except IntegrityError:
             raise
 

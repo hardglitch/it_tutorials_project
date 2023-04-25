@@ -1,7 +1,7 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.db import get_session
-from src.dictionary.schemas import DictionaryScheme
+from src.dictionary.schemas import AddWordToDictionaryScheme
 from src.language.crud import add_language
 from src.language.schemas import LanguageScheme
 from src.tutorial.dist_type.crud import add_distribution_type
@@ -15,8 +15,8 @@ async def insert_languages(async_session: AsyncSession = Depends(get_session)):
 
 
 async def insert_distribution_types(async_session: AsyncSession = Depends(get_session)):
-    await add_distribution_type(DictionaryScheme(lang_code=5, value="free"), async_session)
-    await add_distribution_type(DictionaryScheme(lang_code=5, value="unfree"), async_session)
+    await add_distribution_type(AddWordToDictionaryScheme(lang_code=5, value="free"), async_session)
+    await add_distribution_type(AddWordToDictionaryScheme(lang_code=5, value="unfree"), async_session)
 
 
 async def insert_tutorial_themes():

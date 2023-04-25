@@ -1,17 +1,35 @@
 from pydantic import BaseModel, Field
-from src.dictionary.schemas import DictionaryScheme
+from src.dictionary.schemas import WordCodeScheme, LangCodeScheme
+from src.tutorial.type.schemas import TypeCodeScheme
 
 
-class AddTutorialThemeScheme(DictionaryScheme):
-    type_code: int = Field(ge=0)
+class ThemeCodeScheme(BaseModel):
+    theme_code: int = Field(ge=0)
+
+class ValueScheme(BaseModel):
+    value: str = Field(min_length=1, max_length=256, example="New theme")
 
 
-class EditTutorialThemeScheme(DictionaryScheme):
-    code: int = Field(ge=0)
-    type_code: int | None = Field(ge=0)
+class AddTutorialThemeScheme(
+    LangCodeScheme,
+    ValueScheme,
+    TypeCodeScheme
+):
+    pass
 
 
-class ReadTutorialThemeScheme(BaseModel):
-    code: int = Field(ge=0)
-    value: str = Field(min_length=1, max_length=256)
-    type_code: int = Field(ge=0)
+class EditTutorialThemeScheme(
+    TypeCodeScheme,
+    ThemeCodeScheme,
+    WordCodeScheme,
+    LangCodeScheme
+):
+    pass
+
+
+class GetTutorialThemeScheme(
+    ThemeCodeScheme,
+    ValueScheme,
+    TypeCodeScheme
+):
+    pass

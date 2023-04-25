@@ -1,11 +1,10 @@
 from sqlalchemy import Result, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from src.constants.constants import Credential
 from src.user.auth import get_hashed_password
 from src.user.models import User
-from src.user.schemas import AddUserScheme, EditUserScheme, GetUserScheme, UserIDScheme
+from src.user.schemas import AddUserScheme, EditUserScheme, GetUserScheme
 
 
 async def add_user(user: AddUserScheme, async_session: AsyncSession) -> bool | None:

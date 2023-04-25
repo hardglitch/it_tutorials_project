@@ -5,7 +5,7 @@ from starlette.requests import Request
 from src.constants.constants import AccessToken
 from src.constants.responses import CommonResponses, UserResponses
 from src.db import get_session
-from src.dictionary.schemas import DictionaryScheme
+from src.dictionary.schemas import AddWordToDictionaryScheme, EditDictionaryScheme
 from src.tutorial.type.crud import add_tutorial_type, delete_tutorial_type, edit_tutorial_type
 from src.user.auth import is_admin, oauth2_scheme
 
@@ -15,7 +15,7 @@ type_router = APIRouter(prefix="/type", tags=["tutorial type"])
 @type_router.post("/add")
 async def add_new_tutorial_type(
         request: Request,
-        dist_type: DictionaryScheme,
+        dist_type: AddWordToDictionaryScheme,
         async_session: AsyncSession = Depends(get_session)
 ) -> str:
 
@@ -29,10 +29,10 @@ async def add_new_tutorial_type(
         return UserResponses.ACCESS_DENIED
 
 
-@type_router.patch("/edit")
+@type_router.put("/edit")
 async def edit_existing_tutorial_type(
         request: Request,
-        dist_type: DictionaryScheme,
+        dist_type: EditDictionaryScheme,
         async_session: AsyncSession = Depends(get_session)
 ) -> str:
 

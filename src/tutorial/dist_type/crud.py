@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.db import get_session
 from src.dictionary.models import Dictionary
-from src.dictionary.schemas import DictionaryScheme
+from src.dictionary.schemas import AddWordToDictionaryScheme, EditDictionaryScheme
 from src.tutorial.dist_type.models import TutorialDistributionType
 from src.tutorial.dist_type.schemas import ReadTutorialDistributionTypeScheme
 
@@ -18,14 +18,13 @@ async def get_all_distribution_types(
 
     async with async_session as session:
         try:
-            # SELECT code, value FROM distribution_type dt, dictionary d WHERE dt.word_code = d.word_code;
             result: Result = await session.execute(
                 select(TutorialDistributionType.code, Dictionary.value)
                 .where(TutorialDistributionType.word_code == Dictionary.word_code)
                 .order_by(Dictionary.value)
             )
 
-            dist_type_list = list()
+            dist_type_list = []
             for res in result.all():
                 dist_type_list.append(
                     ReadTutorialDistributionTypeScheme(
@@ -39,7 +38,7 @@ async def get_all_distribution_types(
 
 
 async def add_distribution_type(
-        dist_type: DictionaryScheme,
+        dist_type: AddWordToDictionaryScheme,
         async_session: AsyncSession = Depends(get_session)
 ) -> bool | None:
 
@@ -74,7 +73,7 @@ async def add_distribution_type(
 
 
 async def edit_distribution_type(
-        dist_type: DictionaryScheme,
+        dist_type: EditDictionaryScheme,
         async_session: AsyncSession = Depends(get_session)
 ) -> bool | None:
 

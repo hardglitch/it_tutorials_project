@@ -6,29 +6,28 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.db import get_session
 from src.dictionary.models import Dictionary
 from src.tutorial.theme.models import TutorialTheme
-from src.tutorial.theme.schemas import AddTutorialThemeScheme, EditTutorialThemeScheme, ReadTutorialThemeScheme
+from src.tutorial.theme.schemas import AddTutorialThemeScheme, EditTutorialThemeScheme, GetTutorialThemeScheme
 
 
 async def get_all_themes(
         async_session: AsyncSession = Depends(get_session)
-) -> List[ReadTutorialThemeScheme] | None:
+) -> List[GetTutorialThemeScheme] | None:
 
     if not async_session: return None
 
     async with async_session as session:
         try:
-            # SELECT code, value, type_code FROM theme t, dictionary d WHERE t.word_code = d.word_code;
             result: Result = await session.execute(
                 select(TutorialTheme.code, TutorialTheme.type_code, Dictionary.value)
                 .where(TutorialTheme.word_code == Dictionary.word_code)
                 .order_by(Dictionary.value)
             )
 
-            theme_list = list()
+            theme_list = []
             for res in result.all():
                 theme_list.append(
-                    ReadTutorialThemeScheme(
-                        code=res.code,
+                    GetTutorialThemeScheme(
+                        theme_code=res.code,
                         value=res.value,
                         type_code=res.type_code
                     )
@@ -95,7 +94,7 @@ async def edit_theme(
             if theme.type_code is not None:
                 await session.execute(
                     update(TutorialTheme)
-                    .where(TutorialTheme.code == theme.code)
+                    .where(TutorialTheme.code == theme.theme_code)
                     .values(type_code=theme.type_code)
                 )
 

@@ -11,13 +11,10 @@ class NameScheme(BaseModel):
     name: str = Field(min_length=1, max_length=1024, example="new user")
 
 class CredentialScheme(BaseModel):
-    credential: int = Field(gt=Credential.user-1, lt=Credential.admin+1, default=Credential.user)
+    credential: int = Field(ge=Credential.user.value, le=Credential.admin.value, default=Credential.user)
 
 class DecodedCredentialScheme(BaseModel):
     decoded_credential: str
-
-class IsActiveScheme(BaseModel):
-    is_active: bool = Field(default=True)
 
 class RatingScheme(BaseModel):
     rating: int = Field(ge=0, default=0)
