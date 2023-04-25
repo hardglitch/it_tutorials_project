@@ -4,34 +4,62 @@ from pydantic import BaseModel, EmailStr, Field
 from src.constants.constants import Credential
 
 
-class UserScheme(BaseModel):
-    name: str = Field(min_length=1, max_length=1024)
+class UserIDScheme(BaseModel):
+    id: int = Field(ge=0)
+
+class NameScheme(BaseModel):
+    name: str = Field(min_length=1, max_length=1024, example="new user")
+
+class CredentialScheme(BaseModel):
     credential: int = Field(gt=Credential.user-1, lt=Credential.admin+1, default=Credential.user)
-    is_active: bool = True
+
+class DecodedCredentialScheme(BaseModel):
+    decoded_credential: str
+
+class IsActiveScheme(BaseModel):
+    is_active: bool = Field(default=True)
+
+class RatingScheme(BaseModel):
     rating: int = Field(ge=0, default=0)
 
+class EmailScheme(BaseModel):
+    email: EmailStr = Field(example="newuser@email.com")
 
-class UserCreateScheme(UserScheme):
-    email: EmailStr
-    password: str = Field(min_length=10, max_length=100)
+class PasswordScheme(BaseModel):
+    password: str = Field(min_length=10, max_length=100, example="1234567890")
 
-
-class UserReadScheme(UserScheme):
-    # added_tutorials: List[TutorialScheme]
-    pass
-
-
-class DecryptedUserReadScheme(UserReadScheme):
-    credential: str
-
-
-class UserFullReadScheme(UserReadScheme):
-    id: int = Field(ge=0)
+class HashedPasswordScheme(BaseModel):
     hashed_password: str = Field(max_length=1024)
 
 
-class UserUpdateScheme(BaseModel):
-    id: int | None = Field(ge=0)
-    name: str | None = Field(min_length=1, max_length=1024, default=None)
-    email: EmailStr | None = None
-    password: str | None = Field(min_length=10, max_length=100, default=None)
+class AddUserScheme(
+    NameScheme,
+    CredentialScheme,
+    EmailScheme,
+    PasswordScheme
+):
+    pass
+
+
+class GetUserScheme(
+    NameScheme,
+    DecodedCredentialScheme,
+    RatingScheme
+):
+    pass
+
+
+class EditUserScheme(
+    NameScheme,
+    EmailScheme,
+    PasswordScheme
+):
+    pass
+
+
+class AuthUserScheme(
+    UserIDScheme,
+    NameScheme,
+    HashedPasswordScheme
+):
+    pass

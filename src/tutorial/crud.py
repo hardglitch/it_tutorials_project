@@ -5,8 +5,6 @@ from src.db import get_session
 from src.constants.responses import TutorialResponses
 from src.tutorial.models import Tutorial
 from src.tutorial.schemas import TutorialScheme
-from src.tutorial.theme.models import TutorialTheme
-from src.tutorial.type.models import TutorialType
 
 
 async def create_tutorial(
@@ -46,63 +44,5 @@ async def get_tutorial_from_db(
     async with async_session as session:
         try:
             return await session.get(Tutorial, tutorial_id)
-        except Exception:
-            raise
-
-
-# ------------- THEME ----------------
-
-async def add_tutorial_theme(tutor_theme: TutorialTheme, async_session: AsyncSession = Depends(get_session)):
-    async with async_session as session:
-        try:
-            session.add(tutor_theme)
-            await session.commit()
-            await session.refresh(tutor_theme)
-        except Exception:
-            raise
-
-
-async def edit_tutorial_theme(tutor_theme: TutorialTheme, async_session: AsyncSession = Depends(get_session)):
-    async with async_session as session:
-        try:
-            session.add(tutor_theme)
-            await session.commit()
-            await session.refresh(tutor_theme)
-        except Exception:
-            raise
-
-
-async def delete_tutorial_theme(tutor_theme: TutorialTheme, async_session: AsyncSession = Depends(get_session)):
-    pass
-
-# ------------- TYPE ----------------
-
-
-async def add_tutorial_type(tutor_type: TutorialType, async_session: AsyncSession = Depends(get_session)):
-    async with async_session as session:
-        try:
-            session.add(tutor_type)
-            await session.commit()
-            await session.refresh(tutor_type)
-        except Exception:
-            raise
-
-
-async def edit_tutorial_type(tutor_type: TutorialType, async_session: AsyncSession = Depends(get_session)):
-    async with async_session as session:
-        try:
-            session.add(tutor_type)
-            await session.commit()
-            await session.refresh(tutor_type)
-        except Exception:
-            raise
-
-
-async def delete_tutorial_type(tutor_type: TutorialType, async_session: AsyncSession = Depends(get_session)):
-    async with async_session as session:
-        try:
-            session.add(tutor_type)
-            await session.commit()
-            await session.refresh(tutor_type)
         except Exception:
             raise

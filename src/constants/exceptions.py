@@ -11,13 +11,13 @@ class AuthenticateExceptions:
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    TOKEN_EXCEPTION = HTTPException(
+    INCORRECT_PARAMETERS = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Incorrect username or password",
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    FAILED_TO_CREATE_TOKEN_EXCEPTION = {
+    FAILED_TO_CREATE_TOKEN = {
         "response": "Failed to create token"
     }
 

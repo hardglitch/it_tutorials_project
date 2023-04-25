@@ -1,177 +1,41 @@
 from datetime import datetime, timedelta
 from typing import Annotated, Dict
-from fastapi import Depends, HTTPException
+from fastapi import Depends
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
-from sqlalchemy import Result, ScalarResult, select, update
-from sqlalchemy.exc import DBAPIError
+from sqlalchemy import Result, ScalarResult, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
-from starlette.requests import Request
-
 from src.config import SECRET_KEY
-from src.db import get_session
 from src.constants.constants import AccessToken, Credential
 from src.constants.exceptions import AuthenticateExceptions
 from src.user.models import User
-from src.user.schemas import UserCreateScheme, UserFullReadScheme, UserReadScheme, UserUpdateScheme
+from src.user.schemas import AuthUserScheme, UserIDScheme
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 bcrypt_context = CryptContext(schemes="bcrypt", deprecated="auto")
 
 
 def get_hashed_password(password: str) -> str | None:
-    if not all([
-        password,
-        isinstance(password, str)
-    ]): return None
+    if not all([password, isinstance(password, str)]): return None
     return bcrypt_context.hash(password)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    if not all([
-        plain_password,
-        hashed_password,
-        isinstance(plain_password, str),
-        isinstance(hashed_password, str)
-    ]): return False
+    if not all([plain_password, hashed_password, isinstance(plain_password, str), isinstance(hashed_password, str)]):
+        return False
     return bcrypt_context.verify(plain_password, hashed_password)
 
 
-async def create_user(
-        user: UserCreateScheme,
-        async_session: AsyncSession = Depends(get_session)
-) -> bool:
-
-    async with async_session as session:
-        try:
-            if not all([param is not None for param in user]): return False
-
-            new_user = User(
-                name=user.name,
-                email=user.email,
-                hashed_password=get_hashed_password(user.password),
-            )
-            session.add(new_user)
-            await session.commit()
-            await session.refresh(new_user)
-            return True
-        except IntegrityError:
-            return False
-
-
-async def authenticate_user(
-        username: str,
-        password: str,
-        async_session: AsyncSession = Depends(get_session)
-) -> UserFullReadScheme | None:
-
+async def authenticate_user(username: str, password: str, async_session: AsyncSession) -> AuthUserScheme | None:
     async with async_session as session:
         try:
             result: Result = await session.execute(select(User).where(User.name == username))
-            user: UserFullReadScheme | None = result.scalar_one_or_none()
-            return None if not user or not verify_password(password, user.hashed_password) else user
+            user_data: AuthUserScheme | None = result.scalar_one_or_none()
+            return user_data if user_data and verify_password(password, user_data.hashed_password) else None
 
         except IntegrityError:
-            raise
-        except DBAPIError:
-            raise
-
-
-async def safe_get_user(
-        user_id: int,
-        async_session: AsyncSession = Depends(get_session)
-) -> UserReadScheme | None:
-
-    if not user_id or not isinstance(user_id, int) or not async_session: return None
-
-    async with async_session as session:
-        try:
-            result: Result = await session.execute(
-                select(
-                    User.name,
-                    User.credential,
-                    User.is_active,
-                    User.rating,
-                )
-                .where(User.id == user_id)
-            )
-            for row in result:
-                user_name = row.name
-                user_credential = row.credential
-                user_is_active = row.is_active
-                user_rating = row.rating
-
-            return UserReadScheme(
-                name=user_name,
-                credential=user_credential,
-                is_active=user_is_active,
-                rating=user_rating,
-            ) \
-                if user_name and\
-                   user_credential is not None and\
-                   user_rating is not None and\
-                   user_is_active is not None\
-                else None
-
-        except IntegrityError:
-            raise
-        except DBAPIError:
-            raise
-
-
-async def edit_user(
-        user_data: UserUpdateScheme,
-        async_session: AsyncSession = Depends(get_session)
-) -> bool | None:
-
-    if not user_data or not async_session: return None
-
-    async with async_session as session:
-        try:
-            values = {}
-            if user_data.name: values[User.name] = user_data.name
-            if user_data.email: values[User.email] = user_data.email
-            if user_data.password: values[User.hashed_password] = get_hashed_password(user_data.password)
-
-            await session.execute(
-                update(User)
-                .where(User.id == user_data.id)
-                .values(values)
-            )
-            await session.commit()
-            return True
-
-        except IntegrityError:
-            raise
-        except DBAPIError:
-            raise
-
-
-async def delete_user_from_database(
-        user_id: int,
-        async_session: AsyncSession = Depends(get_session)
-) -> bool:
-
-    """
-    This function doesn't remove 'User' from the DB,
-    it changes 'is_active' to False.
-    """
-
-    if not user_id or not isinstance(user_id, int) or not async_session: return False
-
-    async with async_session as session:
-        try:
-            await session.execute(
-                update(User).where(User.id == user_id).values(is_active=False)
-            )
-            await session.commit()
-            return True
-
-        except HTTPException:
-            raise
-        except DBAPIError:
             raise
 
 

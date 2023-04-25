@@ -1,5 +1,5 @@
 from datetime import timedelta
-from typing import Annotated
+from typing import Annotated, Dict
 from fastapi import APIRouter, Depends, Path, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,40 +9,43 @@ from starlette.responses import HTMLResponse, RedirectResponse
 from src.db import get_session
 from src.constants.constants import AccessToken, Credential
 from src.constants.responses import CommonResponses, UserResponses
-from src.user.schemas import DecryptedUserReadScheme, UserCreateScheme, UserUpdateScheme
-from src.user.auth import authenticate_user, create_access_token, create_user, delete_user_from_database, is_admin, \
-    oauth2_scheme, safe_get_user, \
-    edit_user, validate_access_token
+from src.user.crud import add_user, delete_user, edit_user, get_user
+from src.user.schemas import AddUserScheme, AuthUserScheme, EditUserScheme, GetUserScheme, UserIDScheme
+from src.user.auth import authenticate_user, create_access_token, is_admin, oauth2_scheme, validate_access_token
 from src.constants.exceptions import AuthenticateExceptions
 
 
 user_router = APIRouter(prefix="/user", tags=["user"])
 
 
-@user_router.post("/registration")
+@user_router.post("/reg")
 async def user_registration(
-        user: UserCreateScheme,
+        user: AddUserScheme,
         async_session: AsyncSession = Depends(get_session)
 ) -> str:
 
     return UserResponses.USER_CREATED\
-        if await create_user(user, async_session)\
+        if await add_user(user, async_session)\
         else UserResponses.USER_ALREADY_EXISTS
 
 
 # This creates an Access Token and redirects to the Current User profile
 @user_router.post("/login", response_class=HTMLResponse)
-async def login_for_access_token(
+async def login(
         response: Response,
         form_data: OAuth2PasswordRequestForm = Depends(),
         async_session: AsyncSession = Depends(get_session)
 ) -> RedirectResponse:
 
-    user = await authenticate_user(form_data.username, form_data.password, async_session)
-    if not user: raise AuthenticateExceptions.TOKEN_EXCEPTION
+    user: AuthUserScheme = await authenticate_user(form_data.username, form_data.password, async_session)
+    if not user: raise AuthenticateExceptions.INCORRECT_PARAMETERS
 
-    token = create_access_token(user_name=user.name, user_id=user.id, expires_delta=timedelta(minutes=20))
-    if not token: raise AuthenticateExceptions.FAILED_TO_CREATE_TOKEN_EXCEPTION
+    token = create_access_token(
+        user_name=user.name,
+        user_id=user.id,
+        expires_delta=timedelta(minutes=AccessToken.expiration_time)
+    )
+    if not token: raise AuthenticateExceptions.FAILED_TO_CREATE_TOKEN
 
     # Redirect to the Current User profile
     response = RedirectResponse(url=f"/user/{user.id}", status_code=status.HTTP_302_FOUND)
@@ -58,52 +61,43 @@ async def logout(request: Request, response: Response) -> None:
 
 
 @user_router.get("/{user_id}")
-async def safe_read_user(
-        user_id: Annotated[int, Path(title="User ID")],
+async def get_existing_user(
+        user_id: Annotated[int, Path(title="User ID", ge=0)],
         async_session: AsyncSession = Depends(get_session)
-) -> DecryptedUserReadScheme | str:
+) -> GetUserScheme | str:
 
-    user = await safe_get_user(user_id, async_session)
-    if not user: return UserResponses.USER_NOT_FOUND
-    if not user.is_active: return UserResponses.THIS_USER_HAS_BEEN_DELETED
-
-    decrypted_user = DecryptedUserReadScheme(
-        name=user.name,
-        credential=Credential(user.credential).name,
-        is_active=user.is_active,
-        rating=user.rating,
-    )
-    return decrypted_user if user else UserResponses.USER_NOT_FOUND
+    decoded_user: GetUserScheme = await get_user(user_id, async_session)
+    if not decoded_user: return UserResponses.USER_NOT_FOUND
+    return decoded_user if decoded_user else UserResponses.USER_NOT_FOUND
 
 
-@user_router.patch("/{user_id}/edit")
-async def secure_edit_user(
+@user_router.put("/{user_id}/edit")
+async def edit_existing_user(
         request: Request,
-        user_id: Annotated[int, Path(title="User ID")],
-        new_user_data: UserUpdateScheme,
+        user_id: Annotated[int, Path(title="User ID", ge=0)],
+        new_user_data: EditUserScheme,
         async_session: AsyncSession = Depends(get_session)
 ) -> str:
 
     token: Annotated[str, Depends(oauth2_scheme)] = request.cookies.get(AccessToken.name)
     if validate_access_token(user_id, token):
-        new_user_data.id = user_id
         return UserResponses.USER_UPDATED \
-            if await edit_user(new_user_data, async_session) \
+            if await edit_user(user_id, new_user_data, async_session) \
             else UserResponses.USER_NOT_UPDATED
     else:
         return UserResponses.ACCESS_DENIED
 
 
 @user_router.post("/{user_id}")
-async def delete_user(
+async def delete_existing_user(
         request: Request,
-        user_id: Annotated[int, Path(title="User ID")],
+        user_id: Annotated[int, Path(title="User ID", ge=0)],
         async_session: AsyncSession = Depends(get_session)
 ) -> str:
 
     token: Annotated[str, Depends(oauth2_scheme)] = request.cookies.get(AccessToken.name)
     if validate_access_token(user_id, token) or await is_admin(token, async_session):
-        return CommonResponses.SUCCESS if await delete_user_from_database(user_id, async_session) \
+        return CommonResponses.SUCCESS if await delete_user(user_id, async_session) \
             else UserResponses.ACCESS_DENIED
     else:
         return UserResponses.ACCESS_DENIED

@@ -1,15 +1,15 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, HttpUrl
 
 
 class TutorialScheme(BaseModel):
     title: str = Field(min_length=1, max_length=1024)
-    type: int = Field(gt=-1)
-    theme: int = Field(gt=-1)
+    type: int = Field(ge=0)
+    theme: int = Field(ge=0)
     description: str = Field(min_length=1, max_length=10000)
-    language: int = Field(gt=-1)
-    source_link: str = Field(min_length=1, max_length=1024)
-    share_type: int = Field(gt=-1)
-    who_added: int | None = Field(gt=-1, default=None)
+    language: int = Field(ge=0)
+    source_link: HttpUrl
+    share_type: int = Field(ge=0)
+    who_added: int | None = Field(ge=0, default=None)
 
 
 class DecryptedTutorialScheme(TutorialScheme):
