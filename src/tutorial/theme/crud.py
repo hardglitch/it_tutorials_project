@@ -1,47 +1,66 @@
 from typing import Annotated, List
-from fastapi import Depends, Path
-from sqlalchemy import Result, ScalarResult, delete, func, select, update
+from fastapi import Path
+from sqlalchemy import Result, Row, ScalarResult, and_, delete, func, select, text, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.db import get_session
 from src.dictionary.models import Dictionary
 from src.tutorial.theme.models import TutorialTheme
 from src.tutorial.theme.schemas import AddTutorialThemeScheme, EditTutorialThemeScheme, GetTutorialThemeScheme
 
 
-async def get_all_themes(
-        async_session: AsyncSession = Depends(get_session)
-) -> List[GetTutorialThemeScheme] | None:
-
+async def get_all_themes(async_session: AsyncSession) -> List[GetTutorialThemeScheme] | None:
     if not async_session: return None
 
     async with async_session as session:
         try:
             result: Result = await session.execute(
-                select(TutorialTheme.code, TutorialTheme.type_code, Dictionary.value)
+                select(TutorialTheme.code, TutorialTheme.type_code, TutorialTheme.word_code, Dictionary.value)
                 .where(TutorialTheme.word_code == Dictionary.word_code)
                 .order_by(Dictionary.value)
             )
 
             theme_list = []
-            for res in result.all():
+            for row in result.all():
                 theme_list.append(
                     GetTutorialThemeScheme(
-                        theme_code=res.code,
-                        value=res.value,
-                        type_code=res.type_code
+                        theme_code=row.code,
+                        value=row.value,
+                        type_code=row.type_code,
+                        word_code=row.word_code
                     )
                 )
+            return theme_list if theme_list else None
 
         except IntegrityError:
             raise
 
 
-async def add_theme(
-        theme: AddTutorialThemeScheme,
-        async_session: AsyncSession = Depends(get_session)
-) -> bool | None:
+async def get_theme(
+        code: Annotated[int, Path(title="A Code of a Theme")],
+        async_session: AsyncSession
+) -> GetTutorialThemeScheme | None:
 
+    if not code or not async_session: return None
+
+    async with async_session as session:
+        try:
+            result: Result = await session.execute(
+                select(TutorialTheme.code, TutorialTheme.type_code, TutorialTheme.word_code, Dictionary.value)
+                .where(and_(TutorialTheme.code == code, TutorialTheme.word_code == Dictionary.word_code))
+            )
+            row: Row = result.one_or_none()
+            return GetTutorialThemeScheme(
+                theme_code=row.code,
+                value=row.value,
+                type_code=row.type_code,
+                word_code=row.word_code
+            ) if row else None
+
+        except IntegrityError:
+            raise
+
+
+async def add_theme(theme: AddTutorialThemeScheme, async_session: AsyncSession) -> bool | None:
     if not theme or not async_session: return False
 
     async with async_session as session:
@@ -73,11 +92,7 @@ async def add_theme(
             return False
 
 
-async def edit_theme(
-        theme: EditTutorialThemeScheme,
-        async_session: AsyncSession = Depends(get_session)
-) -> bool | None:
-
+async def edit_theme(theme: EditTutorialThemeScheme, async_session: AsyncSession) -> bool | None:
     if not theme or not async_session: return False
 
     async with async_session as session:
@@ -107,7 +122,7 @@ async def edit_theme(
 
 async def delete_theme(
         code: Annotated[int, Path(title="A Code of a Theme")],
-        async_session: AsyncSession = Depends(get_session)
+        async_session: AsyncSession
 ) -> bool | None:
 
     if not code or not async_session: return None

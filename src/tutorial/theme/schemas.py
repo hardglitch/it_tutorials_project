@@ -19,6 +19,7 @@ class AddTutorialThemeScheme(
 
 
 class EditTutorialThemeScheme(
+    ValueScheme,
     TypeCodeScheme,
     ThemeCodeScheme,
     WordCodeScheme,
@@ -30,6 +31,7 @@ class EditTutorialThemeScheme(
 class GetTutorialThemeScheme(
     ThemeCodeScheme,
     ValueScheme,
-    TypeCodeScheme
+    TypeCodeScheme,
+    WordCodeScheme
 ):
     pass
