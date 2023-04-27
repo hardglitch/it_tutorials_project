@@ -62,4 +62,4 @@ class AccessToken:
     subject: str = "sub"
     user_id: str = "uid"
     expired: str = "exp"
-    expiration_time: int = 3600  # seconds
+    exp_delta: int = 3600  # seconds

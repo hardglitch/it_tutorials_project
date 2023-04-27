@@ -29,6 +29,12 @@ class AuthenticateExceptions:
         headers={"WWW-Authenticate": "Bearer"},
     )
 
+    TOKEN_EXPIRED = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Token expired",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
 
 class DatabaseExceptions:
     COMMON_EXCEPTION = HTTPException(

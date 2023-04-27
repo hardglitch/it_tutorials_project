@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
-from typing import Annotated, Dict
+from typing import Annotated
 from fastapi import Depends
-from jose import JWTError, jwt
+from jose import ExpiredSignatureError, JWTError, jwt
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import Result, ScalarResult, select
@@ -11,7 +11,7 @@ from src.config import SECRET_KEY
 from src.constants.constants import AccessToken, Credential
 from src.constants.exceptions import AuthenticateExceptions
 from src.user.models import User
-from src.user.schemas import AuthUserScheme
+from src.user.schemas import AccessTokenScheme, AuthUserScheme
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 bcrypt_context = CryptContext(schemes="bcrypt", deprecated="auto")
@@ -47,12 +47,10 @@ async def is_admin(
         async_session: AsyncSession
 ) -> bool:
 
-    if not user_id_or_token or not async_session: return False
-
     async with async_session as session:
         try:
-            user_id: str = user_id_or_token if user_id_or_token.isnumeric() \
-                else decode_access_token(user_id_or_token)[AccessToken.user_id]
+            user_id: int = user_id_or_token if user_id_or_token.isnumeric() \
+                else decode_access_token(user_id_or_token).id
 
             result: ScalarResult = await session.scalars(select(User.credential).where(User.id == user_id))
             credential: int = result.one()
@@ -62,32 +60,35 @@ async def is_admin(
             return False
 
 
-def create_access_token(
-        user_name: str,
-        user_id: int,
-        exp_time: timedelta = timedelta(seconds=AccessToken.expiration_time)
-) -> str:
-    claims = {
-        AccessToken.subject: user_name,
-        AccessToken.user_id: user_id,
-        AccessToken.expired: datetime.utcnow() + exp_time
-    }
-    return jwt.encode(claims=claims, key=SECRET_KEY, algorithm=AccessToken.algorithm)
+def create_access_token(token_data: AccessTokenScheme, exp_delta: int = AccessToken.exp_delta) -> str:
+    try:
+        claims = {
+            AccessToken.subject: token_data.name,
+            AccessToken.user_id: token_data.id,
+            AccessToken.expired: datetime.utcnow() + timedelta(seconds=exp_delta)
+        }
+        return jwt.encode(claims=claims, key=SECRET_KEY, algorithm=AccessToken.algorithm)
+
+    except (JWTError, ValueError, TypeError):
+        raise AuthenticateExceptions.FAILED_TO_CREATE_TOKEN
 
 
-def decode_access_token(token: Token) -> Dict[str, str]:
+def decode_access_token(token: Token) -> AccessTokenScheme:
     try:
         payload = jwt.decode(token=token, key=SECRET_KEY, algorithms=AccessToken.algorithm)
-        user_name = payload.get(AccessToken.subject)
-        user_id = payload.get(AccessToken.user_id)
-        if not user_name or not user_id: raise AuthenticateExceptions.CREDENTIAL_EXCEPTION
-        return {AccessToken.subject: user_name, AccessToken.user_id: user_id}
-    except JWTError:
+        return AccessTokenScheme(
+            name=payload.get(AccessToken.subject),
+            id=payload.get(AccessToken.user_id)
+        )
+
+    except ExpiredSignatureError:
+        raise AuthenticateExceptions.TOKEN_EXPIRED
+    except (JWTError, ValueError, TypeError):
         raise AuthenticateExceptions.CREDENTIAL_EXCEPTION
 
 
 def validate_access_token(user_id: int, token: Token) -> bool:
     try:
-        return user_id == decode_access_token(token)[AccessToken.user_id]
+        return user_id == decode_access_token(token).id
     except Exception:
         return False

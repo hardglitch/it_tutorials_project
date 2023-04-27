@@ -1,5 +1,4 @@
-# Pydantic models
-
+from datetime import timedelta
 from pydantic import BaseModel, EmailStr, Field
 from src.constants.constants import Credential
 
@@ -7,8 +6,8 @@ from src.constants.constants import Credential
 class UserIDScheme(BaseModel):
     id: int = Field(ge=0)
 
-class NameScheme(BaseModel):
-    name: str = Field(min_length=1, max_length=1024, example="new user")
+class UserNameScheme(BaseModel):
+    name: str = Field(min_length=1, max_length=100, example="new user")
 
 class CredentialScheme(BaseModel):
     credential: int = Field(ge=Credential.user.value, le=Credential.admin.value, default=Credential.user)
@@ -30,7 +29,7 @@ class HashedPasswordScheme(BaseModel):
 
 
 class AddUserScheme(
-    NameScheme,
+    UserNameScheme,
     CredentialScheme,
     EmailScheme,
     PasswordScheme
@@ -39,7 +38,7 @@ class AddUserScheme(
 
 
 class GetUserScheme(
-    NameScheme,
+    UserNameScheme,
     DecodedCredentialScheme,
     RatingScheme
 ):
@@ -47,7 +46,7 @@ class GetUserScheme(
 
 
 class EditUserScheme(
-    NameScheme,
+    UserNameScheme,
     EmailScheme,
     PasswordScheme
 ):
@@ -56,7 +55,14 @@ class EditUserScheme(
 
 class AuthUserScheme(
     UserIDScheme,
-    NameScheme,
+    UserNameScheme,
     HashedPasswordScheme
+):
+    pass
+
+
+class AccessTokenScheme(
+    UserNameScheme,
+    UserIDScheme
 ):
     pass
