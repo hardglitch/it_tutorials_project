@@ -1,22 +1,20 @@
 from typing import Annotated, List
-from fastapi import Path
 from sqlalchemy import Result, ScalarResult, and_, delete, func, select, update
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.dictionary.models import Dictionary
 from src.dictionary.schemas import AddWordToDictionaryScheme, EditDictionaryScheme
 from src.tutorial.type.models import TutorialType
-from src.tutorial.type.schemas import GetTutorialTypeScheme
+from src.tutorial.type.schemas import GetTutorialTypeScheme, TypeCodeScheme
 
 
-async def add_tutorial_type(
-        tutor_type: AddWordToDictionaryScheme,
-        async_session: AsyncSession
-) -> bool | None:
+Code = Annotated[int, TypeCodeScheme]
 
-    if not tutor_type or not async_session: return False
 
-    async with async_session as session:
+async def add_tutorial_type(tutor_type: AddWordToDictionaryScheme, db_session: AsyncSession) -> bool | None:
+    if not tutor_type or not db_session: return False
+
+    async with db_session as session:
         try:
             result: ScalarResult = await session.scalars(func.max(Dictionary.word_code))
             max_word_code: int | None = result.one_or_none()
@@ -44,14 +42,10 @@ async def add_tutorial_type(
             raise
 
 
-async def edit_tutorial_type(
-        tutor_type: EditDictionaryScheme,
-        async_session: AsyncSession
-) -> bool | None:
+async def edit_tutorial_type(tutor_type: EditDictionaryScheme, db_session: AsyncSession) -> bool | None:
+    if not tutor_type or not db_session or not all([param is not None for param in tutor_type]): return False
 
-    if not tutor_type or not async_session or not all([param is not None for param in tutor_type]): return False
-
-    async with async_session as session:
+    async with db_session as session:
         try:
             await session.execute(
                 update(Dictionary)
@@ -65,14 +59,10 @@ async def edit_tutorial_type(
             raise
 
 
-async def delete_tutorial_type(
-        code: Annotated[int, Path(title="A Code of a Distribution Type", ge=0)],
-        async_session: AsyncSession
-) -> bool | None:
+async def delete_tutorial_type(code: Code, db_session: AsyncSession) -> bool | None:
+    if not code or not db_session: return None
 
-    if not code or not async_session: return None
-
-    async with async_session as session:
+    async with db_session as session:
         try:
             tutor_type_from_db = await session.get(TutorialType, code)
 
@@ -92,10 +82,10 @@ async def delete_tutorial_type(
             raise
 
 
-async def get_tutorial_type(code: int, async_session: AsyncSession) -> GetTutorialTypeScheme | None:
-    if not code or not async_session: return None
+async def get_tutorial_type(code: Code, db_session: AsyncSession) -> GetTutorialTypeScheme | None:
+    if not code or not db_session: return None
 
-    async with async_session as session:
+    async with db_session as session:
         try:
             result: Result = await session.execute(
                 select(TutorialType.code, Dictionary.value)
@@ -114,10 +104,10 @@ async def get_tutorial_type(code: int, async_session: AsyncSession) -> GetTutori
             raise
 
 
-async def get_all_tutorial_types(async_session: AsyncSession) -> List[GetTutorialTypeScheme] | None:
-    if not async_session: return None
+async def get_all_tutorial_types(db_session: AsyncSession) -> List[GetTutorialTypeScheme] | None:
+    if not db_session: return None
 
-    async with async_session as session:
+    async with db_session as session:
         try:
             result: Result = await session.execute(
                 select(TutorialType.code, Dictionary.value)

@@ -8,10 +8,12 @@ from src.tutorial.theme.models import TutorialTheme
 from src.tutorial.theme.schemas import AddTutorialThemeScheme, EditTutorialThemeScheme, GetTutorialThemeScheme
 
 
-async def add_theme(theme: AddTutorialThemeScheme, async_session: AsyncSession) -> bool | None:
-    if not theme or not async_session: return False
+Code = Annotated[int, Path(title="A Code of a Theme")]
 
-    async with async_session as session:
+async def add_theme(theme: AddTutorialThemeScheme, db_session: AsyncSession) -> bool | None:
+    if not theme or not db_session: return False
+
+    async with db_session as session:
         try:
             result: ScalarResult = await session.scalars(func.max(Dictionary.word_code))
             max_word_code: int | None = result.one_or_none()
@@ -40,10 +42,10 @@ async def add_theme(theme: AddTutorialThemeScheme, async_session: AsyncSession) 
             return False
 
 
-async def edit_theme(theme: EditTutorialThemeScheme, async_session: AsyncSession) -> bool | None:
-    if not theme or not async_session: return False
+async def edit_theme(theme: EditTutorialThemeScheme, db_session: AsyncSession) -> bool | None:
+    if not theme or not db_session: return False
 
-    async with async_session as session:
+    async with db_session as session:
         try:
             # update word in the 'dictionary' table
             if theme.value.strip():
@@ -68,14 +70,10 @@ async def edit_theme(theme: EditTutorialThemeScheme, async_session: AsyncSession
             raise
 
 
-async def delete_theme(
-        code: Annotated[int, Path(title="A Code of a Theme")],
-        async_session: AsyncSession
-) -> bool | None:
+async def delete_theme(code: Code, db_session: AsyncSession) -> bool | None:
+    if not code or not db_session: return None
 
-    if not code or not async_session: return None
-
-    async with async_session as session:
+    async with db_session as session:
         try:
             theme_from_db = await session.get(TutorialTheme, code)
 
@@ -95,14 +93,10 @@ async def delete_theme(
             raise
 
 
-async def get_theme(
-        code: Annotated[int, Path(title="A Code of a Theme")],
-        async_session: AsyncSession
-) -> GetTutorialThemeScheme | None:
+async def get_theme(code: Code, db_session: AsyncSession) -> GetTutorialThemeScheme | None:
+    if not code or not db_session: return None
 
-    if not code or not async_session: return None
-
-    async with async_session as session:
+    async with db_session as session:
         try:
             result: Result = await session.execute(
                 select(TutorialTheme.code, TutorialTheme.type_code, TutorialTheme.word_code, Dictionary.value)
@@ -120,10 +114,10 @@ async def get_theme(
             raise
 
 
-async def get_all_themes(async_session: AsyncSession) -> List[GetTutorialThemeScheme] | None:
-    if not async_session: return None
+async def get_all_themes(db_session: AsyncSession) -> List[GetTutorialThemeScheme] | None:
+    if not db_session: return None
 
-    async with async_session as session:
+    async with db_session as session:
         try:
             result: Result = await session.execute(
                 select(TutorialTheme.code, TutorialTheme.type_code, TutorialTheme.word_code, Dictionary.value)

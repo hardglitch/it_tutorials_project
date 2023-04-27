@@ -1,17 +1,23 @@
 from copy import deepcopy
+from typing import Annotated
+
 # from typing import Sequence
 from fastapi import Depends
 # from fastapi_cache.decorator import cache
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 # from src.constants.constants import LANGUAGES, LanguageAbbreviation, UILanguage
-from src.db import get_session
+from src.db import DBSession, get_session
+from src.dictionary.schemas import LangCodeScheme
 from src.language.models import Language
 from src.language.schemas import EditLanguageScheme, LanguageScheme
 
 
+LangCode = Annotated[int, LangCodeScheme]
+
+
 # @cache()
-# async def get_all_languages(async_session: AsyncSession = Depends(get_session)) -> None:
+# async def get_all_languages(async_session: DBSession) -> None:
 #     async with async_session as session:
 #         try:
 #             result = await session.scalars(select(Language))
@@ -24,11 +30,7 @@ from src.language.schemas import EditLanguageScheme, LanguageScheme
 #             raise
 
 
-async def add_language(
-        lang: LanguageScheme,
-        async_session: AsyncSession = Depends(get_session)
-) -> int | None:
-
+async def add_language(lang: LanguageScheme, async_session: DBSession) -> int | None:
     if not lang or not async_session: return None
     async with async_session as session:
         try:
@@ -46,11 +48,7 @@ async def add_language(
             raise
 
 
-async def edit_language(
-        lang: EditLanguageScheme,
-        async_session: AsyncSession = Depends(get_session)
-) -> bool | None:
-
+async def edit_language(lang: EditLanguageScheme, async_session: DBSession) -> bool | None:
     async with async_session as session:
         try:
             result = await session.scalars(
@@ -85,11 +83,7 @@ async def edit_language(
             raise
 
 
-async def delete_language(
-        lang_code: int,
-        async_session: AsyncSession = Depends(get_session)
-) -> bool:
-
+async def delete_language(lang_code: LangCode, async_session: DBSession) -> bool:
     if not lang_code or not async_session: return False
     async with async_session as session:
         try:

@@ -1,13 +1,12 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, Path, Response
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, RedirectResponse
-from src.db import get_session
 from src.constants.constants import AccessToken
 from src.constants.responses import CommonResponses, UserResponses
+from src.db import DBSession
 from src.user.crud import add_user, delete_user, edit_user, get_user
 from src.user.schemas import AccessTokenScheme, AddUserScheme, AuthUserScheme, EditUserScheme, GetUserScheme
 from src.user.auth import Token, authenticate_user, create_access_token, decode_access_token, is_admin, \
@@ -15,8 +14,6 @@ from src.user.auth import Token, authenticate_user, create_access_token, decode_
 from src.constants.exceptions import AuthenticateExceptions
 
 
-# Aliases
-DBSession = Annotated[AsyncSession, Depends(get_session)]
 UserID = Annotated[int, Path(title="User ID", ge=0)]
 
 user_router = APIRouter(prefix="/user", tags=["user"])

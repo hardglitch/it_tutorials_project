@@ -1,50 +1,21 @@
 from typing import Annotated, List
-from fastapi import Depends, Path
+from fastapi import Path
 from sqlalchemy import Result, ScalarResult, delete, func, select, update
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.asyncio import AsyncSession
-from src.db import get_session
+from src.db import DBSession
 from src.dictionary.models import Dictionary
 from src.dictionary.schemas import AddWordToDictionaryScheme, EditDictionaryScheme
 from src.tutorial.dist_type.models import TutorialDistributionType
 from src.tutorial.dist_type.schemas import ReadTutorialDistributionTypeScheme
 
 
-async def get_all_distribution_types(
-        async_session: AsyncSession = Depends(get_session)
-) -> List[ReadTutorialDistributionTypeScheme] | None:
-
-    if not async_session: return None
-
-    async with async_session as session:
-        try:
-            result: Result = await session.execute(
-                select(TutorialDistributionType.code, Dictionary.value)
-                .where(TutorialDistributionType.word_code == Dictionary.word_code)
-                .order_by(Dictionary.value)
-            )
-
-            dist_type_list = []
-            for res in result.all():
-                dist_type_list.append(
-                    ReadTutorialDistributionTypeScheme(
-                        code=res.code,
-                        value=res.value,
-                    )
-                )
-
-        except IntegrityError:
-            raise
+Code = Annotated[int, Path(title="A Code of a Distribution Type")]
 
 
-async def add_distribution_type(
-        dist_type: AddWordToDictionaryScheme,
-        async_session: AsyncSession = Depends(get_session)
-) -> bool | None:
+async def add_distribution_type(dist_type: AddWordToDictionaryScheme, db_session: DBSession) -> bool | None:
+    if not dist_type or not db_session: return False
 
-    if not dist_type or not async_session: return False
-
-    async with async_session as session:
+    async with db_session as session:
         try:
             result: ScalarResult = await session.scalars(func.max(Dictionary.word_code))
             max_word_code: int | None = result.one_or_none()
@@ -72,14 +43,10 @@ async def add_distribution_type(
             return False
 
 
-async def edit_distribution_type(
-        dist_type: EditDictionaryScheme,
-        async_session: AsyncSession = Depends(get_session)
-) -> bool | None:
+async def edit_distribution_type(dist_type: EditDictionaryScheme, db_session: DBSession) -> bool | None:
+    if not dist_type or not db_session or not all([param is not None for param in dist_type]): return False
 
-    if not dist_type or not async_session or not all([param is not None for param in dist_type]): return False
-
-    async with async_session as session:
+    async with db_session as session:
         try:
             await session.execute(
                 update(Dictionary)
@@ -94,13 +61,13 @@ async def edit_distribution_type(
 
 
 async def delete_distribution_type(
-        code: Annotated[int, Path(title="A Code of a Distribution Type")],
-        async_session: AsyncSession = Depends(get_session)
+        code: Code,
+        db_session: DBSession
 ) -> bool | None:
 
-    if not code or not async_session: return None
+    if not code or not db_session: return None
 
-    async with async_session as session:
+    async with db_session as session:
         try:
             dist_type_from_db = await session.get(TutorialDistributionType, code)
 
@@ -119,3 +86,26 @@ async def delete_distribution_type(
         except Exception:
             raise
 
+
+async def get_all_distribution_types(db_session: DBSession) -> List[ReadTutorialDistributionTypeScheme] | None:
+    if not db_session: return None
+
+    async with db_session as session:
+        try:
+            result: Result = await session.execute(
+                select(TutorialDistributionType.code, Dictionary.value)
+                .where(TutorialDistributionType.word_code == Dictionary.word_code)
+                .order_by(Dictionary.value)
+            )
+
+            dist_type_list = []
+            for res in result.all():
+                dist_type_list.append(
+                    ReadTutorialDistributionTypeScheme(
+                        code=res.code,
+                        value=res.value,
+                    )
+                )
+
+        except IntegrityError:
+            raise
