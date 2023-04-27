@@ -8,7 +8,7 @@ class ValueScheme(BaseModel):
     value: str = Field(min_length=1, max_length=256, example="New type")
 
 
-class ReadTutorialTypeScheme(
+class GetTutorialTypeScheme(
     TypeCodeScheme,
     ValueScheme
 ):

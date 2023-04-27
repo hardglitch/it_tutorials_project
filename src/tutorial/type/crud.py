@@ -1,39 +1,12 @@
 from typing import Annotated, List
 from fastapi import Path
-from sqlalchemy import Result, ScalarResult, delete, func, select, update
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy import Result, ScalarResult, and_, delete, func, select, update
+from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.dictionary.models import Dictionary
 from src.dictionary.schemas import AddWordToDictionaryScheme, EditDictionaryScheme
 from src.tutorial.type.models import TutorialType
-from src.tutorial.type.schemas import ReadTutorialTypeScheme
-
-
-async def get_all_tutorial_types(
-        async_session: AsyncSession
-) -> List[ReadTutorialTypeScheme] | None:
-
-    if not async_session: return None
-
-    async with async_session as session:
-        try:
-            result: Result = await session.execute(
-                select(TutorialType.code, Dictionary.value)
-                .where(TutorialType.word_code == Dictionary.word_code)
-                .order_by(Dictionary.value)
-            )
-
-            tutor_type_list = []
-            for res in result.all():
-                tutor_type_list.append(
-                    ReadTutorialTypeScheme(
-                        type_code=res.code,
-                        value=res.value,
-                    )
-                )
-
-        except IntegrityError:
-            raise
+from src.tutorial.type.schemas import GetTutorialTypeScheme
 
 
 async def add_tutorial_type(
@@ -65,10 +38,10 @@ async def add_tutorial_type(
             await session.commit()
             return True
 
-        except IntegrityError:
-            raise
         except (TypeError, ValueError):
             return False
+        except IntegrityError:
+            raise
 
 
 async def edit_tutorial_type(
@@ -118,3 +91,51 @@ async def delete_tutorial_type(
         except IntegrityError:
             raise
 
+
+async def get_tutorial_type(code: int, async_session: AsyncSession) -> GetTutorialTypeScheme | None:
+    if not code or not async_session: return None
+
+    async with async_session as session:
+        try:
+            result: Result = await session.execute(
+                select(TutorialType.code, Dictionary.value)
+                .where(and_(TutorialType.word_code == Dictionary.word_code, TutorialType.code == code))
+            )
+
+            row = result.one_or_none()
+            return GetTutorialTypeScheme(
+                type_code=row.code,
+                value=row.value,
+            ) if row and row.code and row.value else None
+
+        except NoResultFound:
+            return None
+        except IntegrityError:
+            raise
+
+
+async def get_all_tutorial_types(async_session: AsyncSession) -> List[GetTutorialTypeScheme] | None:
+    if not async_session: return None
+
+    async with async_session as session:
+        try:
+            result: Result = await session.execute(
+                select(TutorialType.code, Dictionary.value)
+                .where(TutorialType.word_code == Dictionary.word_code)
+                .order_by(Dictionary.value)
+            )
+
+            tutor_type_list = []
+            for row in result.all():
+                tutor_type_list.append(
+                    GetTutorialTypeScheme(
+                        type_code=row.code,
+                        value=row.value,
+                    )
+                )
+            return tutor_type_list if tutor_type_list else None
+
+        except NoResultFound:
+            return None
+        except IntegrityError:
+            raise

@@ -19,28 +19,3 @@ tutorial_router.include_router(dist_type_router)
 tutorial_router.include_router(theme_router)
 tutorial_router.include_router(type_router)
 
-
-@tutorial_router.post("/add")
-async def add_tutorial(
-        request: Request,
-        tutorial: TutorialScheme,
-        async_session: AsyncSession = Depends(get_session)
-) -> str:
-
-    token: Annotated[str, Depends(oauth2_scheme)] = request.cookies.get(AccessToken.name)
-    if not token: return UserResponses.ACCESS_DENIED
-
-    tutorial.who_added_id = int(decode_access_token(token)[AccessToken.user_id])
-    return await create_tutorial(tutorial, async_session)
-
-
-@tutorial_router.post("/{tutorial_id}")
-async def get_tutorial(
-        tutorial_id: Annotated[int, Path(title="Tutorial ID")],
-        async_session: AsyncSession = Depends(get_session)
-) -> DecryptedTutorialScheme | str:
-
-    tutor: Tutorial = await get_tutorial_from_db(tutorial_id, async_session)
-    # return decrypt_tutorial(tutor) if tutor else TutorialResponses.TUTORIAL_NOT_FOUND
-    pass
-

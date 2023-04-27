@@ -63,7 +63,7 @@ async def delete_existing_theme(
         return UserResponses.ACCESS_DENIED
 
 
-@theme_router.get("/{code}")
+@theme_router.get("/get/{code}")
 async def get_existing_theme(
         code: Annotated[int, Path(title="A Code of a Distribution Type")],
         async_session: AsyncSession = Depends(get_session)
@@ -74,7 +74,7 @@ async def get_existing_theme(
     return theme if theme else CommonResponses.FAILED
 
 
-@theme_router.get("/getall/{code}")
+@theme_router.get("/getall")
 async def get_all_existing_themes(async_session: AsyncSession = Depends(get_session)
 ) -> List[GetTutorialThemeScheme]:
 

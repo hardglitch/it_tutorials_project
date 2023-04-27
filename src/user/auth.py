@@ -11,10 +11,13 @@ from src.config import SECRET_KEY
 from src.constants.constants import AccessToken, Credential
 from src.constants.exceptions import AuthenticateExceptions
 from src.user.models import User
-from src.user.schemas import AuthUserScheme, UserIDScheme
+from src.user.schemas import AuthUserScheme
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 bcrypt_context = CryptContext(schemes="bcrypt", deprecated="auto")
+
+# aliases
+Token = Annotated[str, Depends(oauth2_scheme)]
 
 
 def get_hashed_password(password: str) -> str | None:
@@ -40,7 +43,7 @@ async def authenticate_user(username: str, password: str, async_session: AsyncSe
 
 
 async def is_admin(
-        user_id_or_token: int | Annotated[str, Depends(oauth2_scheme)],
+        user_id_or_token: int | Token,
         async_session: AsyncSession
 ) -> bool:
 
@@ -62,17 +65,17 @@ async def is_admin(
 def create_access_token(
         user_name: str,
         user_id: int,
-        expires_delta: timedelta = timedelta(minutes=AccessToken.expiration_time)
+        exp_time: timedelta = timedelta(seconds=AccessToken.expiration_time)
 ) -> str:
     claims = {
         AccessToken.subject: user_name,
         AccessToken.user_id: user_id,
-        AccessToken.expired: datetime.utcnow() + expires_delta
+        AccessToken.expired: datetime.utcnow() + exp_time
     }
     return jwt.encode(claims=claims, key=SECRET_KEY, algorithm=AccessToken.algorithm)
 
 
-def decode_access_token(token: Annotated[str, Depends(oauth2_scheme)]) -> Dict[str, str]:
+def decode_access_token(token: Token) -> Dict[str, str]:
     try:
         payload = jwt.decode(token=token, key=SECRET_KEY, algorithms=AccessToken.algorithm)
         user_name = payload.get(AccessToken.subject)
@@ -83,7 +86,7 @@ def decode_access_token(token: Annotated[str, Depends(oauth2_scheme)]) -> Dict[s
         raise AuthenticateExceptions.CREDENTIAL_EXCEPTION
 
 
-def validate_access_token(user_id: int, token: Annotated[str, Depends(oauth2_scheme)]) -> bool:
+def validate_access_token(user_id: int, token: Token) -> bool:
     try:
         return user_id == decode_access_token(token)[AccessToken.user_id]
     except Exception:

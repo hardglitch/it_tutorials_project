@@ -17,9 +17,17 @@ class AuthenticateExceptions:
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    FAILED_TO_CREATE_TOKEN = {
-        "response": "Failed to create token"
-    }
+    FAILED_TO_CREATE_TOKEN = HTTPException(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        detail="Failed to create a token",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    TOKEN_NOT_FOUND = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Token not found",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
 
 
 class DatabaseExceptions:

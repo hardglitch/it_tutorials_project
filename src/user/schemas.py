@@ -14,7 +14,7 @@ class CredentialScheme(BaseModel):
     credential: int = Field(ge=Credential.user.value, le=Credential.admin.value, default=Credential.user)
 
 class DecodedCredentialScheme(BaseModel):
-    decoded_credential: str
+    decoded_credential: str = Field(example="user")
 
 class RatingScheme(BaseModel):
     rating: int = Field(ge=0, default=0)

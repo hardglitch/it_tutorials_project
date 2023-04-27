@@ -81,6 +81,7 @@ async def get_user(user_id: int, async_session: AsyncSession) -> GetUserScheme |
                 )
                 .where(User.id == user_id)
             )
+
             for row in result:
                 user_name = row.name
                 user_credential = row.credential
@@ -98,5 +99,7 @@ async def get_user(user_id: int, async_session: AsyncSession) -> GetUserScheme |
                    user_is_active\
                 else None
 
+        except UnboundLocalError:
+            return None
         except IntegrityError:
             raise
