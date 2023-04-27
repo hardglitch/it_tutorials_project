@@ -16,19 +16,21 @@ from src.user.schemas import AccessTokenScheme, AuthUserScheme
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 bcrypt_context = CryptContext(schemes="bcrypt", deprecated="auto")
 
-# aliases
 Token = Annotated[str, Depends(oauth2_scheme)]
 
 
 def get_hashed_password(password: str) -> str | None:
-    if not all([password, isinstance(password, str)]): return None
-    return bcrypt_context.hash(password)
+    try:
+        return bcrypt_context.hash(password)
+    except (TypeError, ValueError):
+        raise
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    if not all([plain_password, hashed_password, isinstance(plain_password, str), isinstance(hashed_password, str)]):
+    try:
+        return bcrypt_context.verify(plain_password, hashed_password)
+    except Exception:
         return False
-    return bcrypt_context.verify(plain_password, hashed_password)
 
 
 async def authenticate_user(username: str, password: str, async_session: AsyncSession) -> AuthUserScheme | None:
@@ -42,11 +44,7 @@ async def authenticate_user(username: str, password: str, async_session: AsyncSe
             raise
 
 
-async def is_admin(
-        user_id_or_token: int | Token,
-        async_session: AsyncSession
-) -> bool:
-
+async def is_admin(user_id_or_token: int | Token, async_session: AsyncSession) -> bool:
     async with async_session as session:
         try:
             user_id: int = user_id_or_token if user_id_or_token.isnumeric() \
