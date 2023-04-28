@@ -8,16 +8,6 @@ class Credential(IntEnum):
     admin: int = 2
 
 
-class Language(IntEnum):
-    rus: int = 0
-    eng: int = 1
-
-
-class ShareType(IntEnum):
-    free: int = 0
-    unfree: int = 1
-
-
 @dataclass
 class Table:
 
@@ -25,20 +15,51 @@ class Table:
     class User:
         table_name: str = "user"
         id: str = "id"
-        user_id: str = table_name + "." + id
-        tutorial: str = "tutorial"
+        user_id: str = ".".join([table_name, id])
+        added_tutorials: str = "added_tutorials"
 
     @dataclass
     class Tutorial:
         table_name: str = "tutorial"
-        who_added: str = "who_added"
+        id: str = "id"
+        tutorial_id: str = ".".join([table_name, id])
+
+    @dataclass
+    class Language:
+        table_name: str = "language"
+        code: str = "code"
+        language_code: str = ".".join([table_name, code])
+
+    @dataclass
+    class Theme:
+        table_name: str = "theme"
+        code: str = "code"
+        theme_code: str = ".".join([table_name, code])
+
+    @dataclass
+    class Type:
+        table_name: str = "type"
+        code: str = "code"
+        type_code: str = ".".join([table_name, code])
+
+    @dataclass
+    class DistributionType:
+        table_name: str = "distribution_type"
+        code: str = "code"
+        distribution_type_code: str = ".".join([table_name, code])
+
+    @dataclass
+    class Dictionary:
+        table_name: str = "dictionary"
+        word_code: str = "word_code"
+        dictionary_word_code: str = ".".join([table_name, word_code])
 
 
 @dataclass
 class AccessToken:
-    name: str = "access_token_to_it_tutorial_project"
+    name: str = "access_token"
     algorithm: str = "HS256"
     subject: str = "sub"
     user_id: str = "uid"
     expired: str = "exp"
-    expiration_time: int = 15  # minutes
+    exp_delta: int = 3600  # seconds

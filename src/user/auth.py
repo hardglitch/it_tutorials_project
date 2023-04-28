@@ -1,196 +1,102 @@
-from copy import deepcopy
 from datetime import datetime, timedelta
-from typing import Annotated, Dict
-from fastapi import Depends, HTTPException
-from jose import JWTError, jwt
+from typing import Annotated
+from fastapi import Depends
+from jose import ExpiredSignatureError, JWTError, jwt
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
-from sqlalchemy import Result, select
-from sqlalchemy.exc import DBAPIError
+from sqlalchemy import Result, ScalarResult, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
+from starlette.requests import Request
+
 from src.config import SECRET_KEY
-from src.db import get_session
 from src.constants.constants import AccessToken, Credential
-from src.constants.exceptions import AuthenticateExceptions
-from src.models import User
-from src.user.schemas import UserCreateScheme, UserFullReadScheme, UserReadScheme, UserUpdateScheme
+from src.constants.exceptions import AuthenticateExceptions, CommonExceptions
+from src.user.models import User
+from src.user.schemas import AccessTokenScheme, AuthUserScheme
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 bcrypt_context = CryptContext(schemes="bcrypt", deprecated="auto")
 
+Token = Annotated[str, Depends(oauth2_scheme)]
 
-def get_hashed_password(password: str) -> str:
-    return bcrypt_context.hash(password)
+
+def get_hashed_password(password: str) -> str | None:
+    try:
+        return bcrypt_context.hash(password)
+    except (TypeError, ValueError):
+        raise
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return bcrypt_context.verify(plain_password, hashed_password)
+    try:
+        return bcrypt_context.verify(plain_password, hashed_password)
+    except Exception:
+        return False
 
 
-async def create_user(user: UserCreateScheme, async_session: AsyncSession = Depends(get_session)) -> bool:
-    async with async_session as session:
+async def authenticate_user(username: str, password: str, db_session: AsyncSession) -> AuthUserScheme | None:
+    async with db_session as session:
         try:
-            new_user = User(
-                name=user.name,
-                email=user.email,
-                hashed_password=get_hashed_password(user.password),
-            )
-            session.add(new_user)
-            await session.commit()
-            await session.refresh(new_user)
-            return True
-        except IntegrityError:
-            return False
+            result: ScalarResult = await session.scalars(select(User).where(User.name == username))
+            user_data: AuthUserScheme | None = result.one_or_none()
+            if not user_data: raise CommonExceptions.NOTHING_FOUND
+            return user_data if user_data and verify_password(password, user_data.hashed_password) else None
+
+        except (TypeError, ValueError):
+            raise CommonExceptions.INVALID_PARAMETERS
 
 
-async def authenticate_user(username: str, password: str,
-                            async_session: AsyncSession = Depends(get_session)) -> UserFullReadScheme | None:
-    async with async_session as session:
+async def is_admin(user_id_or_token: int | Token, db_session: AsyncSession) -> bool:
+    async with db_session as session:
         try:
-            result: Result = await session.execute(select(User).where(User.name == username))
-            user: UserFullReadScheme | None = result.scalar_one_or_none()
-            return None if not user or not verify_password(password, user.hashed_password) else user
-        except HTTPException:
-            raise
-        except DBAPIError:
-            raise
+            user_id: int = user_id_or_token if user_id_or_token.isnumeric() \
+                else decode_access_token(user_id_or_token).id
 
+            result: ScalarResult = await session.scalars(select(User.credential).where(User.id == user_id))
+            credential: int | None = result.one_or_none()
+            return True if credential and credential == Credential.admin else False
 
-async def safe_get_user(user_id: int, async_session: AsyncSession = Depends(get_session)) -> UserReadScheme | None:
-    async with async_session as session:
-        try:
-            result: Result = await session.execute(
-                select(
-                    User.name,
-                    User.credential,
-                    User.is_active,
-                    User.rating,
-                )
-                .where(User.id == user_id)
-            )
-            res = result.fetchone()
-            user: UserReadScheme | None = UserReadScheme(
-                name=res[0],
-                credential=res[1],
-                is_active=res[2],
-                rating=res[3]
-            )
-            return user
-
-        except HTTPException:
-            raise
-        except DBAPIError:
-            raise
-
-
-async def update_user(
-        user_id: int,
-        new_user_data: UserUpdateScheme,
-        async_session: AsyncSession = Depends(get_session)
-) -> bool:
-
-    async with async_session as session:
-        try:
-            user = await session.get(User, user_id)
-            user_snapshot = deepcopy(user)
-
-            if user.name and new_user_data.name and user.name != new_user_data.name:
-                user.name = new_user_data.name
-
-            if user.email and new_user_data.email and user.email != new_user_data.email:
-                user.email = new_user_data.email
-
-            if new_user_data.password and user.hashed_password:
-                new_hashed_password = get_hashed_password(new_user_data.password)
-                if user.hashed_password != new_hashed_password:
-                    user.hashed_password = new_hashed_password
-
-            if user.credential and user.credential == Credential.admin and \
-               new_user_data.credential and user.credential != new_user_data.credential:
-                user.credential = new_user_data.credential
-
-            if user.name != user_snapshot.name or \
-               user.email != user_snapshot.email or \
-               user.hashed_password != user_snapshot.hashed_password or \
-               user.credential != user_snapshot.credential:
-
-                session.add(user)
-                await session.commit()
-                await session.refresh(user)
-                return True
-            else:
-                return False
-
-        except HTTPException:
-            raise
-        except DBAPIError:
-            raise
-
-
-async def delete_user_from_database(
-        user_id: int,
-        async_session: AsyncSession = Depends(get_session)
-) -> bool:
-
-    async with async_session as session:
-        try:
-            user = await session.get(User, user_id)
-            user.is_active = False
-            session.add(user)
-            await session.commit()
-            await session.refresh(user)
-            return True
-
-        except HTTPException:
-            raise
-        except DBAPIError:
-            raise
-
-
-async def is_admin(
-        user_id_or_token: int | Annotated[str, Depends(oauth2_scheme)],
-        async_session: AsyncSession
-) -> bool:
-
-    async with async_session as session:
-        try:
-            user_id = user_id_or_token if user_id_or_token.isnumeric() \
-                else decode_access_token(user_id_or_token)[AccessToken.user_id]
-
-            result: Result = await session.execute(select(User.credential).where(User.id == user_id))
-            res = result.fetchone()
-            return True if res[0] == Credential.admin else False
         except Exception:
             return False
 
 
-def create_access_token(
-        user_name: str,
-        user_id: int,
-        expires_delta: timedelta = timedelta(minutes=AccessToken.expiration_time)
-) -> str:
-    claims = {
-        AccessToken.subject: user_name,
-        AccessToken.user_id: user_id,
-        AccessToken.expired: datetime.utcnow() + expires_delta
-    }
-    return jwt.encode(claims=claims, key=SECRET_KEY, algorithm=AccessToken.algorithm)
+def create_access_token(token_data: AccessTokenScheme, exp_delta: int = AccessToken.exp_delta) -> str:
+    try:
+        claims = {
+            AccessToken.subject: token_data.name,
+            AccessToken.user_id: token_data.id,
+            AccessToken.expired: datetime.utcnow() + timedelta(seconds=exp_delta)
+        }
+        return jwt.encode(claims=claims, key=SECRET_KEY, algorithm=AccessToken.algorithm)
+
+    except (JWTError, ValueError, TypeError):
+        raise AuthenticateExceptions.FAILED_TO_CREATE_TOKEN
 
 
-def decode_access_token(token: Annotated[str, Depends(oauth2_scheme)]) -> Dict[str, str]:
+def decode_access_token(token: Token) -> AccessTokenScheme:
     try:
         payload = jwt.decode(token=token, key=SECRET_KEY, algorithms=AccessToken.algorithm)
-        user_name = payload.get(AccessToken.subject)
-        user_id = payload.get(AccessToken.user_id)
-        if not user_name or not user_id: raise AuthenticateExceptions.CREDENTIAL_EXCEPTION
-        return {AccessToken.subject: user_name, AccessToken.user_id: user_id}
-    except JWTError:
+        return AccessTokenScheme(
+            name=payload.get(AccessToken.subject),
+            id=payload.get(AccessToken.user_id)
+        )
+
+    except ExpiredSignatureError:
+        raise AuthenticateExceptions.TOKEN_EXPIRED
+    except (JWTError, ValueError, TypeError):
         raise AuthenticateExceptions.CREDENTIAL_EXCEPTION
 
 
-def validate_access(user_id: int, token: Annotated[str, Depends(oauth2_scheme)]) -> bool:
+def validate_access_token(user_id: int, token: Token) -> bool:
     try:
-        return user_id == decode_access_token(token)[AccessToken.user_id]
+        return user_id == decode_access_token(token).id
     except Exception:
         return False
+
+
+def get_token_from_cookie(request: Request) -> Token:
+    try:
+        return Token(request.cookies.get(AccessToken.name))
+    except (TypeError, ValueError):
+        raise AuthenticateExceptions.TOKEN_NOT_FOUND

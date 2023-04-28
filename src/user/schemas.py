@@ -1,44 +1,68 @@
-# Pydantic models
-
+from datetime import timedelta
 from pydantic import BaseModel, EmailStr, Field
-from src.models import Credential
+from src.constants.constants import Credential
 
 
-class UserScheme(BaseModel):
-    name: str = Field(min_length=1, max_length=1024)
-    credential: Credential = Field(default=Credential.user)
-    is_active: bool = True
-    rating: int = Field(gt=-1, default=0)
+class UserIDScheme(BaseModel):
+    id: int = Field(ge=0)
 
-    class Config:
-        orm_mode = True
+class UserNameScheme(BaseModel):
+    name: str = Field(min_length=1, max_length=100, example="new user")
 
+class CredentialScheme(BaseModel):
+    credential: int = Field(ge=Credential.user.value, le=Credential.admin.value, default=Credential.user)
 
-class UserCreateScheme(UserScheme):
-    email: EmailStr
-    password: str = Field(min_length=10, max_length=100)
+class DecodedCredentialScheme(BaseModel):
+    decoded_credential: str = Field(example="user")
 
+class RatingScheme(BaseModel):
+    rating: int = Field(ge=0, default=0)
 
-class UserReadScheme(UserScheme):
-    # tutorial: List[TutorialScheme] | None
-    pass
+class EmailScheme(BaseModel):
+    email: EmailStr = Field(example="newuser@email.com")
 
+class PasswordScheme(BaseModel):
+    password: str = Field(min_length=10, max_length=100, example="1234567890")
 
-class DecryptedUserReadScheme(UserReadScheme):
-    credential: str      # TODO: make a stronger check
-
-
-class UserFullReadScheme(UserReadScheme):
-    id: int
+class HashedPasswordScheme(BaseModel):
     hashed_password: str = Field(max_length=1024)
 
 
-class UserUpdateScheme(BaseModel):
-    name: str | None = Field(min_length=1, max_length=1024, default=None)
-    email: EmailStr | None = None
-    password: str | None = Field(min_length=10, max_length=100, default=None)
-    credential: Credential | None = None
+class AddUserScheme(
+    UserNameScheme,
+    CredentialScheme,
+    EmailScheme,
+    PasswordScheme
+):
+    pass
 
 
-class UserDeleteScheme(UserScheme):
+class GetUserScheme(
+    UserNameScheme,
+    DecodedCredentialScheme,
+    RatingScheme
+):
+    pass
+
+
+class EditUserScheme(
+    UserNameScheme,
+    EmailScheme,
+    PasswordScheme
+):
+    pass
+
+
+class AuthUserScheme(
+    UserIDScheme,
+    UserNameScheme,
+    HashedPasswordScheme
+):
+    pass
+
+
+class AccessTokenScheme(
+    UserNameScheme,
+    UserIDScheme
+):
     pass
