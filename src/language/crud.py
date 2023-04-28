@@ -1,38 +1,19 @@
-from copy import deepcopy
-from typing import Annotated
-
-# from typing import Sequence
-from fastapi import Depends
-# from fastapi_cache.decorator import cache
-from sqlalchemy import select
+from typing import Annotated, List
+from sqlalchemy import ScalarResult, select, update
+from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
-# from src.constants.constants import LANGUAGES, LanguageAbbreviation, UILanguage
-from src.db import DBSession, get_session
-from src.dictionary.schemas import LangCodeScheme
+from src.constants.exceptions import CommonExceptions
 from src.language.models import Language
-from src.language.schemas import EditLanguageScheme, LanguageScheme
+from src.language.schemas import EditLanguageScheme, LangCodeScheme, LanguageScheme
 
 
 LangCode = Annotated[int, LangCodeScheme]
 
 
-# @cache()
-# async def get_all_languages(async_session: DBSession) -> None:
-#     async with async_session as session:
-#         try:
-#             result = await session.scalars(select(Language))
-#             langs: Sequence[LanguageScheme] = result.all()
-#             for lang in langs:
-#                 setattr(LanguageAbbreviation, lang.abbreviation, lang.code)
-#                 LANGUAGES[lang.code] = lang.value
-#                 if lang.is_ui_lang: setattr(UILanguage, lang.abbreviation, lang.code)
-#         except Exception:
-#             raise
+async def add_language(lang: LanguageScheme, db_session: AsyncSession) -> int:
+    if not lang or not db_session: raise CommonExceptions.INVALID_PARAMETERS
 
-
-async def add_language(lang: LanguageScheme, async_session: DBSession) -> int | None:
-    if not lang or not async_session: return None
-    async with async_session as session:
+    async with db_session as session:
         try:
             new_lang = Language(
                 abbreviation=lang.abbreviation,
@@ -44,53 +25,85 @@ async def add_language(lang: LanguageScheme, async_session: DBSession) -> int | 
             await session.refresh(new_lang)
             return new_lang.code
 
-        except Exception:
-            raise
+        except (TypeError, ValueError):
+            raise CommonExceptions.INVALID_PARAMETERS
+        except IntegrityError:
+            raise CommonExceptions.DUPLICATED_ENTRY
 
 
-async def edit_language(lang: EditLanguageScheme, async_session: DBSession) -> bool | None:
-    async with async_session as session:
+async def edit_language(lang: EditLanguageScheme, db_session: AsyncSession) -> None:
+    if not lang or not db_session: raise CommonExceptions.INVALID_PARAMETERS
+
+    async with db_session as session:
         try:
-            result = await session.scalars(
-                select(Language).where(Language.code == lang.code)
+            await session.execute(
+                update(Language)
+                .where(Language.code == lang.code)
+                .values(
+                    abbreviation=lang.abbreviation,
+                    value=lang.value,
+                    is_ui_lang=lang.is_ui_lang
+                )
             )
-            lang_from_db: LanguageScheme = result.one_or_none()
-            if not lang_from_db: return False
+            await session.commit()
 
-            lang_from_db_snapshot = deepcopy(lang_from_db)
-
-            if lang.code and lang.code != lang_from_db.code:
-                lang_from_db.code = lang.code
-            if lang.abbreviation and lang.abbreviation != lang_from_db.abbreviation:
-                lang_from_db.abbreviation = lang.abbreviation
-            if lang.value and lang.value != lang_from_db.value:
-                lang_from_db.value = lang.value
-            if lang.is_ui_lang and lang.is_ui_lang != lang_from_db.is_ui_lang:
-                lang_from_db.is_ui_lang = lang.is_ui_lang
-
-            if lang_from_db.code != lang_from_db_snapshot.code or \
-               lang_from_db.abbreviation != lang_from_db_snapshot.abbreviation or \
-               lang_from_db.value != lang_from_db_snapshot.value or \
-               lang_from_db.is_ui_lang != lang_from_db_snapshot.is_ui_lang:
-
-                session.add(lang_from_db)
-                await session.commit()
-                return True
-            else:
-                return False
-
-        except Exception:
-            raise
+        except (TypeError, ValueError):
+            raise CommonExceptions.INVALID_PARAMETERS
 
 
-async def delete_language(lang_code: LangCode, async_session: DBSession) -> bool:
-    if not lang_code or not async_session: return False
-    async with async_session as session:
+async def delete_language(lang_code: LangCode, db_session: AsyncSession) -> None:
+    if not lang_code or not db_session: raise CommonExceptions.INVALID_PARAMETERS
+
+    async with db_session as session:
         try:
             lang = await session.get(Language, lang_code)
             await session.delete(lang)
             await session.commit()
-            return True
 
-        except Exception:
-            return False
+        except (TypeError, ValueError):
+            raise CommonExceptions.INVALID_PARAMETERS
+
+
+async def get_language(lang_code: LangCode, db_session: AsyncSession) -> LanguageScheme:
+    if not lang_code or not db_session: raise CommonExceptions.INVALID_PARAMETERS
+
+    async with db_session as session:
+        try:
+            lang_from_db: LanguageScheme | None = await session.get(Language, lang_code)
+            if not lang_from_db: raise CommonExceptions.NOTHING_FOUND
+            return LanguageScheme(
+                abbreviation=lang_from_db.abbreviation,
+                value=lang_from_db.value,
+                is_ui_lang=lang_from_db.is_ui_lang
+            )
+
+        except (TypeError, ValueError):
+            raise CommonExceptions.INVALID_PARAMETERS
+
+
+async def get_all_languages(db_session: AsyncSession) -> List[EditLanguageScheme]:
+    if not db_session: raise CommonExceptions.INVALID_PARAMETERS
+
+    async with db_session as session:
+        try:
+            result: ScalarResult = await session.scalars(
+                select(Language)
+                .order_by(Language.value)
+            )
+
+            lang_list = []
+            for row in result.all():
+                lang_list.append(
+                    EditLanguageScheme(
+                        code=row.code,
+                        abbreviation=row.abbreviation,
+                        value=row.value,
+                        is_ui_lang=row.is_ui_lang
+                    )
+                )
+            return lang_list
+
+        except NoResultFound:
+            raise CommonExceptions.NOTHING_FOUND
+        except (TypeError, ValueError):
+            raise CommonExceptions.INVALID_PARAMETERS

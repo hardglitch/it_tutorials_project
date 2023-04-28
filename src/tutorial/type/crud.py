@@ -2,6 +2,7 @@ from typing import Annotated, List
 from sqlalchemy import Result, ScalarResult, and_, delete, func, select, update
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
+from src.constants.exceptions import CommonExceptions
 from src.dictionary.models import Dictionary
 from src.dictionary.schemas import AddWordToDictionaryScheme, EditDictionaryScheme
 from src.tutorial.type.models import TutorialType
@@ -11,8 +12,8 @@ from src.tutorial.type.schemas import GetTutorialTypeScheme, TypeCodeScheme
 Code = Annotated[int, TypeCodeScheme]
 
 
-async def add_tutorial_type(tutor_type: AddWordToDictionaryScheme, db_session: AsyncSession) -> bool | None:
-    if not tutor_type or not db_session: return False
+async def add_tutorial_type(tutor_type: AddWordToDictionaryScheme, db_session: AsyncSession) -> None:
+    if not tutor_type or not db_session: raise CommonExceptions.INVALID_PARAMETERS
 
     async with db_session as session:
         try:
@@ -34,12 +35,11 @@ async def add_tutorial_type(tutor_type: AddWordToDictionaryScheme, db_session: A
             )
             session.add(new_tutor_type)
             await session.commit()
-            return True
 
         except (TypeError, ValueError):
-            return False
+            raise CommonExceptions.INVALID_PARAMETERS
         except IntegrityError:
-            raise
+            raise CommonExceptions.DUPLICATED_ENTRY
 
 
 async def edit_tutorial_type(tutor_type: EditDictionaryScheme, db_session: AsyncSession) -> bool | None:

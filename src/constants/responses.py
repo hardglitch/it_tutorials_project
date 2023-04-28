@@ -1,10 +1,19 @@
 from dataclasses import dataclass
+from fastapi import HTTPException
+from starlette import status
 
 
 @dataclass()
 class CommonResponses:
-    SUCCESS = "Success"
-    FAILED = "Failed"
+    SUCCESS = HTTPException(
+        status_code=status.HTTP_200_OK,
+        detail="Successful",
+    )
+    FAILED = HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Failed",
+    )
+
 
 @dataclass()
 class UserResponses:
@@ -14,9 +23,13 @@ class UserResponses:
     USER_ALREADY_EXISTS = "User with the same name or email already exists"
     THIS_USER_HAS_BEEN_DELETED = "This user has been deleted"
     USER_NOT_FOUND = "User not found"
-    ACCESS_DENIED = "Access denied"
     USER_UPDATED = "User updated"
     USER_NOT_UPDATED = "User not updated"
+
+    ACCESS_DENIED = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Access denied",
+    )
 
 
 @dataclass()

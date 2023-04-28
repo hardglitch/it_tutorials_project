@@ -10,6 +10,7 @@ from src.tutorial.theme.schemas import AddTutorialThemeScheme, EditTutorialTheme
 
 Code = Annotated[int, Path(title="A Code of a Theme")]
 
+
 async def add_theme(theme: AddTutorialThemeScheme, db_session: AsyncSession) -> bool | None:
     if not theme or not db_session: return False
 

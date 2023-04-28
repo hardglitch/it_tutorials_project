@@ -7,6 +7,8 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import Result, ScalarResult, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
+from starlette.requests import Request
+
 from src.config import SECRET_KEY
 from src.constants.constants import AccessToken, Credential
 from src.constants.exceptions import AuthenticateExceptions
@@ -33,8 +35,8 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
         return False
 
 
-async def authenticate_user(username: str, password: str, async_session: AsyncSession) -> AuthUserScheme | None:
-    async with async_session as session:
+async def authenticate_user(username: str, password: str, db_session: AsyncSession) -> AuthUserScheme | None:
+    async with db_session as session:
         try:
             result: Result = await session.execute(select(User).where(User.name == username))
             user_data: AuthUserScheme | None = result.scalar_one_or_none()
@@ -44,8 +46,8 @@ async def authenticate_user(username: str, password: str, async_session: AsyncSe
             raise
 
 
-async def is_admin(user_id_or_token: int | Token, async_session: AsyncSession) -> bool:
-    async with async_session as session:
+async def is_admin(user_id_or_token: int | Token, db_session: AsyncSession) -> bool:
+    async with db_session as session:
         try:
             user_id: int = user_id_or_token if user_id_or_token.isnumeric() \
                 else decode_access_token(user_id_or_token).id
@@ -90,3 +92,8 @@ def validate_access_token(user_id: int, token: Token) -> bool:
         return user_id == decode_access_token(token).id
     except Exception:
         return False
+
+
+def get_token_from_cookie(request: Request) -> Token:
+    token: Token = request.cookies.get(AccessToken.name)
+    return token if token else AuthenticateExceptions.TOKEN_NOT_FOUND

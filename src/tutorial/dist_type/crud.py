@@ -1,12 +1,12 @@
 from typing import Annotated, List
 from fastapi import Path
-from sqlalchemy import Result, ScalarResult, delete, func, select, update
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy import Result, ScalarResult, and_, delete, func, select, update
+from sqlalchemy.exc import IntegrityError, NoResultFound
 from src.db import DBSession
 from src.dictionary.models import Dictionary
 from src.dictionary.schemas import AddWordToDictionaryScheme, EditDictionaryScheme
 from src.tutorial.dist_type.models import TutorialDistributionType
-from src.tutorial.dist_type.schemas import ReadTutorialDistributionTypeScheme
+from src.tutorial.dist_type.schemas import GetTutorialDistributionTypeScheme
 
 
 Code = Annotated[int, Path(title="A Code of a Distribution Type")]
@@ -44,7 +44,7 @@ async def add_distribution_type(dist_type: AddWordToDictionaryScheme, db_session
 
 
 async def edit_distribution_type(dist_type: EditDictionaryScheme, db_session: DBSession) -> bool | None:
-    if not dist_type or not db_session or not all([param is not None for param in dist_type]): return False
+    if not dist_type or not db_session: return False
 
     async with db_session as session:
         try:
@@ -56,15 +56,13 @@ async def edit_distribution_type(dist_type: EditDictionaryScheme, db_session: DB
             await session.commit()
             return True
 
-        except Exception:
+        except (ValueError, TypeError):
+            return False
+        except IntegrityError:
             raise
 
 
-async def delete_distribution_type(
-        code: Code,
-        db_session: DBSession
-) -> bool | None:
-
+async def delete_distribution_type(code: Code, db_session: DBSession) -> bool | None:
     if not code or not db_session: return None
 
     async with db_session as session:
@@ -87,7 +85,32 @@ async def delete_distribution_type(
             raise
 
 
-async def get_all_distribution_types(db_session: DBSession) -> List[ReadTutorialDistributionTypeScheme] | None:
+async def get_distribution_type(code: Code, db_session: DBSession) -> GetTutorialDistributionTypeScheme | None:
+    if not code or not db_session: return None
+
+    async with db_session as session:
+        try:
+            result: Result = await session.execute(
+                select(TutorialDistributionType.code, Dictionary.value)
+                .where(and_(
+                    TutorialDistributionType.code == code,
+                    TutorialDistributionType.word_code == Dictionary.word_code
+                ))
+            )
+
+            row = result.one_or_none()
+            return GetTutorialDistributionTypeScheme(
+                code=row.code,
+                value=row.value,
+            ) if row and row.code and row.value else None
+
+        except (NoResultFound, TypeError, ValueError):
+            return None
+        except IntegrityError:
+            raise
+
+
+async def get_all_distribution_types(db_session: DBSession) -> List[GetTutorialDistributionTypeScheme] | None:
     if not db_session: return None
 
     async with db_session as session:
@@ -99,13 +122,16 @@ async def get_all_distribution_types(db_session: DBSession) -> List[ReadTutorial
             )
 
             dist_type_list = []
-            for res in result.all():
+            for row in result.all():
                 dist_type_list.append(
-                    ReadTutorialDistributionTypeScheme(
-                        code=res.code,
-                        value=res.value,
+                    GetTutorialDistributionTypeScheme(
+                        code=row.code,
+                        value=row.value,
                     )
                 )
+            return dist_type_list if dist_type_list else None
 
+        except (NoResultFound, ValueError, TypeError):
+            return None
         except IntegrityError:
             raise
