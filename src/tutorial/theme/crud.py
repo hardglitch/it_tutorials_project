@@ -75,13 +75,13 @@ async def delete_theme(code: Code, db_session: AsyncSession) -> ResponseScheme:
             theme_from_db = await session.get(TutorialTheme, code)
             if not theme_from_db: raise CommonExceptions.NOTHING_FOUND
 
-            # delete record in the 'dictionary' table
+            # delete entry in the 'dictionary' table
             await session.execute(
                 delete(Dictionary)
                 .where(Dictionary.word_code == theme_from_db.word_code)
             )
 
-            # delete record in the 'theme' table
+            # delete entry in the 'theme' table
             await session.delete(theme_from_db)
 
             await session.commit()
