@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
-from src._initial_values import insert_languages, insert_distribution_types
+from src._initial_values_py import insert_languages, insert_distribution_types
 from src.config import REDIS_HOST, REDIS_PASS, REDIS_PORT
 from src.db import DBSession
 from src.language.router import language_router
