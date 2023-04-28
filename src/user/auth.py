@@ -11,7 +11,7 @@ from starlette.requests import Request
 
 from src.config import SECRET_KEY
 from src.constants.constants import AccessToken, Credential
-from src.constants.exceptions import AuthenticateExceptions
+from src.constants.exceptions import AuthenticateExceptions, CommonExceptions
 from src.user.models import User
 from src.user.schemas import AccessTokenScheme, AuthUserScheme
 
@@ -38,12 +38,13 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 async def authenticate_user(username: str, password: str, db_session: AsyncSession) -> AuthUserScheme | None:
     async with db_session as session:
         try:
-            result: Result = await session.execute(select(User).where(User.name == username))
-            user_data: AuthUserScheme | None = result.scalar_one_or_none()
+            result: ScalarResult = await session.scalars(select(User).where(User.name == username))
+            user_data: AuthUserScheme | None = result.one_or_none()
+            if not user_data: raise CommonExceptions.NOTHING_FOUND
             return user_data if user_data and verify_password(password, user_data.hashed_password) else None
 
-        except IntegrityError:
-            raise
+        except (TypeError, ValueError):
+            raise CommonExceptions.INVALID_PARAMETERS
 
 
 async def is_admin(user_id_or_token: int | Token, db_session: AsyncSession) -> bool:
@@ -53,8 +54,8 @@ async def is_admin(user_id_or_token: int | Token, db_session: AsyncSession) -> b
                 else decode_access_token(user_id_or_token).id
 
             result: ScalarResult = await session.scalars(select(User.credential).where(User.id == user_id))
-            credential: int = result.one()
-            return True if credential == Credential.admin else False
+            credential: int | None = result.one_or_none()
+            return True if credential and credential == Credential.admin else False
 
         except Exception:
             return False
@@ -95,5 +96,7 @@ def validate_access_token(user_id: int, token: Token) -> bool:
 
 
 def get_token_from_cookie(request: Request) -> Token:
-    token: Token = request.cookies.get(AccessToken.name)
-    return token if token else AuthenticateExceptions.TOKEN_NOT_FOUND
+    try:
+        return Token(request.cookies.get(AccessToken.name))
+    except (TypeError, ValueError):
+        raise AuthenticateExceptions.TOKEN_NOT_FOUND

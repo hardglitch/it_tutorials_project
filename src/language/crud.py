@@ -3,6 +3,7 @@ from sqlalchemy import ScalarResult, select, update
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.constants.exceptions import CommonExceptions
+from src.constants.responses import CommonResponses, ResponseScheme
 from src.language.models import Language
 from src.language.schemas import EditLanguageScheme, LangCodeScheme, LanguageScheme
 
@@ -11,8 +12,6 @@ LangCode = Annotated[int, LangCodeScheme]
 
 
 async def add_language(lang: LanguageScheme, db_session: AsyncSession) -> int:
-    if not lang or not db_session: raise CommonExceptions.INVALID_PARAMETERS
-
     async with db_session as session:
         try:
             new_lang = Language(
@@ -31,14 +30,12 @@ async def add_language(lang: LanguageScheme, db_session: AsyncSession) -> int:
             raise CommonExceptions.DUPLICATED_ENTRY
 
 
-async def edit_language(lang: EditLanguageScheme, db_session: AsyncSession) -> None:
-    if not lang or not db_session: raise CommonExceptions.INVALID_PARAMETERS
-
+async def edit_language(lang: EditLanguageScheme, db_session: AsyncSession) -> ResponseScheme:
     async with db_session as session:
         try:
             await session.execute(
                 update(Language)
-                .where(Language.code == lang.code)
+                .where(Language.code == lang.lang_code)
                 .values(
                     abbreviation=lang.abbreviation,
                     value=lang.value,
@@ -46,27 +43,26 @@ async def edit_language(lang: EditLanguageScheme, db_session: AsyncSession) -> N
                 )
             )
             await session.commit()
+            return CommonResponses.SUCCESS
 
         except (TypeError, ValueError):
             raise CommonExceptions.INVALID_PARAMETERS
 
 
-async def delete_language(lang_code: LangCode, db_session: AsyncSession) -> None:
-    if not lang_code or not db_session: raise CommonExceptions.INVALID_PARAMETERS
-
+async def delete_language(lang_code: LangCode, db_session: AsyncSession) -> ResponseScheme:
     async with db_session as session:
         try:
             lang = await session.get(Language, lang_code)
+            if not lang: raise CommonExceptions.NOTHING_FOUND
             await session.delete(lang)
             await session.commit()
+            return CommonResponses.SUCCESS
 
         except (TypeError, ValueError):
             raise CommonExceptions.INVALID_PARAMETERS
 
 
 async def get_language(lang_code: LangCode, db_session: AsyncSession) -> LanguageScheme:
-    if not lang_code or not db_session: raise CommonExceptions.INVALID_PARAMETERS
-
     async with db_session as session:
         try:
             lang_from_db: LanguageScheme | None = await session.get(Language, lang_code)
@@ -82,8 +78,6 @@ async def get_language(lang_code: LangCode, db_session: AsyncSession) -> Languag
 
 
 async def get_all_languages(db_session: AsyncSession) -> List[EditLanguageScheme]:
-    if not db_session: raise CommonExceptions.INVALID_PARAMETERS
-
     async with db_session as session:
         try:
             result: ScalarResult = await session.scalars(
@@ -95,7 +89,7 @@ async def get_all_languages(db_session: AsyncSession) -> List[EditLanguageScheme
             for row in result.all():
                 lang_list.append(
                     EditLanguageScheme(
-                        code=row.code,
+                        lang_code=row.code,
                         abbreviation=row.abbreviation,
                         value=row.value,
                         is_ui_lang=row.is_ui_lang

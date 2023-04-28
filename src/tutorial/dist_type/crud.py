@@ -1,20 +1,19 @@
 from typing import Annotated, List
-from fastapi import Path
 from sqlalchemy import Result, ScalarResult, and_, delete, func, select, update
 from sqlalchemy.exc import IntegrityError, NoResultFound
-from src.db import DBSession
+from sqlalchemy.ext.asyncio import AsyncSession
+from src.constants.exceptions import CommonExceptions
+from src.constants.responses import CommonResponses, ResponseScheme
 from src.dictionary.models import Dictionary
 from src.dictionary.schemas import AddWordToDictionaryScheme, EditDictionaryScheme
 from src.tutorial.dist_type.models import TutorialDistributionType
-from src.tutorial.dist_type.schemas import GetTutorialDistributionTypeScheme
+from src.tutorial.dist_type.schemas import DistTypeCodeScheme, GetTutorialDistributionTypeScheme
 
 
-Code = Annotated[int, Path(title="A Code of a Distribution Type")]
+Code = Annotated[int, DistTypeCodeScheme]
 
 
-async def add_distribution_type(dist_type: AddWordToDictionaryScheme, db_session: DBSession) -> bool | None:
-    if not dist_type or not db_session: return False
-
+async def add_distribution_type(dist_type: AddWordToDictionaryScheme, db_session: AsyncSession) -> ResponseScheme:
     async with db_session as session:
         try:
             result: ScalarResult = await session.scalars(func.max(Dictionary.word_code))
@@ -35,59 +34,55 @@ async def add_distribution_type(dist_type: AddWordToDictionaryScheme, db_session
             )
             session.add(new_dist_type)
             await session.commit()
-            return True
+            return CommonResponses.CREATED
 
-        except IntegrityError:
-            raise
         except (TypeError, ValueError):
-            return False
+            raise CommonExceptions.INVALID_PARAMETERS
+        except NoResultFound:
+            raise CommonExceptions.NOTHING_FOUND
+        except IntegrityError:
+            raise CommonExceptions.DUPLICATED_ENTRY
 
 
-async def edit_distribution_type(dist_type: EditDictionaryScheme, db_session: DBSession) -> bool | None:
-    if not dist_type or not db_session: return False
-
+async def edit_distribution_type(dist_type: EditDictionaryScheme, db_session: AsyncSession) -> ResponseScheme:
     async with db_session as session:
         try:
             await session.execute(
                 update(Dictionary)
-                .where(Dictionary.word_code == dist_type.word_code and Dictionary.lang_code == dist_type.lang_code)
+                .where(and_(Dictionary.word_code == dist_type.word_code, Dictionary.lang_code == dist_type.lang_code))
                 .values(value=dist_type.value)
             )
             await session.commit()
-            return True
+            return CommonResponses.SUCCESS
 
         except (ValueError, TypeError):
-            return False
-        except IntegrityError:
-            raise
+            raise CommonExceptions.INVALID_PARAMETERS
 
 
-async def delete_distribution_type(code: Code, db_session: DBSession) -> bool | None:
-    if not code or not db_session: return None
-
+async def delete_distribution_type(code: Code, db_session: AsyncSession) -> ResponseScheme:
     async with db_session as session:
         try:
             dist_type_from_db = await session.get(TutorialDistributionType, code)
 
-            # delete record in the 'dictionary' table
+            # delete entry in the 'dictionary' table
             await session.execute(
                 delete(Dictionary)
                 .where(Dictionary.word_code == dist_type_from_db.word_code)
             )
 
-            # delete record in the 'distribution type' table
+            # delete entry in the 'distribution type' table
             await session.delete(dist_type_from_db)
 
             await session.commit()
-            return True
+            return CommonResponses.SUCCESS
 
-        except Exception:
-            raise
+        except (ValueError, TypeError):
+            raise CommonExceptions.INVALID_PARAMETERS
+        except AttributeError:
+            raise CommonExceptions.NOTHING_FOUND
 
 
-async def get_distribution_type(code: Code, db_session: DBSession) -> GetTutorialDistributionTypeScheme | None:
-    if not code or not db_session: return None
-
+async def get_distribution_type(code: Code, db_session: AsyncSession) -> GetTutorialDistributionTypeScheme:
     async with db_session as session:
         try:
             result: Result = await session.execute(
@@ -102,17 +97,15 @@ async def get_distribution_type(code: Code, db_session: DBSession) -> GetTutoria
             return GetTutorialDistributionTypeScheme(
                 code=row.code,
                 value=row.value,
-            ) if row and row.code and row.value else None
+            )
 
-        except (NoResultFound, TypeError, ValueError):
-            return None
-        except IntegrityError:
-            raise
+        except (ValueError, TypeError):
+            raise CommonExceptions.INVALID_PARAMETERS
+        except (NoResultFound, AttributeError):
+            raise CommonExceptions.NOTHING_FOUND
 
 
-async def get_all_distribution_types(db_session: DBSession) -> List[GetTutorialDistributionTypeScheme] | None:
-    if not db_session: return None
-
+async def get_all_distribution_types(db_session: AsyncSession) -> List[GetTutorialDistributionTypeScheme]:
     async with db_session as session:
         try:
             result: Result = await session.execute(
@@ -131,7 +124,7 @@ async def get_all_distribution_types(db_session: DBSession) -> List[GetTutorialD
                 )
             return dist_type_list if dist_type_list else None
 
-        except (NoResultFound, ValueError, TypeError):
-            return None
-        except IntegrityError:
-            raise
+        except (ValueError, TypeError):
+            raise CommonExceptions.INVALID_PARAMETERS
+        except (NoResultFound, AttributeError):
+            raise CommonExceptions.NOTHING_FOUND

@@ -1,17 +1,24 @@
 from dataclasses import dataclass
+from typing import Annotated
 from fastapi import HTTPException
+from pydantic import BaseModel, Field
 from starlette import status
+
+
+class ResponseScheme(BaseModel):
+    status_code: Annotated[int, status]
+    description: str | None = Field(max_length=256, default=None, example="This is the response description")
 
 
 @dataclass()
 class CommonResponses:
-    SUCCESS = HTTPException(
+    SUCCESS = ResponseScheme(
         status_code=status.HTTP_200_OK,
-        detail="Successful",
+        description="Successful",
     )
-    FAILED = HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail="Failed",
+    CREATED = ResponseScheme(
+        status_code=status.HTTP_201_CREATED,
+        description="Successful",
     )
 
 
