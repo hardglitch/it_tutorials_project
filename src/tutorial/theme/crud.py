@@ -1,19 +1,19 @@
 from typing import Annotated, List
-from fastapi import Path
 from sqlalchemy import Result, Row, ScalarResult, and_, delete, func, select, update
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
+from src.constants.exceptions import CommonExceptions
+from src.constants.responses import CommonResponses, ResponseScheme
 from src.dictionary.models import Dictionary
 from src.tutorial.theme.models import TutorialTheme
-from src.tutorial.theme.schemas import AddTutorialThemeScheme, EditTutorialThemeScheme, GetTutorialThemeScheme
+from src.tutorial.theme.schemas import AddTutorialThemeScheme, EditTutorialThemeScheme, GetTutorialThemeScheme, \
+    ThemeCodeScheme
 
 
-Code = Annotated[int, Path(title="A Code of a Theme")]
+Code = Annotated[int, ThemeCodeScheme]
 
 
-async def add_theme(theme: AddTutorialThemeScheme, db_session: AsyncSession) -> bool | None:
-    if not theme or not db_session: return False
-
+async def add_theme(theme: AddTutorialThemeScheme, db_session: AsyncSession) -> ResponseScheme:
     async with db_session as session:
         try:
             result: ScalarResult = await session.scalars(func.max(Dictionary.word_code))
@@ -35,17 +35,15 @@ async def add_theme(theme: AddTutorialThemeScheme, db_session: AsyncSession) -> 
             )
             session.add(new_dist_type)
             await session.commit()
-            return True
+            return CommonResponses.CREATED
 
-        except IntegrityError:
-            raise
         except (TypeError, ValueError):
-            return False
+            raise CommonExceptions.INVALID_PARAMETERS
+        except IntegrityError:
+            raise CommonExceptions.DUPLICATED_ENTRY
 
 
-async def edit_theme(theme: EditTutorialThemeScheme, db_session: AsyncSession) -> bool | None:
-    if not theme or not db_session: return False
-
+async def edit_theme(theme: EditTutorialThemeScheme, db_session: AsyncSession) -> ResponseScheme:
     async with db_session as session:
         try:
             # update word in the 'dictionary' table
@@ -65,18 +63,17 @@ async def edit_theme(theme: EditTutorialThemeScheme, db_session: AsyncSession) -
                 )
 
             await session.commit()
-            return True
+            return CommonResponses.SUCCESS
 
-        except Exception:
-            raise
+        except (TypeError, ValueError):
+            raise CommonExceptions.INVALID_PARAMETERS
 
 
-async def delete_theme(code: Code, db_session: AsyncSession) -> bool | None:
-    if not code or not db_session: return None
-
+async def delete_theme(code: Code, db_session: AsyncSession) -> ResponseScheme:
     async with db_session as session:
         try:
             theme_from_db = await session.get(TutorialTheme, code)
+            if not theme_from_db: raise CommonExceptions.NOTHING_FOUND
 
             # delete record in the 'dictionary' table
             await session.execute(
@@ -88,36 +85,35 @@ async def delete_theme(code: Code, db_session: AsyncSession) -> bool | None:
             await session.delete(theme_from_db)
 
             await session.commit()
-            return True
+            return CommonResponses.SUCCESS
 
-        except Exception:
-            raise
+        except (TypeError, ValueError):
+            raise CommonExceptions.INVALID_PARAMETERS
 
 
-async def get_theme(code: Code, db_session: AsyncSession) -> GetTutorialThemeScheme | None:
-    if not code or not db_session: return None
-
+async def get_theme(code: Code, db_session: AsyncSession) -> GetTutorialThemeScheme:
     async with db_session as session:
         try:
             result: Result = await session.execute(
                 select(TutorialTheme.code, TutorialTheme.type_code, TutorialTheme.word_code, Dictionary.value)
                 .where(and_(TutorialTheme.code == code, TutorialTheme.word_code == Dictionary.word_code))
             )
+
             row: Row = result.one_or_none()
             return GetTutorialThemeScheme(
                 theme_code=row.code,
                 value=row.value,
                 type_code=row.type_code,
                 word_code=row.word_code
-            ) if row else None
+            )
 
-        except IntegrityError:
-            raise
+        except (ValueError, TypeError):
+            raise CommonExceptions.INVALID_PARAMETERS
+        except (NoResultFound, AttributeError):
+            raise CommonExceptions.NOTHING_FOUND
 
 
-async def get_all_themes(db_session: AsyncSession) -> List[GetTutorialThemeScheme] | None:
-    if not db_session: return None
-
+async def get_all_themes(db_session: AsyncSession) -> List[GetTutorialThemeScheme]:
     async with db_session as session:
         try:
             result: Result = await session.execute(
@@ -138,5 +134,7 @@ async def get_all_themes(db_session: AsyncSession) -> List[GetTutorialThemeSchem
                 )
             return theme_list if theme_list else None
 
-        except IntegrityError:
-            raise
+        except NoResultFound:
+            raise CommonExceptions.NOTHING_FOUND
+        except (TypeError, ValueError):
+            raise CommonExceptions.INVALID_PARAMETERS

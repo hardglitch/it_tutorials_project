@@ -1,16 +1,16 @@
 from typing import Annotated, List
-from fastapi import APIRouter, Path
+from fastapi import APIRouter
 from starlette.requests import Request
 from src.constants.exceptions import CommonExceptions, UserExceptions
 from src.constants.responses import ResponseScheme
 from src.db import DBSession
 from src.language.crud import add_language, delete_language, edit_language, get_all_languages, get_language
-from src.language.schemas import EditLanguageScheme, LanguageScheme
+from src.language.schemas import EditLanguageScheme, LangCodeScheme, LanguageScheme
 from src.user.auth import get_token_from_cookie, is_admin
 
 
 language_router = APIRouter(prefix="/lang", tags=["language"])
-LangCode = Annotated[int, Path(title="Language Code", ge=0)]
+LangCode = Annotated[int, LangCodeScheme]
 
 
 @language_router.post("/add")
