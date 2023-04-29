@@ -1,8 +1,10 @@
 from typing import Annotated
-from sqlalchemy import Result, select, update
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy import Result, Row, ScalarResult, select, update
+from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.constants.constants import Credential
+from src.constants.exceptions import CommonExceptions
+from src.constants.responses import CommonResponses, ResponseScheme
 from src.user.auth import get_hashed_password
 from src.user.models import User
 from src.user.schemas import AddUserScheme, EditUserScheme, GetUserScheme, UserIDScheme
@@ -11,10 +13,9 @@ from src.user.schemas import AddUserScheme, EditUserScheme, GetUserScheme, UserI
 UserID = Annotated[int, UserIDScheme]
 
 
-async def add_user(user: AddUserScheme, db_session: AsyncSession) -> bool | None:
-    if not user or not db_session: return False
-    async with db_session as session:
-        try:
+async def add_user(user: AddUserScheme, db_session: AsyncSession) -> GetUserScheme:
+    try:
+        async with db_session as session:
             new_user = User(
                 name=user.name,
                 email=user.email,
@@ -23,17 +24,21 @@ async def add_user(user: AddUserScheme, db_session: AsyncSession) -> bool | None
             session.add(new_user)
             await session.commit()
             await session.refresh(new_user)
-            return True
+            return GetUserScheme(
+                name=new_user.name,
+                decoded_credential=Credential(new_user.credential).name,
+                rating=new_user.rating
+            )
 
-        except IntegrityError:
-            raise
+    except (TypeError, ValueError):
+        raise CommonExceptions.INVALID_PARAMETERS
+    except IntegrityError:
+        raise CommonExceptions.DUPLICATED_ENTRY
 
 
-async def edit_user(user_id: UserID, user_data: EditUserScheme, db_session: AsyncSession) -> bool | None:
-    if not all([user_id, user_data, db_session]): return False
-
-    async with db_session as session:
-        try:
+async def edit_user(user_id: UserID, user_data: EditUserScheme, db_session: AsyncSession) -> ResponseScheme:
+    try:
+        async with db_session as session:
             await session.execute(
                 update(User)
                 .where(User.id == user_id)
@@ -44,39 +49,32 @@ async def edit_user(user_id: UserID, user_data: EditUserScheme, db_session: Asyn
                 )
             )
             await session.commit()
-            return True
+            return CommonResponses.SUCCESS
 
-        except (TypeError, ValueError):
-            return False
-        except IntegrityError:
-            raise
+    except (TypeError, ValueError):
+        raise CommonExceptions.INVALID_PARAMETERS
 
 
-async def delete_user(user_id: UserID, db_session: AsyncSession) -> bool | None:
+async def delete_user(user_id: UserID, db_session: AsyncSession) -> ResponseScheme:
     """
     This function doesn't remove 'User' from the DB,
     it changes 'is_active' to False.
     """
-
-    if not user_id or not db_session: return False
-
-    async with db_session as session:
-        try:
+    try:
+        async with db_session as session:
             await session.execute(
                 update(User).where(User.id == user_id).values(is_active=False)
             )
             await session.commit()
-            return True
+            return CommonResponses.SUCCESS
 
-        except IntegrityError:
-            raise
+    except (TypeError, ValueError):
+        raise CommonExceptions.INVALID_PARAMETERS
 
 
-async def get_user(user_id: UserID, db_session: AsyncSession) -> GetUserScheme | None:
-    if not user_id or not db_session: return None
-
-    async with db_session as session:
-        try:
+async def get_user(user_id: UserID, db_session: AsyncSession) -> GetUserScheme:
+    try:
+        async with db_session as session:
             result: Result = await session.execute(
                 select(
                     User.name,
@@ -87,24 +85,15 @@ async def get_user(user_id: UserID, db_session: AsyncSession) -> GetUserScheme |
                 .where(User.id == user_id)
             )
 
-            for row in result:
-                user_name = row.name
-                user_credential = row.credential
-                user_is_active = row.is_active
-                user_rating = row.rating
-
+            user: Row = result.one_or_none()
+            if not user or not user.is_active: raise CommonExceptions.NOTHING_FOUND
             return GetUserScheme(
-                name=user_name,
-                decoded_credential=Credential(user_credential).name,
-                rating=user_rating,
-            ) \
-                if user_name and\
-                   user_credential is not None and\
-                   user_rating is not None and\
-                   user_is_active\
-                else None
+                name=user.name,
+                decoded_credential=Credential(user.credential).name,
+                rating=user.rating,
+            )
 
-        except UnboundLocalError:
-            return None
-        except IntegrityError:
-            raise
+    except NoResultFound:
+        raise CommonExceptions.NOTHING_FOUND
+    except (TypeError, ValueError):
+        raise CommonExceptions.INVALID_PARAMETERS

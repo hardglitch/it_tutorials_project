@@ -3,97 +3,87 @@ from fastapi import APIRouter, Depends, Path, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from starlette import status
 from starlette.requests import Request
-from starlette.responses import HTMLResponse, RedirectResponse
+from starlette.responses import RedirectResponse
 from src.constants.constants import AccessToken
-from src.constants.responses import CommonResponses, UserResponses
+from src.constants.responses import ResponseScheme, UserResponses
 from src.db import DBSession
 from src.user.crud import add_user, delete_user, edit_user, get_user
 from src.user.schemas import AccessTokenScheme, AddUserScheme, AuthUserScheme, EditUserScheme, GetUserScheme
-from src.user.auth import Token, authenticate_user, create_access_token, decode_access_token, is_admin, \
-    validate_access_token
-from src.constants.exceptions import AuthenticateExceptions
+from src.user.auth import authenticate_user, check_credential, create_access_token, decode_access_token, \
+    get_token_from_cookie
+from src.constants.exceptions import CommonExceptions
 
-
-UserID = Annotated[int, Path(title="User ID", ge=0)]
 
 user_router = APIRouter(prefix="/user", tags=["user"])
+UserID = Annotated[int, Path(title="User ID", ge=0)]
+FormData = Annotated[OAuth2PasswordRequestForm, Depends()]
 
 
 @user_router.post("/reg")
-async def user_registration(user: AddUserScheme, db_session: DBSession) -> str:
-    return UserResponses.USER_CREATED\
-        if await add_user(user, db_session)\
-        else UserResponses.USER_NOT_CREATED
+async def user_registration(user: AddUserScheme, db_session: DBSession) -> GetUserScheme:
+    try:
+        return await add_user(user, db_session)
+    except (TypeError, ValueError):
+        raise CommonExceptions.INVALID_PARAMETERS
 
 
 # This creates an Access Token and redirects to the Current User profile
-@user_router.post("/login", response_class=HTMLResponse)
-async def login(
-        response: Response,
-        form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-        db_session: DBSession
-) -> RedirectResponse:
+@user_router.post("/login")
+async def login(form_data: FormData, db_session: DBSession) -> Response:
+    try:
+        user: AuthUserScheme = await authenticate_user(form_data.username, form_data.password, db_session)
+        token: str = create_access_token(AccessTokenScheme(name=user.name, id=user.id))
 
-    user: AuthUserScheme = await authenticate_user(form_data.username, form_data.password, db_session)
-    if not user: raise AuthenticateExceptions.INCORRECT_PARAMETERS
+        # Redirect to the Current User profile
+        response = RedirectResponse(url="/user/me", status_code=status.HTTP_302_FOUND)
+        response.set_cookie(key=AccessToken.name, value=token, httponly=True, max_age=AccessToken.exp_delta)
+        return response
 
-    token: str = create_access_token(AccessTokenScheme(name=user.name, id=user.id))
-    if not token: raise AuthenticateExceptions.FAILED_TO_CREATE_TOKEN
-
-    # Redirect to the Current User profile
-    response = RedirectResponse(url=f"/user/me", status_code=status.HTTP_302_FOUND)
-    response.set_cookie(key=AccessToken.name, value=token, httponly=True, max_age=AccessToken.exp_delta)
-
-    return response
+    except (TypeError, ValueError):
+        raise CommonExceptions.INVALID_PARAMETERS
 
 
-@user_router.post("/logout", response_class=HTMLResponse)
-async def logout(request: Request, response: Response) -> None:
-    token: Token = request.cookies.get(AccessToken.name)
-    if token: return response.delete_cookie(key=AccessToken.name, httponly=True)
+@user_router.post("/logout")
+async def logout(request: Request) -> Response:
+    try:
+        if get_token_from_cookie(request):
+            response = RedirectResponse(url="/", status_code=status.HTTP_200_OK)
+            response.delete_cookie(key=AccessToken.name, httponly=True)
+            return response
+    except (TypeError, ValueError):
+        raise CommonExceptions.INVALID_PARAMETERS
 
 
 @user_router.put("/{user_id}/edit")
-async def edit_existing_user(
-        request: Request,
-        user_id: UserID,
-        new_user_data: EditUserScheme,
-        db_session: DBSession
-) -> str:
-
-    token: Token = request.cookies.get(AccessToken.name)
-    if validate_access_token(user_id, token):
-        return UserResponses.USER_UPDATED \
-            if await edit_user(user_id, new_user_data, db_session) \
-            else UserResponses.USER_NOT_UPDATED
-    else:
-        return UserResponses.ACCESS_DENIED
+async def edit_existing_user(request: Request, user_id: UserID, new_user_data: EditUserScheme, db_session: DBSession) -> ResponseScheme:
+    try:
+        if not check_credential(user_id, get_token_from_cookie(request), db_session): raise UserResponses.ACCESS_DENIED
+        return await edit_user(user_id, new_user_data, db_session)
+    except (TypeError, ValueError):
+        raise CommonExceptions.INVALID_PARAMETERS
 
 
 @user_router.post("/{user_id}/del")
-async def delete_existing_user(request: Request, user_id: UserID, db_session: DBSession) -> str:
-    token: Token = request.cookies.get(AccessToken.name)
-    if validate_access_token(user_id, token) or await is_admin(token, db_session):
-        return CommonResponses.SUCCESS if await delete_user(user_id, db_session) \
-            else UserResponses.ACCESS_DENIED
-    else:
-        return UserResponses.ACCESS_DENIED
+async def delete_existing_user(request: Request, user_id: UserID, db_session: DBSession) -> ResponseScheme:
+    try:
+        if not check_credential(user_id, get_token_from_cookie(request), db_session): raise UserResponses.ACCESS_DENIED
+        return await delete_user(user_id, db_session)
+    except (TypeError, ValueError):
+        raise CommonExceptions.INVALID_PARAMETERS
 
 
 @user_router.get("/me")
-async def get_current_user(request: Request, db_session: DBSession) -> GetUserScheme | str:
-    token: Token | None = request.cookies.get(AccessToken.name)
-    if not token: raise AuthenticateExceptions.TOKEN_NOT_FOUND
-
-    user_id: int = decode_access_token(token).id
-
-    decoded_user: GetUserScheme | None = await get_user(user_id, db_session)
-    if not decoded_user: return UserResponses.USER_NOT_FOUND
-    return decoded_user if decoded_user else UserResponses.USER_NOT_FOUND
+async def get_current_user(request: Request, db_session: DBSession) -> GetUserScheme:
+    try:
+        user_id: int = decode_access_token(get_token_from_cookie(request)).id
+        return await get_user(user_id, db_session)
+    except (TypeError, ValueError):
+        raise CommonExceptions.INVALID_PARAMETERS
 
 
 @user_router.get("/{user_id}")
-async def get_existing_user(user_id: UserID, db_session: DBSession) -> GetUserScheme | str:
-    decoded_user: GetUserScheme | None = await get_user(user_id, db_session)
-    if not decoded_user: return UserResponses.USER_NOT_FOUND
-    return decoded_user if decoded_user else UserResponses.USER_NOT_FOUND
+async def get_existing_user(user_id: UserID, db_session: DBSession) -> GetUserScheme:
+    try:
+        return await get_user(user_id, db_session)
+    except (TypeError, ValueError):
+        raise CommonExceptions.INVALID_PARAMETERS

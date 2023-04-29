@@ -6,7 +6,7 @@ from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import Result, ScalarResult, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, NoResultFound
 from starlette.requests import Request
 
 from src.config import SECRET_KEY
@@ -25,7 +25,7 @@ def get_hashed_password(password: str) -> str | None:
     try:
         return bcrypt_context.hash(password)
     except (TypeError, ValueError):
-        raise
+        raise CommonExceptions.INVALID_PARAMETERS
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -35,13 +35,14 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
         return False
 
 
-async def authenticate_user(username: str, password: str, db_session: AsyncSession) -> AuthUserScheme | None:
+async def authenticate_user(username: str, password: str, db_session: AsyncSession) -> AuthUserScheme:
     async with db_session as session:
         try:
             result: ScalarResult = await session.scalars(select(User).where(User.name == username))
             user_data: AuthUserScheme | None = result.one_or_none()
             if not user_data: raise CommonExceptions.NOTHING_FOUND
-            return user_data if user_data and verify_password(password, user_data.hashed_password) else None
+            if not verify_password(password, user_data.hashed_password): raise AuthenticateExceptions.INCORRECT_PARAMETERS
+            return user_data
 
         except (TypeError, ValueError):
             raise CommonExceptions.INVALID_PARAMETERS
@@ -100,3 +101,10 @@ def get_token_from_cookie(request: Request) -> Token:
         return Token(request.cookies.get(AccessToken.name))
     except (TypeError, ValueError):
         raise AuthenticateExceptions.TOKEN_NOT_FOUND
+
+
+async def check_credential(user_id: int, token: Token, db_session: AsyncSession) -> bool:
+    try:
+        return True if validate_access_token(user_id, token) or is_admin(token, db_session) else False
+    except (TypeError, ValueError):
+        raise CommonExceptions.INVALID_PARAMETERS
