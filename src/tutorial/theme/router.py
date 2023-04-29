@@ -1,18 +1,16 @@
-from typing import Annotated, List
+from typing import List
 from fastapi import APIRouter
 from starlette.requests import Request
 from src.constants.exceptions import UserExceptions
 from src.constants.responses import ResponseScheme
 from src.db import DBSession
 from src.tools import parameter_checker
-from src.tutorial.theme.crud import add_theme, delete_theme, edit_theme, get_all_themes, get_theme
-from src.tutorial.theme.schemas import AddTutorialThemeScheme, EditTutorialThemeScheme, GetTutorialThemeScheme, \
-    ThemeCodeScheme
+from src.tutorial.theme.crud import Code, add_theme, delete_theme, edit_theme, get_all_themes, get_theme
+from src.tutorial.theme.schemas import AddTutorialThemeScheme, EditTutorialThemeScheme, GetTutorialThemeScheme
 from src.user.auth import get_token_from_cookie, is_admin
 
 
 theme_router = APIRouter(prefix="/theme", tags=["tutorial theme"])
-Code = Annotated[int, ThemeCodeScheme]
 
 
 @theme_router.post("/add")

@@ -1,5 +1,5 @@
 from typing import Annotated, List
-from sqlalchemy import Result, ScalarResult, and_, delete, func, select, update
+from sqlalchemy import Result, Row, ScalarResult, and_, delete, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.constants.responses import CommonResponses, ResponseScheme
 from src.dictionary.models import Dictionary
@@ -74,7 +74,7 @@ async def get_tutorial_type(code: Code, db_session: AsyncSession) -> GetTutorial
             .where(and_(TutorialType.word_code == Dictionary.word_code, TutorialType.code == code))
         )
 
-        row = result.one_or_none()
+        row: Row = result.one_or_none()
         return GetTutorialTypeScheme(
             type_code=row.code,
             value=row.value,

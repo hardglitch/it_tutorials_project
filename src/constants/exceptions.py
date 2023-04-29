@@ -57,6 +57,13 @@ class UserExceptions:
     )
 
 
+class TutorialExceptions:
+    TUTORIAL_NOT_FOUND = HTTPException(
+        status_code=status.HTTP_200_OK,
+        detail="Tutorial not found",
+    )
+
+
 class CommonExceptions:
     INVALID_PARAMETERS = HTTPException(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,

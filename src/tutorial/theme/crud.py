@@ -8,7 +8,6 @@ from src.tutorial.theme.models import TutorialTheme
 from src.tutorial.theme.schemas import AddTutorialThemeScheme, EditTutorialThemeScheme, GetTutorialThemeScheme, \
     ThemeCodeScheme
 
-
 Code = Annotated[int, ThemeCodeScheme]
 
 
@@ -22,7 +21,7 @@ async def add_theme(theme: AddTutorialThemeScheme, db_session: AsyncSession) -> 
         new_word = Dictionary(
             word_code=word_code,
             lang_code=theme.lang_code,
-            value=theme.value,
+            value=theme.value,    # regexp
         )
         session.add(new_word)
         await session.commit()
@@ -45,7 +44,7 @@ async def edit_theme(theme: EditTutorialThemeScheme, db_session: AsyncSession) -
             await session.execute(
                 update(Dictionary)
                 .where(Dictionary.word_code == theme.word_code and Dictionary.lang_code == theme.lang_code)
-                .values(value=theme.value)
+                .values(value=theme.value)  # regexp
             )
 
         # update tutorial type code in the 'theme' table

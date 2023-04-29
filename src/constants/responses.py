@@ -47,7 +47,6 @@ class TutorialResponses:
         status_code=status.HTTP_200_OK,
         content="Your tutorial has been added",
     )
-    TUTORIAL_NOT_FOUND = "A tutorial not found"
     PARAMETER_ERRORS = "Error(s) in parameter(s)"
 
 

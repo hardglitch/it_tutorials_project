@@ -43,8 +43,7 @@ async def edit_language(lang: EditLanguageScheme, db_session: AsyncSession) -> R
 @db_checker()
 async def delete_language(lang_code: LangCode, db_session: AsyncSession) -> ResponseScheme:
     async with db_session as session:
-        lang = await session.get(Language, lang_code)
-        await session.delete(lang)
+        await session.delete(select(Language).where(Language.code == lang_code))
         await session.commit()
         return CommonResponses.SUCCESS
 

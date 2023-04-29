@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, Path, Response
+from fastapi import APIRouter, Depends, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from starlette import status
 from starlette.requests import Request
@@ -10,13 +10,12 @@ from src.db import DBSession
 from src.tools import parameter_checker
 from src.user.crud import add_user, delete_user, edit_user, get_user
 from src.user.schemas import AccessTokenScheme, AddUserScheme, AuthUserScheme, EditUserScheme, GetUserScheme
-from src.user.auth import authenticate_user, check_credential, create_access_token, decode_access_token, \
+from src.user.auth import UserID, authenticate_user, check_credential, create_access_token, decode_access_token, \
     get_token_from_cookie
 from src.constants.exceptions import AuthenticateExceptions
 
 
 user_router = APIRouter(prefix="/user", tags=["user"])
-UserID = Annotated[int, Path(title="User ID", ge=0)]
 FormData = Annotated[OAuth2PasswordRequestForm, Depends()]
 
 

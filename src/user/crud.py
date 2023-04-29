@@ -1,4 +1,3 @@
-from typing import Annotated
 from sqlalchemy import Result, Row, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -6,12 +5,9 @@ from src.constants.constants import Credential
 from src.constants.exceptions import CommonExceptions
 from src.constants.responses import CommonResponses, ResponseScheme
 from src.tools import parameter_checker
-from src.user.auth import get_hashed_password
+from src.user.auth import UserID, get_hashed_password
 from src.user.models import User
-from src.user.schemas import AddUserScheme, EditUserScheme, GetUserScheme, UserIDScheme
-
-
-UserID = Annotated[int, UserIDScheme]
+from src.user.schemas import AddUserScheme, EditUserScheme, GetUserScheme
 
 
 @parameter_checker()
