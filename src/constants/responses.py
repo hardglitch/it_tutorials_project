@@ -43,7 +43,10 @@ class UserResponses:
 @dataclass()
 class TutorialResponses:
     TUTORIAL_ALREADY_EXISTS = "A tutorial with the same parameters already exists"
-    TUTORIAL_ADDED = "Your tutorial has been added"
+    TUTORIAL_ADDED = ResponseScheme(
+        status_code=status.HTTP_200_OK,
+        content="Your tutorial has been added",
+    )
     TUTORIAL_NOT_FOUND = "A tutorial not found"
     PARAMETER_ERRORS = "Error(s) in parameter(s)"
 

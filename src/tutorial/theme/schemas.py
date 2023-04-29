@@ -6,20 +6,20 @@ from src.tutorial.type.schemas import TypeCodeScheme
 class ThemeCodeScheme(BaseModel):
     theme_code: int = Field(ge=0)
 
-class ValueScheme(BaseModel):
+class ThemeValueScheme(BaseModel):
     value: str = Field(min_length=1, max_length=256, example="New theme")
 
 
 class AddTutorialThemeScheme(
     LangCodeScheme,
-    ValueScheme,
+    ThemeValueScheme,
     TypeCodeScheme
 ):
     pass
 
 
 class EditTutorialThemeScheme(
-    ValueScheme,
+    ThemeValueScheme,
     TypeCodeScheme,
     ThemeCodeScheme,
     WordCodeScheme,
@@ -30,7 +30,7 @@ class EditTutorialThemeScheme(
 
 class GetTutorialThemeScheme(
     ThemeCodeScheme,
-    ValueScheme,
+    ThemeValueScheme,
     TypeCodeScheme,
     WordCodeScheme
 ):
