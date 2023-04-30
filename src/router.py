@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
+from fastapi.middleware.cors import CORSMiddleware
 from src._initial_values import insert_data
 from src.config import REDIS_HOST, REDIS_PASS, REDIS_PORT
 from src.db import DBSession
@@ -12,6 +13,20 @@ from redis import Redis, asyncio as aioredis
 
 class MainRouter:
     def __init__(self, app: FastAPI):
+
+        origins = [
+            "http://localhost",
+            "http://localhost:8000",
+        ]
+
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=origins,
+            allow_credentials=True,
+            allow_methods=["POST", "GET", "PUT", "DELETE"],
+            allow_headers=["*"],
+        )
+
         app.include_router(language_router)
         app.include_router(user_router)
         app.include_router(tutorial_router)

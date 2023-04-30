@@ -1,7 +1,6 @@
 from typing import Annotated, List
 from sqlalchemy import Result, Row, ScalarResult, and_, delete, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from src.constants.exceptions import CommonExceptions
 from src.constants.responses import CommonResponses, ResponseScheme
 from src.dictionary.models import Dictionary
