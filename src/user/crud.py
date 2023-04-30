@@ -1,110 +1,120 @@
-from typing import Annotated
-from sqlalchemy import Result, select, update
+from typing import List
+
+from sqlalchemy import Result, Row, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.constants.constants import Credential
-from src.user.auth import get_hashed_password
+from src.constants.exceptions import CommonExceptions
+from src.constants.responses import CommonResponses, ResponseScheme
+from src.tools import parameter_checker
+from src.user.auth import UserID, get_hashed_password
 from src.user.models import User
-from src.user.schemas import AddUserScheme, EditUserScheme, GetUserScheme, UserIDScheme
+from src.user.schemas import AddUserScheme, EditUserScheme, GetUserScheme
 
 
-UserID = Annotated[int, UserIDScheme]
-
-
-async def add_user(user: AddUserScheme, db_session: AsyncSession) -> bool | None:
-    if not user or not db_session: return False
-    async with db_session as session:
-        try:
+@parameter_checker()
+async def add_user(user: AddUserScheme, db_session: AsyncSession) -> GetUserScheme:
+    try:
+        async with db_session as session:
             new_user = User(
                 name=user.name,
                 email=user.email,
                 hashed_password=get_hashed_password(user.password),
             )
+
             session.add(new_user)
             await session.commit()
             await session.refresh(new_user)
-            return True
 
-        except IntegrityError:
-            raise
-
-
-async def edit_user(user_id: UserID, user_data: EditUserScheme, db_session: AsyncSession) -> bool | None:
-    if not all([user_id, user_data, db_session]): return False
-
-    async with db_session as session:
-        try:
-            await session.execute(
-                update(User)
-                .where(User.id == user_id)
-                .values(
-                    name=user_data.name,
-                    email=user_data.email,
-                    hashed_password=get_hashed_password(user_data.password)
-                )
+            return GetUserScheme(
+                id=new_user.id,
+                name=new_user.name,
+                decoded_credential=Credential(new_user.credential).name,
+                rating=new_user.rating
             )
-            await session.commit()
-            return True
 
-        except (TypeError, ValueError):
-            return False
-        except IntegrityError:
-            raise
+    except IntegrityError:
+        raise CommonExceptions.DUPLICATED_ENTRY
 
 
-async def delete_user(user_id: UserID, db_session: AsyncSession) -> bool | None:
+@parameter_checker()
+async def edit_user(user_id: UserID, user_data: EditUserScheme, db_session: AsyncSession) -> ResponseScheme:
+    async with db_session as session:
+        await session.execute(
+            update(User)
+            .where(User.id == user_id)
+            .values(
+                name=user_data.name,
+                email=user_data.email,
+                hashed_password=get_hashed_password(user_data.password)
+            )
+        )
+        await session.commit()
+        return CommonResponses.SUCCESS
+
+
+@parameter_checker()
+async def delete_user(user_id: UserID, db_session: AsyncSession) -> ResponseScheme:
     """
     This function doesn't remove 'User' from the DB,
     it changes 'is_active' to False.
     """
-
-    if not user_id or not db_session: return False
-
     async with db_session as session:
-        try:
-            await session.execute(
-                update(User).where(User.id == user_id).values(is_active=False)
+        await session.execute(
+            update(User).where(User.id == user_id).values(is_active=False)
+        )
+        await session.commit()
+        return CommonResponses.SUCCESS
+
+
+@parameter_checker()
+async def get_user(user_id: UserID, db_session: AsyncSession) -> GetUserScheme:
+    async with db_session as session:
+        result: Result = await session.execute(
+            select(
+                User.id,
+                User.name,
+                User.credential,
+                User.is_active,
+                User.rating,
             )
-            await session.commit()
-            return True
+            .where(User.id == user_id)
+        )
 
-        except IntegrityError:
-            raise
+        user: Row = result.one_or_none()
+        if not user or not user.is_active: raise CommonExceptions.NOTHING_FOUND
+        return GetUserScheme(
+            id=user.id,
+            name=user.name,
+            decoded_credential=Credential(user.credential).name,
+            rating=user.rating,
+        )
 
 
-async def get_user(user_id: UserID, db_session: AsyncSession) -> GetUserScheme | None:
-    if not user_id or not db_session: return None
-
+@parameter_checker()
+async def get_all_users(db_session: AsyncSession) -> List[GetUserScheme]:
     async with db_session as session:
-        try:
-            result: Result = await session.execute(
-                select(
-                    User.name,
-                    User.credential,
-                    User.is_active,
-                    User.rating,
+        result: Result = await session.execute(
+            select(
+                User.id,
+                User.name,
+                User.credential,
+                User.is_active,
+                User.rating,
+            )
+            .order_by(User.id)
+        )
+
+        users: List[GetUserScheme] = []
+        for user in result.all():
+            if not user or not user.is_active: raise CommonExceptions.NOTHING_FOUND
+            users.append(
+                GetUserScheme(
+                    id=user.id,
+                    name=user.name,
+                    decoded_credential=Credential(user.credential).name,
+                    rating=user.rating,
                 )
-                .where(User.id == user_id)
             )
-
-            for row in result:
-                user_name = row.name
-                user_credential = row.credential
-                user_is_active = row.is_active
-                user_rating = row.rating
-
-            return GetUserScheme(
-                name=user_name,
-                decoded_credential=Credential(user_credential).name,
-                rating=user_rating,
-            ) \
-                if user_name and\
-                   user_credential is not None and\
-                   user_rating is not None and\
-                   user_is_active\
-                else None
-
-        except UnboundLocalError:
-            return None
-        except IntegrityError:
-            raise
+        if not users: raise CommonExceptions.NOTHING_FOUND
+        return users

@@ -7,7 +7,7 @@ class UserIDScheme(BaseModel):
     id: int = Field(ge=0)
 
 class UserNameScheme(BaseModel):
-    name: str = Field(min_length=1, max_length=100, example="new user")
+    name: str = Field(min_length=1, max_length=100, example="New User")
 
 class CredentialScheme(BaseModel):
     credential: int = Field(ge=Credential.user.value, le=Credential.admin.value, default=Credential.user)
@@ -38,6 +38,7 @@ class AddUserScheme(
 
 
 class GetUserScheme(
+    UserIDScheme,
     UserNameScheme,
     DecodedCredentialScheme,
     RatingScheme

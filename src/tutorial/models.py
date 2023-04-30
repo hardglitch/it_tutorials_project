@@ -13,5 +13,5 @@ class Tutorial(Base):
     description: Mapped[str] = mapped_column(String(length=10000), nullable=False)
     language_code: Mapped[int] = mapped_column(Integer, ForeignKey(Table.Language.language_code))
     source_link: Mapped[str] = mapped_column(String(length=1024), nullable=False)
-    share_type_code: Mapped[int] = mapped_column(Integer, ForeignKey(Table.DistributionType.distribution_type_code))
+    dist_type_code: Mapped[int] = mapped_column(Integer, ForeignKey(Table.DistributionType.distribution_type_code))
     who_added_id: Mapped[int] = mapped_column(Integer, ForeignKey(Table.User.user_id))
