@@ -81,12 +81,14 @@ async def get_tutorial(tutor_id: TutorID, db_session: AsyncSession) -> AddTutori
 
 # All decoding operations will be on the client-side
 @parameter_checker()
-async def hard_decode_tutorial(tutor: AddTutorialScheme, db_session: AsyncSession) -> GetTutorialScheme:
-    decoded_type: GetTutorialTypeScheme = await get_tutorial_type(tutor.type, db_session)
-    decoded_theme: GetTutorialThemeScheme = await get_theme(tutor.theme, db_session)
-    decoded_lang: LanguageScheme = await get_language(tutor.language, db_session)
-    decoded_dist_type: GetTutorialDistributionTypeScheme = await get_distribution_type(tutor.dist_type, db_session)
-    decoded_user: GetUserScheme = await get_user(tutor.who_added, db_session)
+async def get_decoded_tutorial(tutor_id: TutorID, db_session: AsyncSession) -> GetTutorialScheme:
+    tutor: Tutorial | AddTutorialScheme = await get_tutorial(tutor_id, db_session)
+
+    decoded_type: GetTutorialTypeScheme = await get_tutorial_type(tutor.type_code, db_session)
+    decoded_theme: GetTutorialThemeScheme = await get_theme(tutor.theme_code, db_session)
+    decoded_lang: LanguageScheme = await get_language(tutor.language_code, db_session)
+    decoded_dist_type: GetTutorialDistributionTypeScheme = await get_distribution_type(tutor.dist_type_code, db_session)
+    decoded_user: GetUserScheme = await get_user(tutor.who_added_id, db_session)
 
     return GetTutorialScheme(
         title=tutor.title,

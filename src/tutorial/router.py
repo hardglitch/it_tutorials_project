@@ -4,7 +4,7 @@ from src.constants.exceptions import UserExceptions
 from src.constants.responses import ResponseScheme
 from src.db import DBSession
 from src.tools import parameter_checker
-from src.tutorial.crud import TutorID, add_tutorial, delete_tutorial, edit_tutorial, get_tutorial, hard_decode_tutorial
+from src.tutorial.crud import TutorID, add_tutorial, delete_tutorial, edit_tutorial, get_decoded_tutorial, get_tutorial
 from src.tutorial.dist_type.router import dist_type_router
 from src.tutorial.schemas import AddTutorialScheme, EditTutorialScheme, GetTutorialScheme
 from src.tutorial.theme.router import theme_router
@@ -49,6 +49,5 @@ async def get_existing_tutorial(tutor_id: TutorID, db_session: DBSession) -> Add
 # for tests
 @tutorial_router.get("/getdecoded/{tutor_id}")
 @parameter_checker()
-async def get_decoded_tutorial(tutor_id: TutorID, db_session: DBSession) -> GetTutorialScheme:
-    tutor: AddTutorialScheme = await get_tutorial(tutor_id, db_session)
-    return await hard_decode_tutorial(tutor, db_session)
+async def get_existing_decoded_tutorial(tutor_id: TutorID, db_session: DBSession) -> GetTutorialScheme:
+    return await get_decoded_tutorial(tutor_id, db_session)
