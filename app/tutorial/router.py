@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from fastapi_cache.decorator import cache
 from starlette.requests import Request
 from app.constants.exceptions import UserExceptions
 from app.constants.responses import ResponseScheme
@@ -41,6 +42,7 @@ async def delete_existing_tutorial(request: Request, tutor_id: TutorID, db_sessi
 
 
 @tutorial_router.get("/get/{tutor_id}")
+@cache(expire=60)
 @parameter_checker()
 async def get_existing_tutorial(tutor_id: TutorID, db_session: DBSession) -> AddTutorialScheme:
     return await get_tutorial(tutor_id, db_session)
@@ -48,6 +50,7 @@ async def get_existing_tutorial(tutor_id: TutorID, db_session: DBSession) -> Add
 
 # for test
 @tutorial_router.get("/getdecoded/{tutor_id}")
+@cache(expire=60)
 @parameter_checker()
 async def get_existing_decoded_tutorial(tutor_id: TutorID, db_session: DBSession) -> GetDecodedTutorialScheme:
     return await get_decoded_tutorial(tutor_id, db_session)
