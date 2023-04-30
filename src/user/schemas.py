@@ -38,6 +38,7 @@ class AddUserScheme(
 
 
 class GetUserScheme(
+    UserIDScheme,
     UserNameScheme,
     DecodedCredentialScheme,
     RatingScheme

@@ -1,6 +1,8 @@
 from typing import Annotated, List
 from sqlalchemy import Result, Row, ScalarResult, and_, delete, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.constants.exceptions import CommonExceptions
 from src.constants.responses import CommonResponses, ResponseScheme
 from src.dictionary.models import Dictionary
 from src.dictionary.schemas import AddWordToDictionaryScheme, EditDictionaryScheme
@@ -98,4 +100,5 @@ async def get_all_tutorial_types(db_session: AsyncSession) -> List[GetTutorialTy
                     value=row.value,
                 )
             )
-        return tutor_type_list if tutor_type_list else None
+        if not tutor_type_list: raise CommonExceptions.NOTHING_FOUND
+        return tutor_type_list

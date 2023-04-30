@@ -1,6 +1,8 @@
 from typing import Annotated, List
 from sqlalchemy import ScalarResult, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.constants.exceptions import CommonExceptions
 from src.constants.responses import CommonResponses, ResponseScheme
 from src.language.models import Language
 from src.language.schemas import EditLanguageScheme, LangCodeScheme, LanguageScheme
@@ -11,7 +13,7 @@ LangCode = Annotated[int, LangCodeScheme]
 
 
 @db_checker()
-async def add_language(lang: LanguageScheme, db_session: AsyncSession) -> int:
+async def add_language(lang: LanguageScheme, db_session: AsyncSession) -> ResponseScheme:
     async with db_session as session:
         new_lang = Language(
             abbreviation=lang.abbreviation,
@@ -21,7 +23,7 @@ async def add_language(lang: LanguageScheme, db_session: AsyncSession) -> int:
         session.add(new_lang)
         await session.commit()
         await session.refresh(new_lang)
-        return new_lang.code
+        return CommonResponses.SUCCESS
 
 
 @db_checker()
@@ -77,4 +79,5 @@ async def get_all_languages(db_session: AsyncSession) -> List[EditLanguageScheme
                     is_ui_lang=row.is_ui_lang
                 )
             )
+        if not lang_list: raise CommonExceptions.NOTHING_FOUND
         return lang_list

@@ -1,3 +1,5 @@
+from typing import List
+
 from sqlalchemy import Result, Row, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,10 +21,13 @@ async def add_user(user: AddUserScheme, db_session: AsyncSession) -> GetUserSche
                 email=user.email,
                 hashed_password=get_hashed_password(user.password),
             )
+
             session.add(new_user)
             await session.commit()
             await session.refresh(new_user)
+
             return GetUserScheme(
+                id=new_user.id,
                 name=new_user.name,
                 decoded_credential=Credential(new_user.credential).name,
                 rating=new_user.rating
@@ -67,6 +72,7 @@ async def get_user(user_id: UserID, db_session: AsyncSession) -> GetUserScheme:
     async with db_session as session:
         result: Result = await session.execute(
             select(
+                User.id,
                 User.name,
                 User.credential,
                 User.is_active,
@@ -78,7 +84,37 @@ async def get_user(user_id: UserID, db_session: AsyncSession) -> GetUserScheme:
         user: Row = result.one_or_none()
         if not user or not user.is_active: raise CommonExceptions.NOTHING_FOUND
         return GetUserScheme(
+            id=user.id,
             name=user.name,
             decoded_credential=Credential(user.credential).name,
             rating=user.rating,
         )
+
+
+@parameter_checker()
+async def get_all_users(db_session: AsyncSession) -> List[GetUserScheme]:
+    async with db_session as session:
+        result: Result = await session.execute(
+            select(
+                User.id,
+                User.name,
+                User.credential,
+                User.is_active,
+                User.rating,
+            )
+            .order_by(User.id)
+        )
+
+        users: List[GetUserScheme] = []
+        for user in result.all():
+            if not user or not user.is_active: raise CommonExceptions.NOTHING_FOUND
+            users.append(
+                GetUserScheme(
+                    id=user.id,
+                    name=user.name,
+                    decoded_credential=Credential(user.credential).name,
+                    rating=user.rating,
+                )
+            )
+        if not users: raise CommonExceptions.NOTHING_FOUND
+        return users

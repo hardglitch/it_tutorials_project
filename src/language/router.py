@@ -15,7 +15,7 @@ language_router = APIRouter(prefix="/lang", tags=["language"])
 
 @language_router.post("/add")
 @parameter_checker()
-async def add_new_language(request: Request, lang: LanguageScheme, db_session: DBSession) -> int:
+async def add_new_language(request: Request, lang: LanguageScheme, db_session: DBSession) -> ResponseScheme:
     if not await is_admin(get_token_from_cookie(request), db_session): raise UserExceptions.ACCESS_DENIED
     return await add_language(lang, db_session)
 

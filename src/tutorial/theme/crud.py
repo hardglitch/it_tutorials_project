@@ -1,6 +1,8 @@
 from typing import Annotated, List
 from sqlalchemy import Result, Row, ScalarResult, and_, delete, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.constants.exceptions import CommonExceptions
 from src.constants.responses import CommonResponses, ResponseScheme
 from src.dictionary.models import Dictionary
 from src.tools import db_checker
@@ -21,7 +23,7 @@ async def add_theme(theme: AddTutorialThemeScheme, db_session: AsyncSession) -> 
         new_word = Dictionary(
             word_code=word_code,
             lang_code=theme.lang_code,
-            value=theme.value,    # regexp
+            value=theme.value    # regexp
         )
         session.add(new_word)
         await session.commit()
@@ -29,7 +31,7 @@ async def add_theme(theme: AddTutorialThemeScheme, db_session: AsyncSession) -> 
 
         new_dist_type = TutorialTheme(
             word_code=new_word.word_code,
-            type_code=theme.type_code,
+            type_code=theme.type_code
         )
         session.add(new_dist_type)
         await session.commit()
@@ -113,4 +115,5 @@ async def get_all_themes(db_session: AsyncSession) -> List[GetTutorialThemeSchem
                     word_code=row.word_code
                 )
             )
-        return theme_list if theme_list else None
+        if not theme_list: raise CommonExceptions.NOTHING_FOUND
+        return theme_list

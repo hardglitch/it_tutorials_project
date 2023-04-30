@@ -1,6 +1,8 @@
 from typing import Annotated, List
 from sqlalchemy import Result, Row, ScalarResult, and_, delete, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.constants.exceptions import CommonExceptions
 from src.constants.responses import CommonResponses, ResponseScheme
 from src.dictionary.models import Dictionary
 from src.dictionary.schemas import AddWordToDictionaryScheme, EditDictionaryScheme
@@ -98,7 +100,8 @@ async def get_all_distribution_types(db_session: AsyncSession) -> List[GetTutori
             dist_type_list.append(
                 GetTutorialDistributionTypeScheme(
                     dist_type_code=row.code,
-                    dist_type_value=row.value,
+                    dist_type_value=row.value
                 )
             )
-        return dist_type_list if dist_type_list else None
+        if not dist_type_list: raise CommonExceptions.NOTHING_FOUND
+        return dist_type_list

@@ -1,5 +1,4 @@
 from typing import Annotated
-
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.constants.exceptions import TutorialExceptions
@@ -27,13 +26,13 @@ async def add_tutorial(tutor: AddTutorialScheme, db_session: AsyncSession) -> Re
     async with db_session as session:
         new_tutor = Tutorial(
             title=tutor.title,               # regexp
-            type=tutor.type,
-            theme=tutor.theme,
+            type_code=tutor.type,
+            theme_code=tutor.theme,
             description=tutor.description,   # regexp
-            language=tutor.language,
-            source_link=tutor.source_link,
-            dist_type=tutor.dist_type,
-            who_added=tutor.who_added
+            language_code=tutor.language,
+            source_link=str(tutor.source_link),
+            dist_type_code=tutor.dist_type,
+            who_added_id=tutor.who_added
         )
         session.add(new_tutor)
         await session.commit()
