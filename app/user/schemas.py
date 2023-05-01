@@ -1,6 +1,5 @@
-from datetime import timedelta
 from pydantic import BaseModel, EmailStr, Field
-from app.constants.constants import Credential
+from app.common.constants import Credential
 
 
 class UserIDScheme(BaseModel):

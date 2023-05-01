@@ -3,7 +3,7 @@ from inspect import iscoroutinefunction
 from typing import Any, Callable
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from starlette.concurrency import run_in_threadpool
-from app.constants.exceptions import CommonExceptions
+from app.common.exceptions import CommonExceptions, DatabaseExceptions
 
 
 def parameter_checker():
@@ -30,10 +30,8 @@ def db_checker():
                 raise CommonExceptions.INVALID_PARAMETERS
             except NoResultFound:
                 raise CommonExceptions.NOTHING_FOUND
-            except AttributeError:
-                raise CommonExceptions.NOTHING_FOUND
             except IntegrityError:
-                raise CommonExceptions.DUPLICATED_ENTRY
+                raise DatabaseExceptions.DUPLICATED_ENTRY
 
         return wrapped
     return wrapper

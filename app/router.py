@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.staticfiles import StaticFiles
 from app._initial_values import insert_data
 from app.config import REDIS_HOST, REDIS_PASS, REDIS_PORT
 from app.db import DBSession
@@ -30,6 +31,8 @@ class MainRouter:
         app.include_router(language_router)
         app.include_router(user_router)
         app.include_router(tutorial_router)
+
+        # app.mount("/static", StaticFiles(directory="static"), name="static")
 
         @app.post("/init_data", tags=["INIT"])
         async def __init_data(db_session: DBSession):

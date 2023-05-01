@@ -1,8 +1,8 @@
 from typing import List
 from fastapi import APIRouter
 from starlette.requests import Request
-from app.constants.exceptions import UserExceptions
-from app.constants.responses import ResponseScheme
+from app.common.exceptions import UserExceptions
+from app.common.responses import ResponseScheme
 from app.db import DBSession
 from app.language.crud import LangCode, add_language, delete_language, edit_language, get_all_languages, get_language
 from app.language.schemas import EditLanguageScheme, LanguageScheme

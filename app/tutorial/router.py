@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 from fastapi_cache.decorator import cache
 from starlette.requests import Request
-from app.constants.exceptions import UserExceptions
-from app.constants.responses import ResponseScheme
+from app.common.exceptions import UserExceptions
+from app.common.responses import ResponseScheme
 from app.db import DBSession
 from app.tools import parameter_checker
 from app.tutorial.crud import TutorID, add_tutorial, delete_tutorial, edit_tutorial, get_decoded_tutorial, get_tutorial

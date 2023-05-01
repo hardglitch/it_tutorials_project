@@ -1,8 +1,8 @@
 from typing import Annotated, List
 from sqlalchemy import Result, Row, ScalarResult, and_, delete, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.constants.exceptions import CommonExceptions
-from app.constants.responses import CommonResponses, ResponseScheme
+from app.common.exceptions import CommonExceptions
+from app.common.responses import CommonResponses, ResponseScheme
 from app.dictionary.models import Dictionary
 from app.dictionary.schemas import AddWordToDictionaryScheme, EditDictionaryScheme
 from app.tools import db_checker
