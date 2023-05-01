@@ -23,7 +23,7 @@ async def add_theme(theme: AddTutorialThemeScheme, db_session: AsyncSession) -> 
         new_word = Dictionary(
             word_code=word_code,
             lang_code=theme.lang_code,
-            value=theme.value    # regexp
+            value=theme.value
         )
         session.add(new_word)
         await session.commit()
@@ -42,11 +42,11 @@ async def add_theme(theme: AddTutorialThemeScheme, db_session: AsyncSession) -> 
 async def edit_theme(theme: EditTutorialThemeScheme, db_session: AsyncSession) -> ResponseScheme:
     async with db_session as session:
         # update word in the 'dictionary' table
-        if theme.value.strip():
+        if theme.value:
             await session.execute(
                 update(Dictionary)
                 .where(Dictionary.word_code == theme.word_code and Dictionary.lang_code == theme.lang_code)
-                .values(value=theme.value)  # regexp
+                .values(value=theme.value)
             )
 
         # update tutorial type code in the 'theme' table
@@ -64,7 +64,8 @@ async def edit_theme(theme: EditTutorialThemeScheme, db_session: AsyncSession) -
 @db_checker()
 async def delete_theme(code: Code, db_session: AsyncSession) -> ResponseScheme:
     async with db_session as session:
-        theme_from_db = await session.get(TutorialTheme, code)
+        theme_from_db: TutorialTheme | None = await session.get(TutorialTheme, code)
+        if not theme_from_db: raise CommonExceptions.NOTHING_FOUND
 
         # delete entry in the 'dictionary' table
         await session.execute(
@@ -87,7 +88,7 @@ async def get_theme(code: Code, db_session: AsyncSession) -> GetTutorialThemeSch
             .where(and_(TutorialTheme.code == code, TutorialTheme.word_code == Dictionary.word_code))
         )
 
-        row: Row = result.one_or_none()
+        row: Row = result.one()
         return GetTutorialThemeScheme(
             theme_code=row.code,
             value=row.value,

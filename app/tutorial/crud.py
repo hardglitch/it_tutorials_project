@@ -1,4 +1,5 @@
 from typing import Annotated
+from pydantic import HttpUrl, parse_obj_as
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.common.responses import CommonResponses, ResponseScheme
@@ -6,7 +7,7 @@ from app.language.crud import get_language
 from app.language.schemas import LanguageScheme
 from app.tools import db_checker, parameter_checker
 from app.tutorial.dist_type.crud import get_distribution_type
-from app.tutorial.dist_type.schemas import GetTutorialDistributionTypeScheme
+from app.tutorial.dist_type.schemas import GetTutorialDistTypeScheme
 from app.tutorial.exceptions import TutorialExceptions
 from app.tutorial.models import Tutorial
 from app.tutorial.responses import TutorialResponses
@@ -78,12 +79,12 @@ async def get_tutorial(tutor_id: TutorID, db_session: AsyncSession) -> AddTutori
         tutor: Tutorial | None = await session.get(Tutorial, tutor_id)
         if not tutor: raise TutorialExceptions.TUTORIAL_NOT_FOUND
         return AddTutorialScheme(
-            title=tutor.title,               # regexp
+            title=tutor.title,
             type_code=tutor.type_code,
             theme_code=tutor.theme_code,
-            description=tutor.description,   # regexp
+            description=tutor.description,
             lang_code=tutor.language_code,
-            source_link=tutor.source_link,
+            source_link=parse_obj_as(HttpUrl, tutor.source_link),
             dist_type_code=tutor.dist_type_code,
             who_added_id=tutor.who_added_id
         )
@@ -97,7 +98,7 @@ async def get_decoded_tutorial(tutor_id: TutorID, db_session: AsyncSession) -> G
     decoded_type: GetTutorialTypeScheme = await get_tutorial_type(tutor.type_code, db_session)
     decoded_theme: GetTutorialThemeScheme = await get_theme(tutor.theme_code, db_session)
     decoded_lang: LanguageScheme = await get_language(tutor.lang_code, db_session)
-    decoded_dist_type: GetTutorialDistributionTypeScheme = await get_distribution_type(tutor.dist_type_code, db_session)
+    decoded_dist_type: GetTutorialDistTypeScheme = await get_distribution_type(tutor.dist_type_code, db_session)
     decoded_user: GetUserScheme = await get_user(tutor.who_added_id, db_session)
 
     return GetDecodedTutorialScheme(
@@ -107,6 +108,6 @@ async def get_decoded_tutorial(tutor_id: TutorID, db_session: AsyncSession) -> G
         language=decoded_lang.value,
         description=tutor.description,
         dist_type=decoded_dist_type.dist_type_value,
-        source_link=tutor.source_link,
+        source_link=parse_obj_as(HttpUrl, tutor.source_link),
         who_added=decoded_user.name,
     )

@@ -7,7 +7,7 @@ from app.dictionary.models import Dictionary
 from app.dictionary.schemas import AddWordToDictionaryScheme, EditDictionaryScheme
 from app.tools import db_checker
 from app.tutorial.dist_type.models import TutorialDistributionType
-from app.tutorial.dist_type.schemas import DistTypeCodeScheme, GetTutorialDistributionTypeScheme
+from app.tutorial.dist_type.schemas import DistTypeCodeScheme, GetTutorialDistTypeScheme
 
 
 Code = Annotated[int, DistTypeCodeScheme]
@@ -52,7 +52,8 @@ async def edit_distribution_type(dist_type: EditDictionaryScheme, db_session: As
 @db_checker()
 async def delete_distribution_type(code: Code, db_session: AsyncSession) -> ResponseScheme:
     async with db_session as session:
-        dist_type_from_db = await session.get(TutorialDistributionType, code)
+        dist_type_from_db: TutorialDistributionType | None = await session.get(TutorialDistributionType, code)
+        if not dist_type_from_db: raise CommonExceptions.NOTHING_FOUND
 
         # delete entry in the 'dictionary' table
         await session.execute(
@@ -68,7 +69,7 @@ async def delete_distribution_type(code: Code, db_session: AsyncSession) -> Resp
 
 
 @db_checker()
-async def get_distribution_type(code: Code, db_session: AsyncSession) -> GetTutorialDistributionTypeScheme:
+async def get_distribution_type(code: Code, db_session: AsyncSession) -> GetTutorialDistTypeScheme:
     async with db_session as session:
         result: Result = await session.execute(
             select(TutorialDistributionType.code, Dictionary.value)
@@ -78,15 +79,15 @@ async def get_distribution_type(code: Code, db_session: AsyncSession) -> GetTuto
             ))
         )
 
-        dist_type: Row = result.one_or_none()
-        return GetTutorialDistributionTypeScheme(
+        dist_type: Row = result.one()
+        return GetTutorialDistTypeScheme(
             dist_type_code=dist_type.code,
             dist_type_value=dist_type.value,
         )
 
 
 @db_checker()
-async def get_all_distribution_types(db_session: AsyncSession) -> List[GetTutorialDistributionTypeScheme]:
+async def get_all_distribution_types(db_session: AsyncSession) -> List[GetTutorialDistTypeScheme]:
     async with db_session as session:
         result: Result = await session.execute(
             select(TutorialDistributionType.code, Dictionary.value)
@@ -97,7 +98,7 @@ async def get_all_distribution_types(db_session: AsyncSession) -> List[GetTutori
         dist_type_list = []
         for row in result.all():
             dist_type_list.append(
-                GetTutorialDistributionTypeScheme(
+                GetTutorialDistTypeScheme(
                     dist_type_code=row.code,
                     dist_type_value=row.value
                 )

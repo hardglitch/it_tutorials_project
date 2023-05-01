@@ -52,7 +52,8 @@ async def edit_tutorial_type(tutor_type: EditDictionaryScheme, db_session: Async
 @db_checker()
 async def delete_tutorial_type(code: Code, db_session: AsyncSession) -> ResponseScheme:
     async with db_session as session:
-        tutor_type_from_db = await session.get(TutorialType, code)
+        tutor_type_from_db: TutorialType | None = await session.get(TutorialType, code)
+        if not tutor_type_from_db: raise CommonExceptions.NOTHING_FOUND
 
         # delete entry in the 'dictionary' table
         await session.execute(
@@ -75,7 +76,7 @@ async def get_tutorial_type(code: Code, db_session: AsyncSession) -> GetTutorial
             .where(and_(TutorialType.word_code == Dictionary.word_code, TutorialType.code == code))
         )
 
-        row: Row = result.one_or_none()
+        row: Row = result.one()
         return GetTutorialTypeScheme(
             type_code=row.code,
             value=row.value,

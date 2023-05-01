@@ -8,7 +8,7 @@ class DistTypeValueScheme(BaseModel):
     dist_type_value: str = Field(min_length=1, max_length=256, example="Free")
 
 
-class GetTutorialDistributionTypeScheme(
+class GetTutorialDistTypeScheme(
     DistTypeCodeScheme,
     DistTypeValueScheme
 ):

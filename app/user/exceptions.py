@@ -6,9 +6,9 @@ from starlette import status
 @dataclass()
 class AuthenticateExceptions:
 
-    CREDENTIAL_EXCEPTION = HTTPException(
+    FAILED_TO_DECODE_TOKEN = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
+        detail="Failed to decode token",
         headers={"WWW-Authenticate": "Bearer"},
     )
 
@@ -20,7 +20,7 @@ class AuthenticateExceptions:
 
     FAILED_TO_CREATE_TOKEN = HTTPException(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        detail="Failed to create a token",
+        detail="Failed to create token",
         headers={"WWW-Authenticate": "Bearer"},
     )
 

@@ -1,5 +1,5 @@
 from typing import List
-from pydantic import EmailStr
+from pydantic import EmailStr, HttpUrl, parse_obj_as
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.common.constants import Credential
 from app.dictionary.schemas import AddWordToDictionaryScheme
@@ -7,7 +7,7 @@ from app.language.crud import add_language, get_all_languages
 from app.language.schemas import EditLanguageScheme, LanguageScheme
 from app.tutorial.crud import add_tutorial
 from app.tutorial.dist_type.crud import add_distribution_type, get_all_distribution_types
-from app.tutorial.dist_type.schemas import GetTutorialDistributionTypeScheme
+from app.tutorial.dist_type.schemas import GetTutorialDistTypeScheme
 from app.tutorial.schemas import AddTutorialScheme
 from app.tutorial.theme.crud import add_theme, get_all_themes
 from app.tutorial.theme.schemas import AddTutorialThemeScheme, GetTutorialThemeScheme
@@ -17,7 +17,7 @@ from app.user.crud import add_user, get_all_users
 from app.user.schemas import AddUserScheme, GetUserScheme
 
 
-async def insert_data(db_session: AsyncSession):
+async def insert_data(db_session: AsyncSession) -> None:
 
     # 1. Languages
     await add_language(LanguageScheme(abbreviation="eng", value="english", is_ui_lang=True), db_session)
@@ -27,7 +27,7 @@ async def insert_data(db_session: AsyncSession):
     # 2. Distribution Types
     await add_distribution_type(AddWordToDictionaryScheme(lang_code=eng.lang_code, value="free"), db_session)
     await add_distribution_type(AddWordToDictionaryScheme(lang_code=eng.lang_code, value="unfree"), db_session)
-    dist_types: List[GetTutorialDistributionTypeScheme] = await get_all_distribution_types(db_session)
+    dist_types: List[GetTutorialDistTypeScheme] = await get_all_distribution_types(db_session)
     free = dist_types[0]
     unfree = dist_types[1]
 
@@ -69,7 +69,7 @@ async def insert_data(db_session: AsyncSession):
             lang_code=eng.lang_code,
             description="Super duper tutorial for all! It's really the best!",
             dist_type_code=free.dist_type_code,
-            source_link="https://superdupertutorial.my",   # Just ignore the type mismatch error
+            source_link=parse_obj_as(HttpUrl, "https://superdupertutorial.my"),
             who_added_id=paul.id,
         ),
         db_session
@@ -82,7 +82,7 @@ async def insert_data(db_session: AsyncSession):
             lang_code=eng.lang_code,
             description="Super duper tutorial for all! It's really the best! Blender",
             dist_type_code=unfree.dist_type_code,
-            source_link="https://blendertutor.com",      # Just ignore the type mismatch error
+            source_link=parse_obj_as(HttpUrl, "https://blendertutor.com"),
             who_added_id=john.id,
         ),
         db_session
@@ -95,7 +95,7 @@ async def insert_data(db_session: AsyncSession):
             lang_code=eng.lang_code,
             description="Programming on Go",
             dist_type_code=unfree.dist_type_code,
-            source_link="https://goprog.go",             # Just ignore the type mismatch error
+            source_link=parse_obj_as(HttpUrl, "https://goprog.go"),
             who_added_id=john.id,
         ),
         db_session

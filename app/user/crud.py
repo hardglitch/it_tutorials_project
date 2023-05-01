@@ -75,7 +75,7 @@ async def get_user(user_id: UserID, db_session: AsyncSession) -> GetUserScheme:
             .where(User.id == user_id)
         )
 
-        user: Row = result.one_or_none()
+        user: Row = result.one()
         if not user or not user.is_active: raise CommonExceptions.NOTHING_FOUND
         return GetUserScheme(
             id=user.id,
