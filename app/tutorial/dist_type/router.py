@@ -1,8 +1,7 @@
 from typing import List
 from fastapi import APIRouter
 from starlette.requests import Request
-from app.constants.exceptions import UserExceptions
-from app.constants.responses import ResponseScheme
+from app.common.responses import ResponseScheme
 from app.db import DBSession
 from app.dictionary.schemas import AddWordToDictionaryScheme, EditDictionaryScheme
 from app.tools import parameter_checker
@@ -10,6 +9,7 @@ from app.tutorial.dist_type.crud import Code, add_distribution_type, delete_dist
     get_all_distribution_types, get_distribution_type
 from app.tutorial.dist_type.schemas import GetTutorialDistributionTypeScheme
 from app.user.auth import get_token_from_cookie, is_admin
+from app.user.exceptions import UserExceptions
 
 
 dist_type_router = APIRouter(prefix="/dist_type", tags=["tutorial distribution type"])

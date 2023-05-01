@@ -1,14 +1,15 @@
 from typing import Annotated
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.constants.exceptions import TutorialExceptions
-from app.constants.responses import CommonResponses, ResponseScheme, TutorialResponses
+from app.common.responses import CommonResponses, ResponseScheme
 from app.language.crud import get_language
 from app.language.schemas import LanguageScheme
 from app.tools import db_checker, parameter_checker
 from app.tutorial.dist_type.crud import get_distribution_type
 from app.tutorial.dist_type.schemas import GetTutorialDistributionTypeScheme
+from app.tutorial.exceptions import TutorialExceptions
 from app.tutorial.models import Tutorial
+from app.tutorial.responses import TutorialResponses
 from app.tutorial.schemas import AddTutorialScheme, EditTutorialScheme, GetDecodedTutorialScheme, TutorialIDScheme
 from app.tutorial.theme.crud import get_theme
 from app.tutorial.theme.schemas import GetTutorialThemeScheme

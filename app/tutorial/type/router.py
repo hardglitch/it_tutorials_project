@@ -1,8 +1,7 @@
 from typing import List
 from fastapi import APIRouter
 from starlette.requests import Request
-from app.constants.exceptions import UserExceptions
-from app.constants.responses import ResponseScheme
+from app.common.responses import ResponseScheme
 from app.db import DBSession
 from app.dictionary.schemas import AddWordToDictionaryScheme, EditDictionaryScheme
 from app.tools import parameter_checker
@@ -10,7 +9,7 @@ from app.tutorial.type.crud import Code, add_tutorial_type, delete_tutorial_type
     get_all_tutorial_types, get_tutorial_type
 from app.tutorial.type.schemas import GetTutorialTypeScheme
 from app.user.auth import get_token_from_cookie, is_admin
-
+from app.user.exceptions import UserExceptions
 
 type_router = APIRouter(prefix="/type", tags=["tutorial type"])
 

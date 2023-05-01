@@ -1,7 +1,7 @@
 from typing import List
 from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.constants.constants import Credential
+from app.common.constants import Credential
 from app.dictionary.schemas import AddWordToDictionaryScheme
 from app.language.crud import add_language, get_all_languages
 from app.language.schemas import EditLanguageScheme, LanguageScheme

@@ -1,6 +1,6 @@
 from sqlalchemy import Boolean, Identity, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
-from app.constants.constants import Table
+from app.common.constants import Table
 from app.db import Base
 
 

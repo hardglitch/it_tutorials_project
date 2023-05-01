@@ -1,7 +1,7 @@
 from sqlalchemy import ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 from app.db import Base
-from app.constants.constants import Table
+from app.common.constants import Table
 
 
 class Dictionary(Base):
