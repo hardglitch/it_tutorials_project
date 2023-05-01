@@ -1,5 +1,5 @@
 from typing import List
-from pydantic import EmailStr
+from pydantic import EmailStr, HttpUrl, parse_obj_as
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.common.constants import Credential
 from app.dictionary.schemas import AddWordToDictionaryScheme
@@ -69,7 +69,7 @@ async def insert_data(db_session: AsyncSession) -> None:
             lang_code=eng.lang_code,
             description="Super duper tutorial for all! It's really the best!",
             dist_type_code=free.dist_type_code,
-            source_link="https://superdupertutorial.my",   # Just ignore the type mismatch error
+            source_link=parse_obj_as(HttpUrl, "https://superdupertutorial.my"),
             who_added_id=paul.id,
         ),
         db_session
@@ -82,7 +82,7 @@ async def insert_data(db_session: AsyncSession) -> None:
             lang_code=eng.lang_code,
             description="Super duper tutorial for all! It's really the best! Blender",
             dist_type_code=unfree.dist_type_code,
-            source_link="https://blendertutor.com",      # Just ignore the type mismatch error
+            source_link=parse_obj_as(HttpUrl, "https://blendertutor.com"),
             who_added_id=john.id,
         ),
         db_session
@@ -95,7 +95,7 @@ async def insert_data(db_session: AsyncSession) -> None:
             lang_code=eng.lang_code,
             description="Programming on Go",
             dist_type_code=unfree.dist_type_code,
-            source_link="https://goprog.go",             # Just ignore the type mismatch error
+            source_link=parse_obj_as(HttpUrl, "https://goprog.go"),
             who_added_id=john.id,
         ),
         db_session

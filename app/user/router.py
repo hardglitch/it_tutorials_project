@@ -10,7 +10,7 @@ from app.db import DBSession
 from app.tools import parameter_checker
 from app.user.crud import add_user, delete_user, edit_user, get_user
 from app.user.exceptions import AuthenticateExceptions, UserExceptions
-from app.user.schemas import AccessTokenScheme, AddUserScheme, AuthUserScheme, EditUserScheme, GetUserScheme
+from app.user.schemas import AddUserScheme, AuthUserScheme, EditUserScheme, GetUserScheme
 from app.user.auth import UserID, authenticate_user, check_credential, create_access_token, decode_access_token, \
     get_token_from_cookie
 
@@ -29,8 +29,8 @@ async def user_registration(user: AddUserScheme, db_session: DBSession) -> GetUs
 @parameter_checker()
 async def login(form_data: FormData, db_session: DBSession) -> Response:
     """This one creates an Access Token and redirects to the Current User profile"""
-    user: AuthUserScheme = await authenticate_user(form_data.username, form_data.password, db_session)
-    token: str = create_access_token(AccessTokenScheme(name=user.name, id=user.id))
+    user_data: AuthUserScheme = await authenticate_user(form_data.username, form_data.password, db_session)
+    token: str = create_access_token(user_data)
     response = RedirectResponse(url="/user/me", status_code=status.HTTP_302_FOUND)
     response.set_cookie(key=AccessToken.name, value=token, httponly=True, max_age=AccessToken.exp_delta)
     return response

@@ -13,7 +13,7 @@ from app.common.exceptions import CommonExceptions
 from app.tools import parameter_checker
 from app.user.exceptions import AuthenticateExceptions
 from app.user.models import User
-from app.user.schemas import AccessTokenScheme, AuthUserScheme, PasswordScheme, UserIDScheme, UserNameScheme
+from app.user.schemas import AuthUserScheme, PasswordScheme, UserIDScheme, UserNameScheme
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -34,28 +34,28 @@ def get_hashed_password(password: UserPassword) -> str:
 async def authenticate_user(user_name: UserName, password: UserPassword, db_session: AsyncSession) -> AuthUserScheme:
     async with db_session as session:
         result: ScalarResult = await session.scalars(select(User).where(User.name == user_name))
-        user_data: AuthUserScheme | None = result.one_or_none()
-        if not user_data: raise CommonExceptions.NOTHING_FOUND
+        user_data: User | None = result.one_or_none()
+        if not user_data: raise AuthenticateExceptions.INCORRECT_PARAMETERS
         if not bcrypt_context.verify(password, user_data.hashed_password):
             raise AuthenticateExceptions.INCORRECT_PARAMETERS
-        return user_data
+        return AuthUserScheme(
+            id=user_data.id,
+            name=user_data.name
+        )
 
 
-async def is_admin(user_id_or_token: UserID | Token, db_session: AsyncSession) -> bool:
+async def is_admin(token: Token, db_session: AsyncSession) -> bool:
     try:
         async with db_session as session:
-            user_id: int = user_id_or_token if user_id_or_token.isnumeric() \
-                else decode_access_token(user_id_or_token).id
-
+            user_id: int = decode_access_token(token).id
             result: ScalarResult = await session.scalars(select(User.credential).where(User.id == user_id))
             credential: int | None = result.one_or_none()
             return True if credential and credential == Credential.admin else False
-
     except Exception:
         return False
 
 
-def create_access_token(token_data: AccessTokenScheme, exp_delta: int = AccessToken.exp_delta) -> str:
+def create_access_token(token_data: AuthUserScheme, exp_delta: int = AccessToken.exp_delta) -> str:
     try:
         claims = {
             AccessToken.subject: token_data.name,
@@ -68,17 +68,20 @@ def create_access_token(token_data: AccessTokenScheme, exp_delta: int = AccessTo
         raise AuthenticateExceptions.FAILED_TO_CREATE_TOKEN
 
 
-def decode_access_token(token: Token) -> AccessTokenScheme:
+def decode_access_token(token: Token) -> AuthUserScheme:
     try:
         payload = jwt.decode(token=token, key=SECRET_KEY, algorithms=AccessToken.algorithm)
-        return AccessTokenScheme(
-            name=payload.get(AccessToken.subject),
-            id=payload.get(AccessToken.user_id)
+        user_name = payload.get(AccessToken.subject)
+        user_id = payload.get(AccessToken.user_id)
+        if not user_name or not user_id: raise AuthenticateExceptions.FAILED_TO_DECODE_TOKEN
+        return AuthUserScheme(
+            name=user_name,
+            id=user_id
         )
     except ExpiredSignatureError:
         raise AuthenticateExceptions.TOKEN_EXPIRED
     except (JWTError, ValueError, TypeError):
-        raise AuthenticateExceptions.CREDENTIAL_EXCEPTION
+        raise AuthenticateExceptions.FAILED_TO_DECODE_TOKEN
 
 
 def get_token_from_cookie(request: Request) -> Token:

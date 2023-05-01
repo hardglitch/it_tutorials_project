@@ -54,11 +54,4 @@ class AuthUserScheme(
     UserIDScheme,
     UserNameScheme,
 ):
-    hashed_password: str
-
-
-class AccessTokenScheme(
-    UserNameScheme,
-    UserIDScheme
-):
     pass

@@ -65,6 +65,7 @@ async def edit_theme(theme: EditTutorialThemeScheme, db_session: AsyncSession) -
 async def delete_theme(code: Code, db_session: AsyncSession) -> ResponseScheme:
     async with db_session as session:
         theme_from_db: TutorialTheme | None = await session.get(TutorialTheme, code)
+        if not theme_from_db: raise CommonExceptions.NOTHING_FOUND
 
         # delete entry in the 'dictionary' table
         await session.execute(

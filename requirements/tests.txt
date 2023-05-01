@@ -1,8 +1,8 @@
-httpx==0.24.0
-pytest==7.3.1
-pytest-asyncio==0.21.0
-# pytest-xdist==3.2.1
-mypy==1.2.0
-types-redis==4.5.4.1
-pyright==1.1.305
-bandit==1.7.5
+httpx
+pytest
+pytest-asyncio
+# pytest-xdist
+mypy
+types-redis
+pyright
+bandit

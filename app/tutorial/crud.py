@@ -1,4 +1,5 @@
 from typing import Annotated
+from pydantic import HttpUrl, parse_obj_as
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.common.responses import CommonResponses, ResponseScheme
@@ -83,7 +84,7 @@ async def get_tutorial(tutor_id: TutorID, db_session: AsyncSession) -> AddTutori
             theme_code=tutor.theme_code,
             description=tutor.description,
             lang_code=tutor.language_code,
-            source_link=tutor.source_link,
+            source_link=parse_obj_as(HttpUrl, tutor.source_link),
             dist_type_code=tutor.dist_type_code,
             who_added_id=tutor.who_added_id
         )
@@ -107,6 +108,6 @@ async def get_decoded_tutorial(tutor_id: TutorID, db_session: AsyncSession) -> G
         language=decoded_lang.value,
         description=tutor.description,
         dist_type=decoded_dist_type.dist_type_value,
-        source_link=tutor.source_link,
+        source_link=parse_obj_as(HttpUrl, tutor.source_link),
         who_added=decoded_user.name,
     )

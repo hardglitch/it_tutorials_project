@@ -53,6 +53,7 @@ async def delete_language(lang_code: LangCode, db_session: AsyncSession) -> Resp
 async def get_language(lang_code: LangCode, db_session: AsyncSession) -> LanguageScheme:
     async with db_session as session:
         lang_from_db: Language | None = await session.get(Language, lang_code)
+        if not lang_from_db: raise CommonExceptions.NOTHING_FOUND
         return LanguageScheme(
             abbreviation=lang_from_db.abbreviation,
             value=lang_from_db.value,

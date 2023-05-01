@@ -3,9 +3,9 @@ from enum import IntEnum
 
 
 class Credential(IntEnum):
-    user: int = 0
-    moderator: int = 1
-    admin: int = 2
+    user = 0
+    moderator = 1
+    admin = 2
 
 
 @dataclass

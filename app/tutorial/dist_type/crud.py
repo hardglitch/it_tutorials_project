@@ -53,6 +53,7 @@ async def edit_distribution_type(dist_type: EditDictionaryScheme, db_session: As
 async def delete_distribution_type(code: Code, db_session: AsyncSession) -> ResponseScheme:
     async with db_session as session:
         dist_type_from_db: TutorialDistributionType | None = await session.get(TutorialDistributionType, code)
+        if not dist_type_from_db: raise CommonExceptions.NOTHING_FOUND
 
         # delete entry in the 'dictionary' table
         await session.execute(
