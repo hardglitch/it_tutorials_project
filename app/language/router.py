@@ -1,13 +1,13 @@
 from typing import List
 from fastapi import APIRouter
 from starlette.requests import Request
-from app.common.exceptions import UserExceptions
 from app.common.responses import ResponseScheme
 from app.db import DBSession
 from app.language.crud import LangCode, add_language, delete_language, edit_language, get_all_languages, get_language
 from app.language.schemas import EditLanguageScheme, LanguageScheme
 from app.tools import parameter_checker
 from app.user.auth import get_token_from_cookie, is_admin
+from app.user.exceptions import UserExceptions
 
 
 language_router = APIRouter(prefix="/lang", tags=["language"])

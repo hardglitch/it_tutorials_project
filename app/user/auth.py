@@ -9,8 +9,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
 from app.config import SECRET_KEY
 from app.common.constants import AccessToken, Credential
-from app.common.exceptions import AuthenticateExceptions, CommonExceptions
+from app.common.exceptions import CommonExceptions
 from app.tools import parameter_checker
+from app.user.exceptions import AuthenticateExceptions
 from app.user.models import User
 from app.user.schemas import AccessTokenScheme, AuthUserScheme, HashedPasswordScheme, PasswordScheme, UserIDScheme, \
     UserNameScheme

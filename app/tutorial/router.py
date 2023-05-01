@@ -1,7 +1,6 @@
 from fastapi import APIRouter
 from fastapi_cache.decorator import cache
 from starlette.requests import Request
-from app.common.exceptions import UserExceptions
 from app.common.responses import ResponseScheme
 from app.db import DBSession
 from app.tools import parameter_checker
@@ -11,6 +10,7 @@ from app.tutorial.schemas import AddTutorialScheme, EditTutorialScheme, GetDecod
 from app.tutorial.theme.router import theme_router
 from app.tutorial.type.router import type_router
 from app.user.auth import decode_access_token, get_token_from_cookie, is_admin
+from app.user.exceptions import UserExceptions
 
 
 tutorial_router = APIRouter(prefix="/tutorial", tags=["tutorial"])
