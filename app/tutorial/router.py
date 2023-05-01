@@ -23,7 +23,7 @@ tutorial_router.include_router(type_router)
 @parameter_checker()
 async def add_new_tutorial(request: Request, tutor: AddTutorialScheme, db_session: DBSession) -> ResponseScheme:
     if not await is_admin(get_token_from_cookie(request), db_session): raise UserExceptions.ACCESS_DENIED
-    tutor.who_added = decode_access_token(get_token_from_cookie(request)).id
+    tutor.who_added_id = decode_access_token(get_token_from_cookie(request)).id
     return await add_tutorial(tutor, db_session)
 
 

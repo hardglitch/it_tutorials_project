@@ -52,7 +52,7 @@ async def delete_language(lang_code: LangCode, db_session: AsyncSession) -> Resp
 @db_checker()
 async def get_language(lang_code: LangCode, db_session: AsyncSession) -> LanguageScheme:
     async with db_session as session:
-        lang_from_db: LanguageScheme | None = await session.get(Language, lang_code)
+        lang_from_db: Language | None = await session.get(Language, lang_code)
         return LanguageScheme(
             abbreviation=lang_from_db.abbreviation,
             value=lang_from_db.value,

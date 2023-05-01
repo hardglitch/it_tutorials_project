@@ -23,9 +23,6 @@ class EmailScheme(BaseModel):
 class PasswordScheme(BaseModel):
     password: str = Field(min_length=10, max_length=100, example="1234567890")
 
-class HashedPasswordScheme(BaseModel):
-    hashed_password: str = Field(max_length=1024)
-
 
 class AddUserScheme(
     UserNameScheme,
@@ -56,9 +53,8 @@ class EditUserScheme(
 class AuthUserScheme(
     UserIDScheme,
     UserNameScheme,
-    HashedPasswordScheme
 ):
-    pass
+    hashed_password: str
 
 
 class AccessTokenScheme(

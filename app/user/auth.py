@@ -13,8 +13,7 @@ from app.common.exceptions import CommonExceptions
 from app.tools import parameter_checker
 from app.user.exceptions import AuthenticateExceptions
 from app.user.models import User
-from app.user.schemas import AccessTokenScheme, AuthUserScheme, HashedPasswordScheme, PasswordScheme, UserIDScheme, \
-    UserNameScheme
+from app.user.schemas import AccessTokenScheme, AuthUserScheme, PasswordScheme, UserIDScheme, UserNameScheme
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -24,12 +23,11 @@ Token = Annotated[str, Depends(oauth2_scheme)]
 UserID = Annotated[int, UserIDScheme]
 UserName = Annotated[str, UserNameScheme]
 UserPassword = Annotated[str, PasswordScheme]
-UserHashedPassword = Annotated[str, HashedPasswordScheme]
 
 
 @parameter_checker()
-def get_hashed_password(password: UserPassword) -> UserHashedPassword:
-    return bcrypt_context.hash(password)
+def get_hashed_password(password: UserPassword) -> str:
+    return str(bcrypt_context.hash(password))
 
 
 @parameter_checker()
@@ -57,14 +55,14 @@ async def is_admin(user_id_or_token: UserID | Token, db_session: AsyncSession) -
         return False
 
 
-def create_access_token(token_data: AccessTokenScheme, exp_delta: int = AccessToken.exp_delta) -> Token:
+def create_access_token(token_data: AccessTokenScheme, exp_delta: int = AccessToken.exp_delta) -> str:
     try:
         claims = {
             AccessToken.subject: token_data.name,
             AccessToken.user_id: token_data.id,
             AccessToken.expired: datetime.utcnow() + timedelta(seconds=exp_delta)
         }
-        return jwt.encode(claims=claims, key=SECRET_KEY, algorithm=AccessToken.algorithm)
+        return str(jwt.encode(claims=claims, key=SECRET_KEY, algorithm=AccessToken.algorithm))
 
     except (JWTError, ValueError, TypeError):
         raise AuthenticateExceptions.FAILED_TO_CREATE_TOKEN
@@ -77,7 +75,6 @@ def decode_access_token(token: Token) -> AccessTokenScheme:
             name=payload.get(AccessToken.subject),
             id=payload.get(AccessToken.user_id)
         )
-
     except ExpiredSignatureError:
         raise AuthenticateExceptions.TOKEN_EXPIRED
     except (JWTError, ValueError, TypeError):

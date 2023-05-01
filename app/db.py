@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, AsyncGenerator
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
@@ -14,7 +14,7 @@ class Base(DeclarativeBase):
     pass
 
 
-async def get_session() -> AsyncSession:
+async def get_session() -> AsyncGenerator:
     async with async_session() as session:
         yield session
 

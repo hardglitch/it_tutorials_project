@@ -6,7 +6,7 @@ from starlette.concurrency import run_in_threadpool
 from app.common.exceptions import CommonExceptions, DatabaseExceptions
 
 
-def parameter_checker():
+def parameter_checker() -> Any:
     def wrapper(func: Callable) -> Callable:
         @wraps(func)
         async def wrapped(*args: Any, **kwargs: Any) -> Any:
@@ -19,19 +19,17 @@ def parameter_checker():
     return wrapper
 
 
-def db_checker():
+def db_checker() -> Any:
     def wrapper(func: Callable) -> Callable:
         @wraps(func)
         async def wrapped(*args: Any, **kwargs: Any) -> Any:
             try:
                 return await func(*args, **kwargs)
-
             except (TypeError, ValueError):
                 raise CommonExceptions.INVALID_PARAMETERS
             except NoResultFound:
                 raise CommonExceptions.NOTHING_FOUND
             except IntegrityError:
                 raise DatabaseExceptions.DUPLICATED_ENTRY
-
         return wrapped
     return wrapper

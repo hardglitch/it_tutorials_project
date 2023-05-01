@@ -7,7 +7,7 @@ from app.language.crud import add_language, get_all_languages
 from app.language.schemas import EditLanguageScheme, LanguageScheme
 from app.tutorial.crud import add_tutorial
 from app.tutorial.dist_type.crud import add_distribution_type, get_all_distribution_types
-from app.tutorial.dist_type.schemas import GetTutorialDistributionTypeScheme
+from app.tutorial.dist_type.schemas import GetTutorialDistTypeScheme
 from app.tutorial.schemas import AddTutorialScheme
 from app.tutorial.theme.crud import add_theme, get_all_themes
 from app.tutorial.theme.schemas import AddTutorialThemeScheme, GetTutorialThemeScheme
@@ -17,7 +17,7 @@ from app.user.crud import add_user, get_all_users
 from app.user.schemas import AddUserScheme, GetUserScheme
 
 
-async def insert_data(db_session: AsyncSession):
+async def insert_data(db_session: AsyncSession) -> None:
 
     # 1. Languages
     await add_language(LanguageScheme(abbreviation="eng", value="english", is_ui_lang=True), db_session)
@@ -27,7 +27,7 @@ async def insert_data(db_session: AsyncSession):
     # 2. Distribution Types
     await add_distribution_type(AddWordToDictionaryScheme(lang_code=eng.lang_code, value="free"), db_session)
     await add_distribution_type(AddWordToDictionaryScheme(lang_code=eng.lang_code, value="unfree"), db_session)
-    dist_types: List[GetTutorialDistributionTypeScheme] = await get_all_distribution_types(db_session)
+    dist_types: List[GetTutorialDistTypeScheme] = await get_all_distribution_types(db_session)
     free = dist_types[0]
     unfree = dist_types[1]
 
