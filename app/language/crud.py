@@ -22,7 +22,7 @@ async def add_language(lang: LanguageScheme, db_session: AsyncSession) -> Respon
         session.add(new_lang)
         await session.commit()
         await session.refresh(new_lang)
-        return CommonResponses.SUCCESS
+        return CommonResponses.CREATED
 
 
 @db_checker()

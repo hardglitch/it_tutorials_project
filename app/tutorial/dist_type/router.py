@@ -12,7 +12,7 @@ from app.user.auth import get_token_from_cookie, is_admin
 from app.user.exceptions import UserExceptions
 
 
-dist_type_router = APIRouter(prefix="/dist_type", tags=["tutorial distribution type"])
+dist_type_router = APIRouter(prefix="/dist-type", tags=["tutorial distribution type"])
 
 
 @dist_type_router.post("/add")
