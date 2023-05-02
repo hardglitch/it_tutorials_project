@@ -2,19 +2,19 @@ from typing import Annotated, List
 from sqlalchemy import Result, Row, ScalarResult, and_, delete, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.common.exceptions import CommonExceptions
-from app.common.responses import CommonResponses, ResponseScheme
+from app.common.responses import CommonResponses, ResponseSchema
 from app.dictionary.models import Dictionary
 from app.tools import db_checker
 from app.tutorial.theme.models import TutorialTheme
-from app.tutorial.theme.schemas import AddTutorialThemeScheme, EditTutorialThemeScheme, GetTutorialThemeScheme, \
-    ThemeCodeScheme
+from app.tutorial.theme.schemas import AddTutorialThemeSchema, EditTutorialThemeSchema, GetTutorialThemeSchema, \
+    ThemeCodeSchema
 
 
-Code = Annotated[int, ThemeCodeScheme]
+Code = Annotated[int, ThemeCodeSchema]
 
 
 @db_checker()
-async def add_theme(theme: AddTutorialThemeScheme, db_session: AsyncSession) -> ResponseScheme:
+async def add_theme(theme: AddTutorialThemeSchema, db_session: AsyncSession) -> ResponseSchema:
     async with db_session as session:
         result: ScalarResult = await session.scalars(func.max(Dictionary.word_code))
         max_word_code: int | None = result.one_or_none()
@@ -39,7 +39,7 @@ async def add_theme(theme: AddTutorialThemeScheme, db_session: AsyncSession) -> 
 
 
 @db_checker()
-async def edit_theme(theme: EditTutorialThemeScheme, db_session: AsyncSession) -> ResponseScheme:
+async def edit_theme(theme: EditTutorialThemeSchema, db_session: AsyncSession) -> ResponseSchema:
     async with db_session as session:
         # update word in the 'dictionary' table
         if theme.value:
@@ -62,7 +62,7 @@ async def edit_theme(theme: EditTutorialThemeScheme, db_session: AsyncSession) -
 
 
 @db_checker()
-async def delete_theme(code: Code, db_session: AsyncSession) -> ResponseScheme:
+async def delete_theme(code: Code, db_session: AsyncSession) -> ResponseSchema:
     async with db_session as session:
         theme_from_db: TutorialTheme | None = await session.get(TutorialTheme, code)
         if not theme_from_db: raise CommonExceptions.NOTHING_FOUND
@@ -81,7 +81,7 @@ async def delete_theme(code: Code, db_session: AsyncSession) -> ResponseScheme:
 
 
 @db_checker()
-async def get_theme(code: Code, db_session: AsyncSession) -> GetTutorialThemeScheme:
+async def get_theme(code: Code, db_session: AsyncSession) -> GetTutorialThemeSchema:
     async with db_session as session:
         result: Result = await session.execute(
             select(TutorialTheme.code, TutorialTheme.type_code, TutorialTheme.word_code, Dictionary.value)
@@ -89,7 +89,7 @@ async def get_theme(code: Code, db_session: AsyncSession) -> GetTutorialThemeSch
         )
 
         row: Row = result.one()
-        return GetTutorialThemeScheme(
+        return GetTutorialThemeSchema(
             theme_code=row.code,
             value=row.value,
             type_code=row.type_code,
@@ -98,7 +98,7 @@ async def get_theme(code: Code, db_session: AsyncSession) -> GetTutorialThemeSch
 
 
 @db_checker()
-async def get_all_themes(db_session: AsyncSession) -> List[GetTutorialThemeScheme]:
+async def get_all_themes(db_session: AsyncSession) -> List[GetTutorialThemeSchema]:
     async with db_session as session:
         result: Result = await session.execute(
             select(TutorialTheme.code, TutorialTheme.type_code, TutorialTheme.word_code, Dictionary.value)
@@ -109,7 +109,7 @@ async def get_all_themes(db_session: AsyncSession) -> List[GetTutorialThemeSchem
         theme_list = []
         for row in result.all():
             theme_list.append(
-                GetTutorialThemeScheme(
+                GetTutorialThemeSchema(
                     theme_code=row.code,
                     value=row.value,
                     type_code=row.type_code,

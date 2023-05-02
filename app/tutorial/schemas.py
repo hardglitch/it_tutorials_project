@@ -1,47 +1,47 @@
 from typing import Annotated
 from pydantic import BaseModel, Field, HttpUrl
-from app.language.schemas import LangCodeScheme, LangValueScheme
-from app.tutorial.dist_type.schemas import DistTypeCodeScheme, DistTypeValueScheme
-from app.tutorial.theme.schemas import ThemeCodeScheme, ThemeValueScheme
-from app.tutorial.type.schemas import TypeCodeScheme, TypeValueScheme
-from app.user.schemas import UserIDScheme, UserNameScheme
+from app.language.schemas import LangCodeSchema, LangValueSchema
+from app.tutorial.dist_type.schemas import DistTypeCodeSchema, DistTypeValueSchema
+from app.tutorial.theme.schemas import ThemeCodeSchema, ThemeValueSchema
+from app.tutorial.type.schemas import TypeCodeSchema, TypeValueSchema
+from app.user.schemas import UserIDSchema, UserNameSchema
 
 
-class TutorialIDScheme(BaseModel):
+class TutorialIDSchema(BaseModel):
     id: int = Field(ge=0)
 
-class TitleScheme(BaseModel):
+class TitleSchema(BaseModel):
     title: str = Field(min_length=1, max_length=1024, example="New Title")
 
-class DescriptionScheme(BaseModel):
+class DescriptionSchema(BaseModel):
     description: str = Field(min_length=1, max_length=10000, example="This tutorial is great!")
 
-class SourseLinkScheme(BaseModel):
+class SourseLinkSchema(BaseModel):
     source_link: HttpUrl = Field(example="https://greattutor.com/777")
 
 
-class EditTutorialScheme(
-    TitleScheme,
-    DescriptionScheme,
-    SourseLinkScheme
+class EditTutorialSchema(
+    TitleSchema,
+    DescriptionSchema,
+    SourseLinkSchema
 ):
-    type_code: Annotated[int, TypeCodeScheme]
-    theme_code: Annotated[int, ThemeCodeScheme]
-    lang_code: Annotated[int, LangCodeScheme]
-    dist_type_code: Annotated[int, DistTypeCodeScheme]
+    type_code: Annotated[int, TypeCodeSchema]
+    theme_code: Annotated[int, ThemeCodeSchema]
+    lang_code: Annotated[int, LangCodeSchema]
+    dist_type_code: Annotated[int, DistTypeCodeSchema]
 
 
-class AddTutorialScheme(EditTutorialScheme):
-    who_added_id: Annotated[int, UserIDScheme]
+class AddTutorialSchema(EditTutorialSchema):
+    who_added_id: Annotated[int, UserIDSchema]
 
 
-class GetDecodedTutorialScheme(
-    TitleScheme,
-    DescriptionScheme,
-    SourseLinkScheme
+class GetDecodedTutorialSchema(
+    TitleSchema,
+    DescriptionSchema,
+    SourseLinkSchema
 ):
-    type: Annotated[str, TypeValueScheme]
-    theme: Annotated[str, ThemeValueScheme]
-    language: Annotated[str, LangValueScheme]
-    dist_type: Annotated[str, DistTypeValueScheme]
-    who_added: Annotated[str, UserNameScheme]
+    type: Annotated[str, TypeValueSchema]
+    theme: Annotated[str, ThemeValueSchema]
+    language: Annotated[str, LangValueSchema]
+    dist_type: Annotated[str, DistTypeValueSchema]
+    who_added: Annotated[str, UserNameSchema]

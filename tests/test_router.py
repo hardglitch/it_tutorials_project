@@ -1,8 +1,8 @@
 from fastapi.encoders import jsonable_encoder
 from starlette import status
-from app.dictionary.schemas import AddWordToDictionaryScheme
-from app.language.schemas import LanguageScheme
-from app.tutorial.theme.schemas import AddTutorialThemeScheme
+from app.dictionary.schemas import AddWordToDictionarySchema
+from app.language.schemas import LanguageSchema
+from app.tutorial.theme.schemas import AddTutorialThemeSchema
 from app.user.exceptions import UserExceptions
 from setup import Setup
 
@@ -40,25 +40,25 @@ class TestUrlsNegative(Setup):
 class TestAddNewElementNegative(Setup):
 
     def test_add_language_negative(self):
-        new_lang = jsonable_encoder(LanguageScheme(abbreviation="eng", value="english", is_ui_lang=True))
+        new_lang = jsonable_encoder(LanguageSchema(abbreviation="eng", value="english", is_ui_lang=True))
         response = Setup.client.post("/lang/add", json=new_lang)
         assert response.status_code == UserExceptions.ACCESS_DENIED.status_code
         assert response.json() == {"detail": UserExceptions.ACCESS_DENIED.detail}
 
     def test_add_dist_type_negative(self):
-        new_dist_type = jsonable_encoder(AddWordToDictionaryScheme(lang_code=0, value="free"))
+        new_dist_type = jsonable_encoder(AddWordToDictionarySchema(lang_code=0, value="free"))
         response = Setup.client.post("/tutorial/dist-type/add", json=new_dist_type)
         assert response.status_code == UserExceptions.ACCESS_DENIED.status_code
         assert response.json() == {"detail": UserExceptions.ACCESS_DENIED.detail}
 
     def test_add_type_negative(self):
-        new_type = jsonable_encoder(AddWordToDictionaryScheme(lang_code=0, value="New Type"))
+        new_type = jsonable_encoder(AddWordToDictionarySchema(lang_code=0, value="New Type"))
         response = Setup.client.post("/tutorial/type/add", json=new_type)
         assert response.status_code == UserExceptions.ACCESS_DENIED.status_code
         assert response.json() == {"detail": UserExceptions.ACCESS_DENIED.detail}
 
     def test_add_theme_negative(self):
-        new_theme = jsonable_encoder(AddTutorialThemeScheme(lang_code=0, value="Python", type_code=0))
+        new_theme = jsonable_encoder(AddTutorialThemeSchema(lang_code=0, value="Python", type_code=0))
         response = Setup.client.post("/tutorial/theme/add", json=new_theme)
         assert response.status_code == UserExceptions.ACCESS_DENIED.status_code
         assert response.json() == {"detail": UserExceptions.ACCESS_DENIED.detail}

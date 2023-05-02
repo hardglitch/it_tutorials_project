@@ -1,28 +1,28 @@
 from pydantic import BaseModel, Field
 
-class LangCodeScheme(BaseModel):
+class LangCodeSchema(BaseModel):
     lang_code: int = Field(ge=0)
 
-class LangValueScheme(BaseModel):
+class LangValueSchema(BaseModel):
     value: str = Field(min_length=1, max_length=100, example="english")
 
-class LangAbbrScheme(BaseModel):
+class LangAbbrSchema(BaseModel):
     abbreviation: str = Field(min_length=3, max_length=3, example="eng")
 
-class IsUILangScheme(BaseModel):
+class IsUILangSchema(BaseModel):
     is_ui_lang: bool = Field(default=False)
 
 
-class LanguageScheme(
-    LangValueScheme,
-    LangAbbrScheme,
-    IsUILangScheme
+class LanguageSchema(
+    LangValueSchema,
+    LangAbbrSchema,
+    IsUILangSchema
 ):
     pass
 
 
-class EditLanguageScheme(
-    LanguageScheme,
-    LangCodeScheme
+class EditLanguageSchema(
+    LanguageSchema,
+    LangCodeSchema
 ):
     pass

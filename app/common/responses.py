@@ -5,18 +5,18 @@ from starlette import status
 from starlette.responses import Response
 
 
-class ResponseScheme(Response):
+class ResponseSchema(Response):
     status_code: Annotated[int, status]
     content: str | None = Field(max_length=256, default=None, example="This is the response description")
 
 
 @dataclass()
 class CommonResponses:
-    SUCCESS = ResponseScheme(
+    SUCCESS = ResponseSchema(
         status_code=status.HTTP_200_OK,
         content="Successful",
     )
-    CREATED = ResponseScheme(
+    CREATED = ResponseSchema(
         status_code=status.HTTP_201_CREATED,
         content="Successful",
     )

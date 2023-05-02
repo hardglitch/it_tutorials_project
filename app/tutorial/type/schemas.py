@@ -1,15 +1,15 @@
 from pydantic import BaseModel, Field
 
 
-class TypeCodeScheme(BaseModel):
+class TypeCodeSchema(BaseModel):
     type_code: int = Field(ge=0)
 
-class TypeValueScheme(BaseModel):
+class TypeValueSchema(BaseModel):
     value: str = Field(min_length=1, max_length=256, example="New type")
 
 
-class GetTutorialTypeScheme(
-    TypeCodeScheme,
-    TypeValueScheme
+class GetTutorialTypeSchema(
+    TypeCodeSchema,
+    TypeValueSchema
 ):
     pass

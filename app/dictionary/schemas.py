@@ -1,24 +1,24 @@
 from pydantic import BaseModel, Field
-from app.language.schemas import LangCodeScheme
+from app.language.schemas import LangCodeSchema
 
 
-class WordCodeScheme(BaseModel):
+class WordCodeSchema(BaseModel):
     word_code: int = Field(ge=0)
 
-class ValueScheme(BaseModel):
+class ValueSchema(BaseModel):
     value: str = Field(min_length=1, max_length=256, example="new word")
 
 
-class AddWordToDictionaryScheme(
-    LangCodeScheme,
-    ValueScheme
+class AddWordToDictionarySchema(
+    LangCodeSchema,
+    ValueSchema
 ):
     pass
 
 
-class EditDictionaryScheme(
-    WordCodeScheme,
-    LangCodeScheme,
-    ValueScheme
+class EditDictionarySchema(
+    WordCodeSchema,
+    LangCodeSchema,
+    ValueSchema
 ):
     pass

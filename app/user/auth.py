@@ -12,16 +12,16 @@ from app.common.constants import AccessToken, Credential
 from app.tools import parameter_checker
 from app.user.exceptions import AuthenticateExceptions
 from app.user.models import User
-from app.user.schemas import AuthUserScheme, PasswordScheme, UserIDScheme, UserNameScheme
+from app.user.schemas import AuthUserSchema, PasswordSchema, UserIDSchema, UserNameSchema
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 bcrypt_context = CryptContext(schemes="bcrypt", deprecated="auto")
 
 Token = Annotated[str, Depends(oauth2_scheme)]
-UserID = Annotated[int, UserIDScheme]
-UserName = Annotated[str, UserNameScheme]
-UserPassword = Annotated[str, PasswordScheme]
+UserID = Annotated[int, UserIDSchema]
+UserName = Annotated[str, UserNameSchema]
+UserPassword = Annotated[str, PasswordSchema]
 
 
 @parameter_checker()
@@ -30,14 +30,14 @@ def get_hashed_password(password: UserPassword) -> str:
 
 
 @parameter_checker()
-async def authenticate_user(user_name: UserName, password: UserPassword, db_session: AsyncSession) -> AuthUserScheme:
+async def authenticate_user(user_name: UserName, password: UserPassword, db_session: AsyncSession) -> AuthUserSchema:
     async with db_session as session:
         result: ScalarResult = await session.scalars(select(User).where(User.name == user_name))
         user_data: User | None = result.one_or_none()
         if not user_data: raise AuthenticateExceptions.INCORRECT_PARAMETERS
         if not bcrypt_context.verify(password, user_data.hashed_password):
             raise AuthenticateExceptions.INCORRECT_PARAMETERS
-        return AuthUserScheme(
+        return AuthUserSchema(
             id=user_data.id,
             name=user_data.name
         )
@@ -54,7 +54,7 @@ async def is_admin(token: Token, db_session: AsyncSession) -> bool:
         return False
 
 
-def create_access_token(token_data: AuthUserScheme, exp_delta: int = AccessToken.exp_delta) -> str:
+def create_access_token(token_data: AuthUserSchema, exp_delta: int = AccessToken.exp_delta) -> str:
     try:
         claims = {
             AccessToken.subject: token_data.name,
@@ -67,13 +67,13 @@ def create_access_token(token_data: AuthUserScheme, exp_delta: int = AccessToken
         raise AuthenticateExceptions.FAILED_TO_CREATE_TOKEN
 
 
-def decode_access_token(token: Token) -> AuthUserScheme:
+def decode_access_token(token: Token) -> AuthUserSchema:
     try:
         payload = jwt.decode(token=token, key=SECRET_KEY, algorithms=AccessToken.algorithm)
         user_name = payload.get(AccessToken.subject)
         user_id = payload.get(AccessToken.user_id)
         if not user_name or not user_id: raise AuthenticateExceptions.FAILED_TO_DECODE_TOKEN
-        return AuthUserScheme(
+        return AuthUserSchema(
             name=user_name,
             id=user_id
         )

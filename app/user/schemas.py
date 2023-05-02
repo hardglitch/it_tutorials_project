@@ -2,56 +2,56 @@ from pydantic import BaseModel, EmailStr, Field
 from app.common.constants import Credential
 
 
-class UserIDScheme(BaseModel):
+class UserIDSchema(BaseModel):
     id: int = Field(ge=0)
 
-class UserNameScheme(BaseModel):
+class UserNameSchema(BaseModel):
     name: str = Field(min_length=1, max_length=100, example="New User")
 
-class CredentialScheme(BaseModel):
+class CredentialSchema(BaseModel):
     credential: int = Field(ge=Credential.user.value, le=Credential.admin.value, default=Credential.user)
 
-class DecodedCredentialScheme(BaseModel):
+class DecodedCredentialSchema(BaseModel):
     decoded_credential: str = Field(example="user")
 
-class RatingScheme(BaseModel):
+class RatingSchema(BaseModel):
     rating: int = Field(ge=0, default=0)
 
-class EmailScheme(BaseModel):
+class EmailSchema(BaseModel):
     email: EmailStr = Field(example="newuser@email.com")
 
-class PasswordScheme(BaseModel):
+class PasswordSchema(BaseModel):
     password: str = Field(min_length=10, max_length=100, example="1234567890")
 
 
-class AddUserScheme(
-    UserNameScheme,
-    CredentialScheme,
-    EmailScheme,
-    PasswordScheme
+class AddUserSchema(
+    UserNameSchema,
+    CredentialSchema,
+    EmailSchema,
+    PasswordSchema
 ):
     pass
 
 
-class GetUserScheme(
-    UserIDScheme,
-    UserNameScheme,
-    DecodedCredentialScheme,
-    RatingScheme
+class GetUserSchema(
+    UserIDSchema,
+    UserNameSchema,
+    DecodedCredentialSchema,
+    RatingSchema
 ):
     pass
 
 
-class EditUserScheme(
-    UserNameScheme,
-    EmailScheme,
-    PasswordScheme
+class EditUserSchema(
+    UserNameSchema,
+    EmailSchema,
+    PasswordSchema
 ):
     pass
 
 
-class AuthUserScheme(
-    UserIDScheme,
-    UserNameScheme,
+class AuthUserSchema(
+    UserIDSchema,
+    UserNameSchema,
 ):
     pass

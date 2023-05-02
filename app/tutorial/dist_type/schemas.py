@@ -1,15 +1,15 @@
 from pydantic import BaseModel, Field
 
 
-class DistTypeCodeScheme(BaseModel):
+class DistTypeCodeSchema(BaseModel):
     dist_type_code: int = Field(ge=0)
 
-class DistTypeValueScheme(BaseModel):
+class DistTypeValueSchema(BaseModel):
     dist_type_value: str = Field(min_length=1, max_length=256, example="Free")
 
 
-class GetTutorialDistTypeScheme(
-    DistTypeCodeScheme,
-    DistTypeValueScheme
+class GetTutorialDistTypeSchema(
+    DistTypeCodeSchema,
+    DistTypeValueSchema
 ):
     pass
