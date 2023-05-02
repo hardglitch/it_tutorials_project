@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, Identity, Integer
+from sqlalchemy import Identity, Integer
 from sqlalchemy.orm import Mapped, mapped_column
 from app.common.constants import Table
 from app.db import Base

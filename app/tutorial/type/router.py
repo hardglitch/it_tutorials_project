@@ -1,4 +1,4 @@
-from typing import List, Type
+from typing import List
 from fastapi import APIRouter
 from starlette.requests import Request
 from app.common.responses import ResponseScheme
