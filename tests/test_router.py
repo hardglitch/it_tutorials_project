@@ -7,7 +7,7 @@ from app.user.exceptions import UserExceptions
 from setup import Setup
 
 
-class TestUrlsNegative(Setup):
+class TestUrlsNegative:
 
     def test_wrong_url_negative(self):
         response = Setup.client.post("/lng/add", json={})
@@ -37,7 +37,7 @@ class TestUrlsNegative(Setup):
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
-class TestAddNewElementNegative(Setup):
+class TestAddNewElementNegative:
 
     def test_add_language_negative(self):
         new_lang = jsonable_encoder(LanguageSchema(abbreviation="eng", value="english", is_ui_lang=True))

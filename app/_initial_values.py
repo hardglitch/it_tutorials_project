@@ -1,7 +1,6 @@
 from typing import List
 from pydantic import EmailStr, HttpUrl, parse_obj_as
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.common.constants import Credential
 from app.dictionary.schemas import AddWordToDictionarySchema
 from app.language.crud import add_language, get_all_languages
 from app.language.schemas import EditLanguageSchema, LanguageSchema
@@ -13,6 +12,7 @@ from app.tutorial.theme.crud import add_theme, get_all_themes
 from app.tutorial.theme.schemas import AddTutorialThemeSchema, GetTutorialThemeSchema
 from app.tutorial.type.crud import add_tutorial_type, get_all_tutorial_types
 from app.tutorial.type.schemas import GetTutorialTypeSchema
+from app.user.auth import Credential
 from app.user.crud import add_user, get_all_users
 from app.user.schemas import AddUserSchema, GetUserSchema
 

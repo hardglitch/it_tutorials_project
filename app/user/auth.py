@@ -4,13 +4,13 @@ from fastapi import Depends
 from jose import ExpiredSignatureError, JWTError, jwt
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
-from sqlalchemy import ScalarResult, select
+from sqlalchemy import Result, Row, ScalarResult, and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
 from app.config import SECRET_KEY
 from app.common.constants import AccessToken, Credential
-from app.tools import parameter_checker
-from app.user.exceptions import AuthenticateExceptions
+from app.tools import db_checker, parameter_checker
+from app.user.exceptions import AuthenticateExceptions, UserExceptions
 from app.user.models import User
 from app.user.schemas import AuthUserSchema, PasswordSchema, UserIDSchema, UserNameSchema
 
@@ -29,29 +29,51 @@ def get_hashed_password(password: UserPassword) -> str:
     return str(bcrypt_context.hash(password))
 
 
-@parameter_checker()
+@db_checker()
 async def authenticate_user(user_name: UserName, password: UserPassword, db_session: AsyncSession) -> AuthUserSchema:
     async with db_session as session:
         result: ScalarResult = await session.scalars(select(User).where(User.name == user_name))
-        user_data: User | None = result.one_or_none()
-        if not user_data: raise AuthenticateExceptions.INCORRECT_PARAMETERS
-        if not bcrypt_context.verify(password, user_data.hashed_password):
+        user: User | None = result.one_or_none()
+        if not user or not bcrypt_context.verify(password, user.hashed_password):
             raise AuthenticateExceptions.INCORRECT_PARAMETERS
         return AuthUserSchema(
-            id=user_data.id,
-            name=user_data.name
+            id=user.id,
+            name=user.name
         )
 
 
-async def is_admin(token: Token, db_session: AsyncSession) -> bool:
-    try:
-        async with db_session as session:
-            user_id: int = decode_access_token(token).id
-            result: ScalarResult = await session.scalars(select(User.credential).where(User.id == user_id))
-            credential: int | None = result.one_or_none()
-            return True if credential and credential == Credential.admin else False
-    except Exception:
-        return False
+@db_checker()
+async def is_this(credential: Credential, token: Token, db_session: AsyncSession) -> bool:
+    async with db_session as session:
+        user_data: AuthUserSchema = decode_access_token(token)
+        result: Result = await session.execute(
+            select(User)
+            .where(and_(User.id == user_data.id, User.name == user_data.name, User.is_active is True))
+        )
+        user: Row | None = result.one_or_none()
+        if not user: return False
+
+        match credential:
+            case Credential.user:
+                if user.credential == Credential.user: return True
+            case Credential.moderator:
+                if user.credential == Credential.moderator: return True
+            case Credential.admin:
+                if user.credential == Credential.admin: return True
+            case _:
+                return False
+
+
+@parameter_checker()
+def is_me(user_id: UserID, request: Request) -> bool:
+    if user_id == decode_access_token(get_token(request)).id: return True
+    raise UserExceptions.ACCESS_DENIED
+
+
+@parameter_checker()
+async def is_admin(request: Request, db_session: AsyncSession) -> bool:
+    if not await is_this(Credential.admin, get_token(request), db_session): return True
+    raise UserExceptions.ACCESS_DENIED
 
 
 def create_access_token(token_data: AuthUserSchema, exp_delta: int = AccessToken.exp_delta) -> str:
@@ -83,13 +105,8 @@ def decode_access_token(token: Token) -> AuthUserSchema:
         raise AuthenticateExceptions.FAILED_TO_DECODE_TOKEN
 
 
-def get_token_from_cookie(request: Request) -> Token:
+def get_token(request: Request) -> Token:
     try:
         return Token(request.cookies.get(AccessToken.name))
     except (TypeError, ValueError):
         raise AuthenticateExceptions.TOKEN_NOT_FOUND
-
-
-@parameter_checker()
-async def check_credential(user_id: UserID, token: Token, db_session: AsyncSession) -> bool:
-    return True if user_id == decode_access_token(token).id or is_admin(token, db_session) else False

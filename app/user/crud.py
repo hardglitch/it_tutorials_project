@@ -1,11 +1,10 @@
 from typing import List
 from sqlalchemy import Result, Row, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.common.constants import Credential
 from app.common.exceptions import CommonExceptions
 from app.common.responses import CommonResponses, ResponseSchema
 from app.tools import db_checker
-from app.user.auth import UserID, get_hashed_password
+from app.user.auth import Credential, UserID, get_hashed_password
 from app.user.models import User
 from app.user.schemas import AddUserSchema, EditUserSchema, GetUserSchema
 

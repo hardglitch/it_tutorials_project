@@ -2,10 +2,10 @@ from dataclasses import dataclass
 from typing import Annotated
 from pydantic import Field
 from starlette import status
-from starlette.responses import Response
+from starlette.responses import JSONResponse
 
 
-class ResponseSchema(Response):
+class ResponseSchema(JSONResponse):
     status_code: Annotated[int, status]
     content: str | None = Field(max_length=256, default=None, example="This is the response description")
 
