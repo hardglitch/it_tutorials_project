@@ -4,7 +4,7 @@ from app.language.schemas import LangCodeSchema, LangValueSchema
 from app.tutorial.dist_type.schemas import DistTypeCodeSchema, DistTypeValueSchema
 from app.tutorial.theme.schemas import ThemeCodeSchema, ThemeValueSchema
 from app.tutorial.type.schemas import TypeCodeSchema, TypeValueSchema
-from app.user.schemas import UserIDSchema, UserNameSchema
+from app.user.schemas import IDSchema, UserNameSchema
 
 
 class TutorialIDSchema(BaseModel):
@@ -32,7 +32,7 @@ class EditTutorialSchema(
 
 
 class AddTutorialSchema(EditTutorialSchema):
-    who_added_id: Annotated[int, UserIDSchema]
+    who_added_id: Annotated[int, IDSchema]
 
 
 class GetDecodedTutorialSchema(

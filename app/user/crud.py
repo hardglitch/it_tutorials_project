@@ -1,45 +1,46 @@
 from typing import List
 from sqlalchemy import Result, Row, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.common.constants import DecodedCredential
 from app.common.exceptions import CommonExceptions
 from app.common.responses import CommonResponses, ResponseSchema
 from app.tools import db_checker
-from app.user.auth import Credential, UserID, get_hashed_password
-from app.user.models import User
-from app.user.schemas import AddUserSchema, EditUserSchema, GetUserSchema
+from app.user.auth import Credential, get_hashed_password
+from app.user.schemas import UserSchema, UserID
+from app.user.models import UserModel
 
 
 @db_checker()
-async def add_user(user: AddUserSchema, db_session: AsyncSession) -> GetUserSchema:
+async def add_user(user: UserSchema, db_session: AsyncSession) -> UserSchema:
     async with db_session as session:
-        new_user = User(
+        new_user = UserModel(
             name=user.name,
             email=user.email,
-            hashed_password=get_hashed_password(user.password),
+            hashed_password=get_hashed_password(user.password.get_secret_value()),
         )
 
         session.add(new_user)
         await session.commit()
         await session.refresh(new_user)
 
-        return GetUserSchema(
+        return UserSchema(
             id=new_user.id,
             name=new_user.name,
-            decoded_credential=Credential(new_user.credential).name,
+            decoded_credential=DecodedCredential(Credential(new_user.credential).name),
             rating=new_user.rating
         )
 
 
 @db_checker()
-async def edit_user(user_id: UserID, user_data: EditUserSchema, db_session: AsyncSession) -> ResponseSchema:
+async def edit_user(user: UserSchema, db_session: AsyncSession) -> ResponseSchema:
     async with db_session as session:
         await session.execute(
-            update(User)
-            .where(User.id == user_id)
+            update(UserModel)
+            .where(UserModel.id == user.id)
             .values(
-                name=user_data.name,
-                email=user_data.email,
-                hashed_password=get_hashed_password(user_data.password)
+                name=user.name,
+                email=user.email,
+                hashed_password=get_hashed_password(user.password.get_secret_value())
             )
         )
         await session.commit()
@@ -54,59 +55,59 @@ async def delete_user(user_id: UserID, db_session: AsyncSession) -> ResponseSche
     """
     async with db_session as session:
         await session.execute(
-            update(User).where(User.id == user_id).values(is_active=False)
+            update(UserModel).where(UserModel.id == user_id).values(is_active=False)
         )
         await session.commit()
         return CommonResponses.SUCCESS
 
 
 @db_checker()
-async def get_user(user_id: UserID, db_session: AsyncSession) -> GetUserSchema:
+async def get_user(user_id: UserID, db_session: AsyncSession) -> UserSchema:
     async with db_session as session:
         result: Result = await session.execute(
             select(
-                User.id,
-                User.name,
-                User.credential,
-                User.is_active,
-                User.rating,
+                UserModel.id,
+                UserModel.name,
+                UserModel.credential,
+                UserModel.is_active,
+                UserModel.rating,
             )
-            .where(User.id == user_id)
+            .where(UserModel.id == user_id)
         )
 
-        user: Row = result.one()
-        if not user or not user.is_active: raise CommonExceptions.NOTHING_FOUND
-        return GetUserSchema(
-            id=user.id,
-            name=user.name,
-            decoded_credential=Credential(user.credential).name,
-            rating=user.rating,
+        usr: Row = result.one()
+        if not usr or not usr.is_active: raise CommonExceptions.NOTHING_FOUND
+        return UserSchema(
+            id=usr.id,
+            name=usr.name,
+            decoded_credential=DecodedCredential(Credential(usr.credential).name),
+            rating=usr.rating,
         )
 
 
 @db_checker()
-async def get_all_users(db_session: AsyncSession) -> List[GetUserSchema]:
+async def get_all_users(db_session: AsyncSession) -> List[UserSchema]:
     async with db_session as session:
         result: Result = await session.execute(
             select(
-                User.id,
-                User.name,
-                User.credential,
-                User.is_active,
-                User.rating,
+                UserModel.id,
+                UserModel.name,
+                UserModel.credential,
+                UserModel.is_active,
+                UserModel.rating,
             )
-            .order_by(User.id)
+            .order_by(UserModel.id)
         )
 
-        users: List[GetUserSchema] = []
-        for user in result.all():
-            if not user.is_active: continue
+        users: List[UserSchema] = []
+        for usr in result.all():
+            if not usr.is_active: continue
             users.append(
-                GetUserSchema(
-                    id=user.id,
-                    name=user.name,
-                    decoded_credential=Credential(user.credential).name,
-                    rating=user.rating,
+                UserSchema(
+                    id=usr.id,
+                    name=usr.name,
+                    decoded_credential=DecodedCredential(Credential(usr.credential).name),
+                    rating=usr.rating,
                 )
             )
         if not users: raise CommonExceptions.NOTHING_FOUND

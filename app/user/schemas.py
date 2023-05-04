@@ -1,57 +1,73 @@
-from pydantic import BaseModel, EmailStr, Field
-from app.common.constants import Credential
+from typing import Annotated
+from pydantic import BaseModel, EmailStr, SecretStr, validator
+from app.common.constants import Credential, DecodedCredential
+from app.tools import hard_clean_text, remove_dup_spaces
 
 
-class UserIDSchema(BaseModel):
-    id: int = Field(ge=0)
+class IDSchema(BaseModel):
+    id: int | None = None
+
+    @validator("id")
+    def check_value(cls, value: int):
+        return value if value >= 0 else None
+
+
+UserID = Annotated[int, IDSchema]
+
 
 class UserNameSchema(BaseModel):
-    name: str = Field(min_length=1, max_length=100, example="New User")
+    name: str | None = None
 
-class CredentialSchema(BaseModel):
-    credential: int = Field(ge=Credential.user.value, le=Credential.admin.value, default=Credential.user)
+    @validator("name")
+    def check_value(cls, value: str):
+        return hard_clean_text(value[:100]) if remove_dup_spaces(value) else None
 
-class DecodedCredentialSchema(BaseModel):
-    decoded_credential: str = Field(example="user")
 
-class RatingSchema(BaseModel):
-    rating: int = Field(ge=0, default=0)
+UserName = Annotated[str, UserNameSchema]
 
-class EmailSchema(BaseModel):
-    email: EmailStr = Field(example="newuser@email.com")
 
 class PasswordSchema(BaseModel):
-    password: str = Field(min_length=10, max_length=100, example="1234567890")
+    password: SecretStr | None = None
+
+    @validator("password")
+    def check_value(cls, value: SecretStr):
+        return value if 10 <= len(value) <= 100 else None
 
 
-class AddUserSchema(
+Password = Annotated[SecretStr, PasswordSchema]
+
+
+class RatingSchema(BaseModel):
+    rating: int | None = None
+
+    @validator("rating")
+    def check_value(cls, value: int):
+        return value if value >= 0 else None
+
+
+Rating = Annotated[int, RatingSchema]
+
+
+class EmailSchema(BaseModel):
+    email: EmailStr | None = None
+
+    @validator("email")
+    def check_value(cls, value: EmailStr):
+        return value[:320] if value else None
+
+
+EMail = Annotated[EmailStr, EmailSchema]
+
+
+class UserSchema(
+    IDSchema,
     UserNameSchema,
-    CredentialSchema,
-    EmailSchema,
-    PasswordSchema
-):
-    pass
-
-
-class GetUserSchema(
-    UserIDSchema,
-    UserNameSchema,
-    DecodedCredentialSchema,
+    PasswordSchema,
     RatingSchema
 ):
-    pass
 
-
-class EditUserSchema(
-    UserNameSchema,
-    EmailSchema,
-    PasswordSchema
-):
-    pass
-
-
-class AuthUserSchema(
-    UserIDSchema,
-    UserNameSchema,
-):
-    pass
+    email: EmailStr | None = None
+    hashed_password: str | None = None
+    credential: Credential | None = None
+    decoded_credential: DecodedCredential | None = None
+    token: str | None = None

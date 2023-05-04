@@ -1,6 +1,7 @@
 from typing import Annotated, List
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Form
 from fastapi.security import OAuth2PasswordRequestForm
+from pydantic import SecretStr
 from starlette import status
 from starlette.requests import Request
 from starlette.responses import RedirectResponse, Response
@@ -8,28 +9,41 @@ from app.common.constants import AccessToken
 from app.common.responses import ResponseSchema
 from app.db import DBSession
 from app.tools import parameter_checker
+from app.user.auth import authenticate_user, decode_access_token, get_token, is_admin, is_me
 from app.user.crud import add_user, delete_user, edit_user, get_all_users, get_user
-from app.user.exceptions import AuthenticateExceptions
-from app.user.schemas import AddUserSchema, AuthUserSchema, EditUserSchema, GetUserSchema
-from app.user.auth import UserID, authenticate_user, is_admin, create_access_token, decode_access_token, \
-    get_token, is_me
+from app.user.exceptions import AuthenticateExceptions, UserExceptions
+from app.user.schemas import EMail, Password, UserID, UserName, UserSchema
+
 
 user_router = APIRouter(prefix="/user", tags=["user"])
-FormData = Annotated[OAuth2PasswordRequestForm, Depends()]
 
 
-@user_router.post("/reg")
+@user_router.post("/reg", response_model_exclude_none=True)
 @parameter_checker()
-async def user_registration(user: AddUserSchema, db_session: DBSession) -> GetUserSchema:
+async def user_registration(
+        user_name: Annotated[UserName, Form()],
+        email: Annotated[EMail, Form()],
+        password: Annotated[Password, Form()],
+        db_session: DBSession
+) -> UserSchema:
+
+    user = UserSchema(
+        name=user_name,
+        email=email,
+        password=password,
+    )
     return await add_user(user, db_session)
 
 
-@user_router.post("/login")
+@user_router.post("/login", response_model_exclude_none=True)
 @parameter_checker()
-async def login(form_data: FormData, db_session: DBSession) -> Response:
+async def login(
+        form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+        db_session: DBSession
+) -> Response:
+
     """This one creates an Access Token and redirects to the Current User profile"""
-    user_data: AuthUserSchema = await authenticate_user(form_data.username, form_data.password, db_session)
-    token: str = create_access_token(user_data)
+    token = await authenticate_user(user_name=form_data.username, user_pwd=SecretStr(form_data.password), db_session=db_session)
     response = RedirectResponse(url="/user/me", status_code=status.HTTP_302_FOUND)
     response.set_cookie(key=AccessToken.name, value=token, httponly=True, max_age=AccessToken.exp_delta)
     return response
@@ -44,32 +58,55 @@ async def logout(request: Request) -> Response:
     return response
 
 
-@user_router.put("/{user_id}/edit")
+@user_router.post("/{user_id}/edit", response_model_exclude_none=True)
 @parameter_checker()
-async def edit_existing_user(request: Request, user_id: UserID, user_data: EditUserSchema, db_session: DBSession) -> ResponseSchema:
-    if is_me(user_id, request) or await is_admin(request, db_session): return await edit_user(user_id, user_data, db_session)
+async def edit_existing_user(
+        request: Request,
+        user_id: UserID,
+        user_name: Annotated[UserName, Form()],
+        email: Annotated[EMail, Form()],
+        password: Annotated[Password, Form()],
+        db_session: DBSession
+) -> ResponseSchema:
+
+    if not is_me(user_id, request) and not await is_admin(request, db_session):
+        raise UserExceptions.ACCESS_DENIED
+
+    user = UserSchema(
+        id=user_id,
+        name=user_name,
+        email=email,
+        password=password,
+    )
+    return await edit_user(user, db_session)
 
 
-@user_router.post("/{user_id}/del")
+@user_router.post("/{user_id}/del", response_model_exclude_none=True)
 @parameter_checker()
-async def delete_existing_user(request: Request, user_id: UserID, db_session: DBSession) -> ResponseSchema:
-    if is_me(user_id, request) or await is_admin(request, db_session): return await delete_user(user_id, db_session)
+async def delete_existing_user(
+        request: Request,
+        user_id: UserID,
+        db_session: DBSession
+) -> ResponseSchema:
+
+    if not is_me(user_id, request) and not await is_admin(request, db_session):
+        raise UserExceptions.ACCESS_DENIED
+    return await delete_user(user_id, db_session)
 
 
-@user_router.get("/me")
+@user_router.get("/me", response_model_exclude_none=True)
 @parameter_checker()
-async def get_current_user(request: Request, db_session: DBSession) -> GetUserSchema:
-    user_id: int = decode_access_token(get_token(request)).id
-    return await get_user(user_id, db_session)
+async def get_current_user(request: Request, db_session: DBSession) -> UserSchema:
+    return await get_user(decode_access_token(get_token(request)).id, db_session)
 
 
-@user_router.get("/get-all")
+@user_router.get("/get-all", response_model_exclude_none=True)
 @parameter_checker()
-async def get_all_existing_users(db_session: DBSession) -> List[GetUserSchema]:
+async def get_all_existing_users(db_session: DBSession) -> List[UserSchema]:
     return await get_all_users(db_session)
 
 
-@user_router.get("/{user_id}")
+@user_router.get("/{user_id}", response_model_exclude_none=True)
 @parameter_checker()
-async def get_existing_user(user_id: UserID, db_session: DBSession) -> GetUserSchema:
+async def get_existing_user(user_id: UserID, db_session: DBSession) -> UserSchema:
     return await get_user(user_id, db_session)

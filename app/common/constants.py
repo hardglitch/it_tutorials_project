@@ -1,11 +1,24 @@
 from dataclasses import dataclass
-from enum import IntEnum
+from enum import IntEnum, StrEnum
+
+
+# from pathlib import Path
+
+# from fastapi.templating import Jinja2Templates
+
+# Template = Jinja2Templates(directory=Path("..").joinpath("templates"))
 
 
 class Credential(IntEnum):
     user = 1
     moderator = 2
     admin = 5
+
+
+class DecodedCredential(StrEnum):
+    user = Credential.user.name
+    moderator = Credential.moderator.name
+    admin = Credential.admin.name
 
 
 @dataclass

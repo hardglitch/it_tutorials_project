@@ -3,10 +3,10 @@ from sqlalchemy import Result, Row, ScalarResult, and_, delete, func, select, up
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.common.exceptions import CommonExceptions
 from app.common.responses import CommonResponses, ResponseSchema
-from app.dictionary.models import Dictionary
+from app.dictionary.models import DictionaryModel
 from app.dictionary.schemas import AddWordToDictionarySchema, EditDictionarySchema
 from app.tools import db_checker
-from app.tutorial.type.models import TutorialType
+from app.tutorial.type.models import TypeModel
 from app.tutorial.type.schemas import GetTutorialTypeSchema, TypeCodeSchema
 
 
@@ -16,11 +16,11 @@ Code = Annotated[int, TypeCodeSchema]
 @db_checker()
 async def add_tutorial_type(tutor_type: AddWordToDictionarySchema, db_session: AsyncSession) -> ResponseSchema:
     async with db_session as session:
-        result: ScalarResult = await session.scalars(func.max(Dictionary.word_code))
+        result: ScalarResult = await session.scalars(func.max(DictionaryModel.word_code))
         max_word_code: int | None = result.one_or_none()
         word_code = max_word_code + 1 if max_word_code else 1
 
-        new_word = Dictionary(
+        new_word = DictionaryModel(
             word_code=word_code,
             lang_code=tutor_type.lang_code,
             value=tutor_type.value,
@@ -29,7 +29,7 @@ async def add_tutorial_type(tutor_type: AddWordToDictionarySchema, db_session: A
         await session.commit()
         await session.refresh(new_word)
 
-        new_tutor_type = TutorialType(
+        new_tutor_type = TypeModel(
             word_code=new_word.word_code
         )
         session.add(new_tutor_type)
@@ -41,8 +41,8 @@ async def add_tutorial_type(tutor_type: AddWordToDictionarySchema, db_session: A
 async def edit_tutorial_type(tutor_type: EditDictionarySchema, db_session: AsyncSession) -> ResponseSchema:
     async with db_session as session:
         await session.execute(
-            update(Dictionary)
-            .where(Dictionary.word_code == tutor_type.word_code and Dictionary.lang_code == tutor_type.lang_code)
+            update(DictionaryModel)
+            .where(DictionaryModel.word_code == tutor_type.word_code and DictionaryModel.lang_code == tutor_type.lang_code)
             .values(value=tutor_type.value)
         )
         await session.commit()
@@ -52,13 +52,13 @@ async def edit_tutorial_type(tutor_type: EditDictionarySchema, db_session: Async
 @db_checker()
 async def delete_tutorial_type(code: Code, db_session: AsyncSession) -> ResponseSchema:
     async with db_session as session:
-        tutor_type_from_db: TutorialType | None = await session.get(TutorialType, code)
+        tutor_type_from_db: TypeModel | None = await session.get(TypeModel, code)
         if not tutor_type_from_db: raise CommonExceptions.NOTHING_FOUND
 
         # delete entry in the 'dictionary' table
         await session.execute(
-            delete(Dictionary)
-            .where(Dictionary.word_code == tutor_type_from_db.word_code)
+            delete(DictionaryModel)
+            .where(DictionaryModel.word_code == tutor_type_from_db.word_code)
         )
 
         # delete entry in the 'type' table
@@ -72,8 +72,8 @@ async def delete_tutorial_type(code: Code, db_session: AsyncSession) -> Response
 async def get_tutorial_type(code: Code, db_session: AsyncSession) -> GetTutorialTypeSchema:
     async with db_session as session:
         result: Result = await session.execute(
-            select(TutorialType.code, Dictionary.value)
-            .where(and_(TutorialType.word_code == Dictionary.word_code, TutorialType.code == code))
+            select(TypeModel.code, DictionaryModel.value)
+            .where(and_(TypeModel.word_code == DictionaryModel.word_code, TypeModel.code == code))
         )
 
         row: Row = result.one()
@@ -87,9 +87,9 @@ async def get_tutorial_type(code: Code, db_session: AsyncSession) -> GetTutorial
 async def get_all_tutorial_types(db_session: AsyncSession) -> List[GetTutorialTypeSchema]:
     async with db_session as session:
         result: Result = await session.execute(
-            select(TutorialType.code, Dictionary.value)
-            .where(TutorialType.word_code == Dictionary.word_code)
-            .order_by(Dictionary.value)
+            select(TypeModel.code, DictionaryModel.value)
+            .where(TypeModel.word_code == DictionaryModel.word_code)
+            .order_by(DictionaryModel.value)
         )
 
         tutor_type_list = []

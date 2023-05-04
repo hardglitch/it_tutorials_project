@@ -3,7 +3,7 @@ from sqlalchemy import ScalarResult, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.common.exceptions import CommonExceptions
 from app.common.responses import CommonResponses, ResponseSchema
-from app.language.models import Language
+from app.language.models import LanguageModel
 from app.language.schemas import EditLanguageSchema, LangCodeSchema, LanguageSchema
 from app.tools import db_checker
 
@@ -14,7 +14,7 @@ LangCode = Annotated[int, LangCodeSchema]
 @db_checker()
 async def add_language(lang: LanguageSchema, db_session: AsyncSession) -> ResponseSchema:
     async with db_session as session:
-        new_lang = Language(
+        new_lang = LanguageModel(
             abbreviation=lang.abbreviation,
             value=lang.value,
             is_ui_lang=lang.is_ui_lang
@@ -29,8 +29,8 @@ async def add_language(lang: LanguageSchema, db_session: AsyncSession) -> Respon
 async def edit_language(lang: EditLanguageSchema, db_session: AsyncSession) -> ResponseSchema:
     async with db_session as session:
         await session.execute(
-            update(Language)
-            .where(Language.code == lang.lang_code)
+            update(LanguageModel)
+            .where(LanguageModel.code == lang.lang_code)
             .values(
                 abbreviation=lang.abbreviation,
                 value=lang.value,
@@ -44,7 +44,7 @@ async def edit_language(lang: EditLanguageSchema, db_session: AsyncSession) -> R
 @db_checker()
 async def delete_language(lang_code: LangCode, db_session: AsyncSession) -> ResponseSchema:
     async with db_session as session:
-        await session.delete(select(Language).where(Language.code == lang_code))
+        await session.delete(select(LanguageModel).where(LanguageModel.code == lang_code))
         await session.commit()
         return CommonResponses.SUCCESS
 
@@ -52,7 +52,7 @@ async def delete_language(lang_code: LangCode, db_session: AsyncSession) -> Resp
 @db_checker()
 async def get_language(lang_code: LangCode, db_session: AsyncSession) -> LanguageSchema:
     async with db_session as session:
-        lang_from_db: Language | None = await session.get(Language, lang_code)
+        lang_from_db: LanguageModel | None = await session.get(LanguageModel, lang_code)
         if not lang_from_db: raise CommonExceptions.NOTHING_FOUND
         return LanguageSchema(
             abbreviation=lang_from_db.abbreviation,
@@ -65,8 +65,8 @@ async def get_language(lang_code: LangCode, db_session: AsyncSession) -> Languag
 async def get_all_languages(db_session: AsyncSession) -> List[EditLanguageSchema]:
     async with db_session as session:
         result: ScalarResult = await session.scalars(
-            select(Language)
-            .order_by(Language.value)
+            select(LanguageModel)
+            .order_by(LanguageModel.value)
         )
 
         lang_list = []

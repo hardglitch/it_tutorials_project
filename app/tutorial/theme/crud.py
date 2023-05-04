@@ -3,9 +3,9 @@ from sqlalchemy import Result, Row, ScalarResult, and_, delete, func, select, up
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.common.exceptions import CommonExceptions
 from app.common.responses import CommonResponses, ResponseSchema
-from app.dictionary.models import Dictionary
+from app.dictionary.models import DictionaryModel
 from app.tools import db_checker
-from app.tutorial.theme.models import TutorialTheme
+from app.tutorial.theme.models import ThemeModel
 from app.tutorial.theme.schemas import AddTutorialThemeSchema, EditTutorialThemeSchema, GetTutorialThemeSchema, \
     ThemeCodeSchema
 
@@ -16,11 +16,11 @@ Code = Annotated[int, ThemeCodeSchema]
 @db_checker()
 async def add_theme(theme: AddTutorialThemeSchema, db_session: AsyncSession) -> ResponseSchema:
     async with db_session as session:
-        result: ScalarResult = await session.scalars(func.max(Dictionary.word_code))
+        result: ScalarResult = await session.scalars(func.max(DictionaryModel.word_code))
         max_word_code: int | None = result.one_or_none()
         word_code = max_word_code + 1 if max_word_code else 1
 
-        new_word = Dictionary(
+        new_word = DictionaryModel(
             word_code=word_code,
             lang_code=theme.lang_code,
             value=theme.value
@@ -29,7 +29,7 @@ async def add_theme(theme: AddTutorialThemeSchema, db_session: AsyncSession) -> 
         await session.commit()
         await session.refresh(new_word)
 
-        new_dist_type = TutorialTheme(
+        new_dist_type = ThemeModel(
             word_code=new_word.word_code,
             type_code=theme.type_code
         )
@@ -44,16 +44,16 @@ async def edit_theme(theme: EditTutorialThemeSchema, db_session: AsyncSession) -
         # update word in the 'dictionary' table
         if theme.value:
             await session.execute(
-                update(Dictionary)
-                .where(Dictionary.word_code == theme.word_code and Dictionary.lang_code == theme.lang_code)
+                update(DictionaryModel)
+                .where(DictionaryModel.word_code == theme.word_code and DictionaryModel.lang_code == theme.lang_code)
                 .values(value=theme.value)
             )
 
         # update tutorial type code in the 'theme' table
         if theme.type_code is not None:
             await session.execute(
-                update(TutorialTheme)
-                .where(TutorialTheme.code == theme.theme_code)
+                update(ThemeModel)
+                .where(ThemeModel.code == theme.theme_code)
                 .values(type_code=theme.type_code)
             )
 
@@ -64,13 +64,13 @@ async def edit_theme(theme: EditTutorialThemeSchema, db_session: AsyncSession) -
 @db_checker()
 async def delete_theme(code: Code, db_session: AsyncSession) -> ResponseSchema:
     async with db_session as session:
-        theme_from_db: TutorialTheme | None = await session.get(TutorialTheme, code)
+        theme_from_db: ThemeModel | None = await session.get(ThemeModel, code)
         if not theme_from_db: raise CommonExceptions.NOTHING_FOUND
 
         # delete entry in the 'dictionary' table
         await session.execute(
-            delete(Dictionary)
-            .where(Dictionary.word_code == theme_from_db.word_code)
+            delete(DictionaryModel)
+            .where(DictionaryModel.word_code == theme_from_db.word_code)
         )
 
         # delete entry in the 'theme' table
@@ -84,8 +84,8 @@ async def delete_theme(code: Code, db_session: AsyncSession) -> ResponseSchema:
 async def get_theme(code: Code, db_session: AsyncSession) -> GetTutorialThemeSchema:
     async with db_session as session:
         result: Result = await session.execute(
-            select(TutorialTheme.code, TutorialTheme.type_code, TutorialTheme.word_code, Dictionary.value)
-            .where(and_(TutorialTheme.code == code, TutorialTheme.word_code == Dictionary.word_code))
+            select(ThemeModel.code, ThemeModel.type_code, ThemeModel.word_code, DictionaryModel.value)
+            .where(and_(ThemeModel.code == code, ThemeModel.word_code == DictionaryModel.word_code))
         )
 
         row: Row = result.one()
@@ -101,9 +101,9 @@ async def get_theme(code: Code, db_session: AsyncSession) -> GetTutorialThemeSch
 async def get_all_themes(db_session: AsyncSession) -> List[GetTutorialThemeSchema]:
     async with db_session as session:
         result: Result = await session.execute(
-            select(TutorialTheme.code, TutorialTheme.type_code, TutorialTheme.word_code, Dictionary.value)
-            .where(TutorialTheme.word_code == Dictionary.word_code)
-            .order_by(Dictionary.value)
+            select(ThemeModel.code, ThemeModel.type_code, ThemeModel.word_code, DictionaryModel.value)
+            .where(ThemeModel.word_code == DictionaryModel.word_code)
+            .order_by(DictionaryModel.value)
         )
 
         theme_list = []

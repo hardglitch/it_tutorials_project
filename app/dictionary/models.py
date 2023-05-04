@@ -4,7 +4,7 @@ from app.db import Base
 from app.common.constants import Table
 
 
-class Dictionary(Base):
+class DictionaryModel(Base):
     __tablename__ = Table.Dictionary.table_name
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     word_code: Mapped[int] = mapped_column(Integer, index=True, nullable=False, unique=False)

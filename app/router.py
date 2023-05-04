@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from fastapi.middleware.cors import CORSMiddleware
-from app._initial_values import insert_data
+# from app._initial_values_py import insert_data
 from app.config import REDIS_HOST, REDIS_PASS, REDIS_PORT
 from app.db import DBSession
 from app.language.router import language_router
