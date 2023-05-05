@@ -67,7 +67,6 @@ class UserSchema(
 ):
 
     email: EmailStr | None = None
-    hashed_password: str | None = None
     credential: Credential | None = None
     decoded_credential: DecodedCredential | None = None
     token: str | None = None

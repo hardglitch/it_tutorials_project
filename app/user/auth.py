@@ -9,8 +9,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
 from app.config import SECRET_KEY
 from app.common.constants import AccessToken, Credential
+from app.db import get_session
 from app.tools import db_checker, parameter_checker
-from app.user.exceptions import AuthenticateExceptions
+from app.user.exceptions import AuthenticateExceptions, UserExceptions
 from app.user.schemas import Password, UserID, UserName, UserSchema
 from app.user.models import UserModel
 
@@ -27,35 +28,35 @@ def get_hashed_password(password: str) -> str:
 
 
 @db_checker()
-async def authenticate_user(user_name: UserName, user_pwd: Password, db_session: AsyncSession) -> str:
-    async with db_session as session:
-        result: ScalarResult = await session.scalars(select(UserModel).where(UserModel.name == user_name))
-        user: UserModel | None = result.one_or_none()
-        if not user or not bcrypt_context.verify(user_pwd.get_secret_value(), user.hashed_password):
-            raise AuthenticateExceptions.INCORRECT_PARAMETERS
-        return create_access_token(uid=user.id, name=user.name)
+async def authenticate_user(user_name: UserName, user_pwd: Password) -> (int, str):
+    session: AsyncSession = await anext(get_session())
+    result: ScalarResult = await session.scalars(select(UserModel).where(UserModel.name == user_name))
+    user: UserModel | None = result.one_or_none()
+    if not user or not bcrypt_context.verify(user_pwd.get_secret_value(), user.hashed_password):
+        raise AuthenticateExceptions.INCORRECT_PARAMETERS
+    return user.id, user.name
 
 
 @db_checker()
-async def is_this(credential: Credential, token: Token, db_session: AsyncSession) -> bool:
-    async with db_session as session:
-        user_data: UserSchema = decode_access_token(token)
-        result: ScalarResult = await session.scalars(
-            select(UserModel.credential)
-            .where(and_(UserModel.id == user_data.id, UserModel.name == user_data.name, UserModel.is_active == True))
-        )
-        cred = result.one_or_none()
-        if not cred: return False
+async def is_this(credential: Credential, token: Token) -> bool:
+    session: AsyncSession = await anext(get_session())
+    user_data: UserSchema = decode_access_token(token)
+    result: ScalarResult = await session.scalars(
+        select(UserModel.credential)
+        .where(and_(UserModel.id == user_data.id, UserModel.name == user_data.name, UserModel.is_active == True))
+    )
+    cred = result.one_or_none()
+    if not cred: return False
 
-        match credential:
-            case Credential.user:
-                if cred == Credential.user: return True
-            case Credential.moderator:
-                if cred == Credential.moderator: return True
-            case Credential.admin:
-                if cred == Credential.admin: return True
-            case _:
-                return False
+    match credential:
+        case Credential.user:
+            if cred == Credential.user: return True
+        case Credential.moderator:
+            if cred == Credential.moderator: return True
+        case Credential.admin:
+            if cred == Credential.admin: return True
+        case _:
+            return False
 
 
 @parameter_checker()
@@ -64,8 +65,13 @@ def is_me(user_id: UserID, request: Request) -> bool:
 
 
 @parameter_checker()
-async def is_admin(request: Request, db_session: AsyncSession) -> bool:
-    return True if await is_this(Credential.admin, get_token(request), db_session) else False
+async def is_admin(request: Request) -> bool:
+    return True if await is_this(Credential.admin, get_token(request)) else False
+
+
+async def is_me_or_admin(user_id: UserID, request: Request):
+    if not is_me(user_id, request) and not await is_admin(request):
+        raise UserExceptions.ACCESS_DENIED
 
 
 def create_access_token(uid: UserID, name: UserName, exp_delta: int = AccessToken.exp_delta) -> str:
@@ -102,3 +108,5 @@ def get_token(request: Request) -> Token:
         return Token(request.cookies.get(AccessToken.name))
     except (TypeError, ValueError):
         raise AuthenticateExceptions.TOKEN_NOT_FOUND
+
+
