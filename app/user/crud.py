@@ -3,7 +3,7 @@ from sqlalchemy import Result, Row, select, update
 from app.common.constants import DecodedCredential
 from app.common.exceptions import CommonExceptions
 from app.common.responses import CommonResponses, ResponseSchema
-from app.db import get_session
+from app.db import DBSession
 from app.tools import db_checker
 from app.user.auth import Credential, get_hashed_password
 from app.user.schemas import UserSchema, UserID
@@ -11,17 +11,16 @@ from app.user.models import UserModel
 
 
 @db_checker()
-async def add_user(user: UserSchema) -> UserSchema:
-    session = await anext(get_session())
+async def add_user(user: UserSchema, db_session: DBSession) -> UserSchema:
     new_user = UserModel(
         name=user.name,
         email=user.email,
         hashed_password=get_hashed_password(user.password.get_secret_value()),
     )
 
-    session.add(new_user)
-    await session.commit()
-    await session.refresh(new_user)
+    db_session.add(new_user)
+    await db_session.commit()
+    await db_session.refresh(new_user)
 
     return UserSchema(
         id=new_user.id,
@@ -32,9 +31,8 @@ async def add_user(user: UserSchema) -> UserSchema:
 
 
 @db_checker()
-async def edit_user(user: UserSchema) -> ResponseSchema:
-    session = await anext(get_session())
-    await session.execute(
+async def edit_user(user: UserSchema, db_session: DBSession) -> ResponseSchema:
+    await db_session.execute(
         update(UserModel)
         .where(UserModel.id == user.id)
         .values(
@@ -43,28 +41,26 @@ async def edit_user(user: UserSchema) -> ResponseSchema:
             hashed_password=get_hashed_password(user.password.get_secret_value())
         )
     )
-    await session.commit()
+    await db_session.commit()
     return CommonResponses.SUCCESS
 
 
 @db_checker()
-async def delete_user(user_id: UserID) -> ResponseSchema:
+async def delete_user(user_id: UserID, db_session: DBSession) -> ResponseSchema:
     """
     This function doesn't remove 'User' from the DB,
     it changes 'is_active' to False.
     """
-    session = await anext(get_session())
-    await session.execute(
+    await db_session.execute(
         update(UserModel).where(UserModel.id == user_id).values(is_active=False)
     )
-    await session.commit()
+    await db_session.commit()
     return CommonResponses.SUCCESS
 
 
 @db_checker()
-async def get_user(user_id: UserID) -> UserSchema:
-    session = await anext(get_session())
-    result: Result = await session.execute(
+async def get_user(user_id: UserID, db_session: DBSession) -> UserSchema:
+    result: Result = await db_session.execute(
         select(
             UserModel.id,
             UserModel.name,
@@ -86,9 +82,8 @@ async def get_user(user_id: UserID) -> UserSchema:
 
 
 @db_checker()
-async def get_all_users() -> List[UserSchema]:
-    session = await anext(get_session())
-    result: Result = await session.execute(
+async def get_all_users(db_session: DBSession) -> List[UserSchema]:
+    result: Result = await db_session.execute(
         select(
             UserModel.id,
             UserModel.name,

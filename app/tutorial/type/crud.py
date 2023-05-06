@@ -1,104 +1,107 @@
-from typing import Annotated, List
+from typing import List
 from sqlalchemy import Result, Row, ScalarResult, and_, delete, func, select, update
-from sqlalchemy.ext.asyncio import AsyncSession
 from app.common.exceptions import CommonExceptions
 from app.common.responses import CommonResponses, ResponseSchema
+from app.db import DBSession
 from app.dictionary.models import DictionaryModel
-from app.dictionary.schemas import AddWordToDictionarySchema, EditDictionarySchema
+from app.dictionary.schemas import DictWordCode, DictionarySchema
+from app.language.schemas import LangCode
 from app.tools import db_checker
 from app.tutorial.type.models import TypeModel
-from app.tutorial.type.schemas import GetTutorialTypeSchema, TypeCodeSchema
-
-
-Code = Annotated[int, TypeCodeSchema]
+from app.tutorial.type.schemas import TypeCode, TypeSchema
 
 
 @db_checker()
-async def add_tutorial_type(tutor_type: AddWordToDictionarySchema, db_session: AsyncSession) -> ResponseSchema:
-    async with db_session as session:
-        result: ScalarResult = await session.scalars(func.max(DictionaryModel.word_code))
+async def add_type(tutor_type: DictionarySchema, db_session: DBSession) -> ResponseSchema:
+    if not tutor_type.word_code:
+        result: ScalarResult = await db_session.scalars(func.max(DictionaryModel.word_code))
         max_word_code: int | None = result.one_or_none()
-        word_code = max_word_code + 1 if max_word_code else 1
+        tutor_type.word_code = max_word_code + 1 if max_word_code else 1
 
-        new_word = DictionaryModel(
-            word_code=word_code,
-            lang_code=tutor_type.lang_code,
-            value=tutor_type.value,
-        )
-        session.add(new_word)
-        await session.commit()
-        await session.refresh(new_word)
+    new_word = DictionaryModel(
+        word_code=tutor_type.word_code,
+        lang_code=tutor_type.lang_code,
+        value=tutor_type.dict_value,
+    )
+    db_session.add(new_word)
+    await db_session.commit()
+    await db_session.refresh(new_word)
 
-        new_tutor_type = TypeModel(
-            word_code=new_word.word_code
-        )
-        session.add(new_tutor_type)
-        await session.commit()
-        return CommonResponses.CREATED
-
-
-@db_checker()
-async def edit_tutorial_type(tutor_type: EditDictionarySchema, db_session: AsyncSession) -> ResponseSchema:
-    async with db_session as session:
-        await session.execute(
-            update(DictionaryModel)
-            .where(DictionaryModel.word_code == tutor_type.word_code and DictionaryModel.lang_code == tutor_type.lang_code)
-            .values(value=tutor_type.value)
-        )
-        await session.commit()
-        return CommonResponses.SUCCESS
+    new_tutor_type = TypeModel(
+        word_code=new_word.word_code
+    )
+    db_session.add(new_tutor_type)
+    await db_session.commit()
+    return CommonResponses.CREATED
 
 
 @db_checker()
-async def delete_tutorial_type(code: Code, db_session: AsyncSession) -> ResponseSchema:
-    async with db_session as session:
-        tutor_type_from_db: TypeModel | None = await session.get(TypeModel, code)
-        if not tutor_type_from_db: raise CommonExceptions.NOTHING_FOUND
+async def edit_type(tutor_type: TypeSchema, db_session: DBSession) -> ResponseSchema:
+    result: ScalarResult = await db_session.scalars(
+        select(TypeModel.word_code).where(tutor_type.type_code == TypeModel.code)
+    )
+    word_code: int = result.one()
 
-        # delete entry in the 'dictionary' table
-        await session.execute(
-            delete(DictionaryModel)
-            .where(DictionaryModel.word_code == tutor_type_from_db.word_code)
-        )
-
-        # delete entry in the 'type' table
-        await session.delete(tutor_type_from_db)
-
-        await session.commit()
-        return CommonResponses.SUCCESS
+    await db_session.execute(
+        update(DictionaryModel)
+        .where(DictionaryModel.word_code == word_code and DictionaryModel.lang_code == tutor_type.lang_code)
+        .values(value=tutor_type.dict_value)
+    )
+    await db_session.commit()
+    return CommonResponses.SUCCESS
 
 
 @db_checker()
-async def get_tutorial_type(code: Code, db_session: AsyncSession) -> GetTutorialTypeSchema:
-    async with db_session as session:
-        result: Result = await session.execute(
-            select(TypeModel.code, DictionaryModel.value)
-            .where(and_(TypeModel.word_code == DictionaryModel.word_code, TypeModel.code == code))
-        )
+async def delete_type(type_code: TypeCode, db_session: DBSession) -> ResponseSchema:
+    tutor_type_from_db: TypeModel | None = await db_session.get(TypeModel, type_code)
+    if not tutor_type_from_db: raise CommonExceptions.NOTHING_FOUND
 
-        row: Row = result.one()
-        return GetTutorialTypeSchema(
-            type_code=row.code,
-            value=row.value,
-        )
+    # delete entry in the 'dictionary' table
+    await db_session.execute(
+        delete(DictionaryModel)
+        .where(DictionaryModel.word_code == tutor_type_from_db.word_code)
+    )
+
+    # delete entry in the 'type' table
+    await db_session.delete(tutor_type_from_db)
+
+    await db_session.commit()
+    return CommonResponses.SUCCESS
 
 
 @db_checker()
-async def get_all_tutorial_types(db_session: AsyncSession) -> List[GetTutorialTypeSchema]:
-    async with db_session as session:
-        result: Result = await session.execute(
-            select(TypeModel.code, DictionaryModel.value)
-            .where(TypeModel.word_code == DictionaryModel.word_code)
-            .order_by(DictionaryModel.value)
-        )
+async def get_type(type_code: TypeCode, ui_lang_code: LangCode, db_session: DBSession) -> TypeSchema:
+    result: Result = await db_session.execute(
+        select(TypeModel.code, DictionaryModel.value)
+        .where(and_(
+            TypeModel.word_code == DictionaryModel.word_code,
+            TypeModel.code == type_code,
+            DictionaryModel.lang_code == ui_lang_code
+        ))
+    )
 
-        tutor_type_list = []
-        for row in result.all():
-            tutor_type_list.append(
-                GetTutorialTypeSchema(
-                    type_code=row.code,
-                    value=row.value,
-                )
+    type_: Row = result.one()
+    return TypeSchema(
+        type_code=type_.code,
+        dict_value=type_.value,
+    )
+
+
+@db_checker()
+async def get_all_types(ui_lang_code: LangCode, db_session: DBSession) -> List[TypeSchema]:
+    result: Result = await db_session.execute(
+        select(TypeModel.code, DictionaryModel.value)
+        .where(TypeModel.word_code == DictionaryModel.word_code, DictionaryModel.lang_code == ui_lang_code)
+        .order_by(DictionaryModel.value)
+    )
+
+    type_list = []
+    for row in result.all():
+        type_list.append(
+            TypeSchema(
+                type_code=row.code,
+                dict_value=row.value,
             )
-        if not tutor_type_list: raise CommonExceptions.NOTHING_FOUND
-        return tutor_type_list
+        )
+    if not type_list: raise CommonExceptions.NOTHING_FOUND
+    return type_list

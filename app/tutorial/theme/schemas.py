@@ -1,37 +1,18 @@
-from pydantic import BaseModel, Field
-from app.dictionary.schemas import WordCodeSchema, LangCodeSchema
+from typing import Annotated
+from pydantic import BaseModel
+from app.dictionary.schemas import DictionarySchema
 from app.tutorial.type.schemas import TypeCodeSchema
 
 
 class ThemeCodeSchema(BaseModel):
-    theme_code: int = Field(ge=0)
+    theme_code: int | None = None
 
-class ThemeValueSchema(BaseModel):
-    value: str = Field(min_length=1, max_length=256, example="New theme")
-
-
-class AddTutorialThemeSchema(
-    LangCodeSchema,
-    ThemeValueSchema,
-    TypeCodeSchema
-):
-    pass
+ThemeCode = Annotated[int, ThemeCodeSchema]
 
 
-class EditTutorialThemeSchema(
-    ThemeValueSchema,
-    TypeCodeSchema,
+class ThemeSchema(
     ThemeCodeSchema,
-    WordCodeSchema,
-    LangCodeSchema
-):
-    pass
-
-
-class GetTutorialThemeSchema(
-    ThemeCodeSchema,
-    ThemeValueSchema,
     TypeCodeSchema,
-    WordCodeSchema
+    DictionarySchema,
 ):
     pass

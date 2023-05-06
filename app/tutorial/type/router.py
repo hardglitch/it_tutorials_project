@@ -1,47 +1,92 @@
-from typing import List
-from fastapi import APIRouter
-from starlette.requests import Request
+from typing import Annotated, List
+from fastapi import APIRouter, Depends, Form, Path
 from app.common.responses import ResponseSchema
 from app.db import DBSession
-from app.dictionary.schemas import AddWordToDictionarySchema, EditDictionarySchema
+from app.dictionary.schemas import DictWordCode, DictionarySchema, ValidDictValue
+from app.language.schemas import LangCode
 from app.tools import parameter_checker
-from app.tutorial.type.crud import Code, add_tutorial_type, delete_tutorial_type, edit_tutorial_type, \
-    get_all_tutorial_types, get_tutorial_type
-from app.tutorial.type.schemas import GetTutorialTypeSchema
-from app.user.auth import get_token, is_admin
-from app.user.exceptions import UserExceptions
+from app.tutorial.type.crud import add_type, delete_type, edit_type, get_all_types, get_type
+from app.tutorial.type.schemas import TypeCode, TypeSchema
+from app.user.auth import is_admin
+
 
 type_router = APIRouter(prefix="/type", tags=["tutorial type"])
 
 
-@type_router.post("/add")
+@type_router.post("/add", dependencies=[Depends(is_admin)])
 @parameter_checker()
-async def add_new_tutorial_type(request: Request, dist_type: AddWordToDictionarySchema, db_session: DBSession) -> ResponseSchema:
-    if not await is_admin(get_token(request), db_session): raise UserExceptions.ACCESS_DENIED
-    return await add_tutorial_type(dist_type, db_session)
+async def add_tutorial_type(
+        lang_code: Annotated[LangCode, Form()],
+        type_value: Annotated[ValidDictValue, Form()],
+        db_session: DBSession,
+        word_code: DictWordCode | None = Form(None),
+) -> ResponseSchema:
+
+    return await add_type(
+        DictionarySchema(
+            word_code=word_code,
+            lang_code=lang_code,
+            dict_value=type_value,
+        ),
+        db_session=db_session
+    )
 
 
-@type_router.put("/edit")
+@type_router.put("/{type_code}/edit", dependencies=[Depends(is_admin)])
 @parameter_checker()
-async def edit_existing_tutorial_type(request: Request, dist_type: EditDictionarySchema, db_session: DBSession) -> ResponseSchema:
-    if not await is_admin(get_token(request), db_session): raise UserExceptions.ACCESS_DENIED
-    return await edit_tutorial_type(dist_type, db_session)
+async def edit_tutorial_type(
+        type_code: Annotated[TypeCode, Path()],
+        lang_code: Annotated[LangCode, Form()],
+        type_value: Annotated[ValidDictValue, Form()],
+        db_session: DBSession,
+) -> ResponseSchema:
+
+    return await edit_type(
+        TypeSchema(
+            type_code=type_code,
+            lang_code=lang_code,
+            dict_value=type_value,
+        ),
+        db_session=db_session
+    )
 
 
-@type_router.post("/del/{code}")
+@type_router.post("/{type_code}/del", dependencies=[Depends(is_admin)])
 @parameter_checker()
-async def delete_existing_tutorial_type(request: Request, code: Code, db_session: DBSession) -> ResponseSchema:
-    if not await is_admin(get_token(request), db_session): raise UserExceptions.ACCESS_DENIED
-    return await delete_tutorial_type(code, db_session)
+async def delete_tutorial_type(
+        type_code: Annotated[TypeCode, Path()],
+        db_session: DBSession,
+) -> ResponseSchema:
+
+    return await delete_type(
+        type_code=type_code,
+        db_session=db_session
+    )
 
 
-@type_router.get("/get/{code}")
+@type_router.get("/get-all", response_model_exclude_none=True)
 @parameter_checker()
-async def get_existing_tutorial_type(code: Code, db_session: DBSession) -> GetTutorialTypeSchema:
-    return await get_tutorial_type(code, db_session)
+async def get_all_tutorial_types(
+    ui_lang_code: Annotated[LangCode, Path()],
+    db_session: DBSession,
+) -> List[TypeSchema]:
+
+    return await get_all_types(
+        ui_lang_code=ui_lang_code,
+        db_session=db_session
+    )
 
 
-@type_router.get("/get-all")
+@type_router.get("/{type_code}/{ui_lang_code}", response_model_exclude_none=True)
 @parameter_checker()
-async def get_all_existing_tutorial_types(db_session: DBSession) -> List[GetTutorialTypeSchema]:
-    return await get_all_tutorial_types(db_session)
+async def get_tutorial_type(
+        type_code: Annotated[TypeCode, Path()],
+        ui_lang_code: Annotated[LangCode, Path()],
+        db_session: DBSession,
+) -> TypeSchema:
+
+    return await get_type(
+        type_code=type_code,
+        ui_lang_code=ui_lang_code,
+        db_session=db_session
+    )
