@@ -34,8 +34,8 @@ class MainRouter:
         # app.mount("/static", StaticFiles(directory="static"), name="static")
 
         @app.post("/init_data", tags=["INIT"])
-        async def __init_data(db_session: DBSession) -> None:
-            await insert_data(db_session)
+        async def __init_data(db: DBSession) -> None:
+            await insert_data(db)
 
         @app.on_event("startup")
         async def startup() -> None:

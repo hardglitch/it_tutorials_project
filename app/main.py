@@ -6,4 +6,4 @@ app = FastAPI(title="IT Tutorials")
 MainRouter(app)
 
 if __name__ == "__main__":
-    uvicorn.run(app)
+    uvicorn.run(app, reload=True)

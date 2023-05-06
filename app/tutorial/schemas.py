@@ -1,47 +1,68 @@
 from typing import Annotated
-from pydantic import BaseModel, Field, HttpUrl
-from app.language.schemas import LangCodeScheme, LangValueScheme
-from app.tutorial.dist_type.schemas import DistTypeCodeScheme, DistTypeValueScheme
-from app.tutorial.theme.schemas import ThemeCodeScheme, ThemeValueScheme
-from app.tutorial.type.schemas import TypeCodeScheme, TypeValueScheme
-from app.user.schemas import UserIDScheme, UserNameScheme
+from pydantic import BaseModel, HttpUrl, validator
+from app.dictionary.schemas import DictValue
+from app.language.schemas import LangCode, LangValue
+from app.tools import remove_dup_spaces
+from app.tutorial.dist_type.schemas import DistTypeCode
+from app.tutorial.theme.schemas import ThemeCode
+from app.tutorial.type.schemas import TypeCode
+from app.user.schemas import UserID, UserName
 
 
-class TutorialIDScheme(BaseModel):
-    id: int = Field(ge=0)
+class TutorialIDSchema(BaseModel):
+    id: int | None = None
 
-class TitleScheme(BaseModel):
-    title: str = Field(min_length=1, max_length=1024, example="New Title")
-
-class DescriptionScheme(BaseModel):
-    description: str = Field(min_length=1, max_length=10000, example="This tutorial is great!")
-
-class SourseLinkScheme(BaseModel):
-    source_link: HttpUrl = Field(example="https://greattutor.com/777")
+TutorialID = Annotated[int, TutorialIDSchema]
 
 
-class EditTutorialScheme(
-    TitleScheme,
-    DescriptionScheme,
-    SourseLinkScheme
+class TitleSchema(BaseModel):
+    title: str | None = None
+
+class ValidTitleSchema(BaseModel):
+    title: str | None = None
+
+    @validator("title")
+    def check_value(cls, value: str):
+        return value if 1 < len(value := remove_dup_spaces(value)) <= 1024 else None
+
+Title = Annotated[str, TitleSchema]
+ValidTitle = Annotated[str, ValidTitleSchema]
+
+
+class DescriptionSchema(BaseModel):
+    description: str | None = None
+
+class ValidDescriptionSchema(BaseModel):
+    description: str | None = None
+
+    @validator("description")
+    def check_value(cls, value: str):
+        return value if 1 < len(value := remove_dup_spaces(value)) <= 10000 else None
+
+Description = Annotated[str, DescriptionSchema]
+ValidDescription = Annotated[str, ValidDescriptionSchema]
+
+
+class TutorialSchema(
+    TutorialIDSchema,
+    TitleSchema,
+    DescriptionSchema,
 ):
-    type_code: Annotated[int, TypeCodeScheme]
-    theme_code: Annotated[int, ThemeCodeScheme]
-    lang_code: Annotated[int, LangCodeScheme]
-    dist_type_code: Annotated[int, DistTypeCodeScheme]
+    type_code: TypeCode
+    theme_code: ThemeCode
+    lang_code: LangCode
+    dist_type_code: DistTypeCode
+    source_link: HttpUrl
+    who_added_id: UserID | None = None
 
 
-class AddTutorialScheme(EditTutorialScheme):
-    who_added_id: Annotated[int, UserIDScheme]
-
-
-class GetDecodedTutorialScheme(
-    TitleScheme,
-    DescriptionScheme,
-    SourseLinkScheme
+class DecodedTutorialSchema(
+    TitleSchema,
+    DescriptionSchema,
 ):
-    type: Annotated[str, TypeValueScheme]
-    theme: Annotated[str, ThemeValueScheme]
-    language: Annotated[str, LangValueScheme]
-    dist_type: Annotated[str, DistTypeValueScheme]
-    who_added: Annotated[str, UserNameScheme]
+    type: DictValue
+    theme: DictValue
+    language: LangValue
+    dist_type: DictValue
+    source_link: HttpUrl
+    who_added: UserName

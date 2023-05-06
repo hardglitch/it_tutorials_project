@@ -5,7 +5,7 @@ from app.common.constants import Credential, Table
 from app.db import Base
 
 
-class User(Base):
+class UserModel(Base):
     __tablename__ = Table.User.table_name
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     name: Mapped[str] = mapped_column(String(length=256), nullable=False, unique=True, index=True)

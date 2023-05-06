@@ -1,114 +1,109 @@
 from typing import List
 from sqlalchemy import Result, Row, select, update
-from sqlalchemy.ext.asyncio import AsyncSession
-from app.common.constants import Credential
+from app.common.constants import DecodedCredential
 from app.common.exceptions import CommonExceptions
-from app.common.responses import CommonResponses, ResponseScheme
+from app.common.responses import CommonResponses, ResponseSchema
+from app.db import DBSession
 from app.tools import db_checker
-from app.user.auth import UserID, get_hashed_password
-from app.user.models import User
-from app.user.schemas import AddUserScheme, EditUserScheme, GetUserScheme
+from app.user.auth import Credential, get_hashed_password
+from app.user.schemas import UserSchema, UserID
+from app.user.models import UserModel
 
 
 @db_checker()
-async def add_user(user: AddUserScheme, db_session: AsyncSession) -> GetUserScheme:
-    async with db_session as session:
-        new_user = User(
+async def add_user(user: UserSchema, db_session: DBSession) -> UserSchema:
+    new_user = UserModel(
+        name=user.name,
+        email=user.email,
+        hashed_password=get_hashed_password(user.password.get_secret_value()),
+    )
+
+    db_session.add(new_user)
+    await db_session.commit()
+    await db_session.refresh(new_user)
+
+    return UserSchema(
+        id=new_user.id,
+        name=new_user.name,
+        decoded_credential=DecodedCredential(Credential(new_user.credential).name),
+        rating=new_user.rating
+    )
+
+
+@db_checker()
+async def edit_user(user: UserSchema, db_session: DBSession) -> ResponseSchema:
+    await db_session.execute(
+        update(UserModel)
+        .where(UserModel.id == user.id)
+        .values(
             name=user.name,
             email=user.email,
-            hashed_password=get_hashed_password(user.password),
+            hashed_password=get_hashed_password(user.password.get_secret_value())
         )
-
-        session.add(new_user)
-        await session.commit()
-        await session.refresh(new_user)
-
-        return GetUserScheme(
-            id=new_user.id,
-            name=new_user.name,
-            decoded_credential=Credential(new_user.credential).name,
-            rating=new_user.rating
-        )
+    )
+    await db_session.commit()
+    return CommonResponses.SUCCESS
 
 
 @db_checker()
-async def edit_user(user_id: UserID, user_data: EditUserScheme, db_session: AsyncSession) -> ResponseScheme:
-    async with db_session as session:
-        await session.execute(
-            update(User)
-            .where(User.id == user_id)
-            .values(
-                name=user_data.name,
-                email=user_data.email,
-                hashed_password=get_hashed_password(user_data.password)
-            )
-        )
-        await session.commit()
-        return CommonResponses.SUCCESS
-
-
-@db_checker()
-async def delete_user(user_id: UserID, db_session: AsyncSession) -> ResponseScheme:
+async def delete_user(user_id: UserID, db_session: DBSession) -> ResponseSchema:
     """
     This function doesn't remove 'User' from the DB,
     it changes 'is_active' to False.
     """
-    async with db_session as session:
-        await session.execute(
-            update(User).where(User.id == user_id).values(is_active=False)
-        )
-        await session.commit()
-        return CommonResponses.SUCCESS
+    await db_session.execute(
+        update(UserModel).where(UserModel.id == user_id).values(is_active=False)
+    )
+    await db_session.commit()
+    return CommonResponses.SUCCESS
 
 
 @db_checker()
-async def get_user(user_id: UserID, db_session: AsyncSession) -> GetUserScheme:
-    async with db_session as session:
-        result: Result = await session.execute(
-            select(
-                User.id,
-                User.name,
-                User.credential,
-                User.is_active,
-                User.rating,
-            )
-            .where(User.id == user_id)
+async def get_user(user_id: UserID, db_session: DBSession) -> UserSchema:
+    result: Result = await db_session.execute(
+        select(
+            UserModel.id,
+            UserModel.name,
+            UserModel.credential,
+            UserModel.is_active,
+            UserModel.rating,
         )
+        .where(UserModel.id == user_id)
+    )
 
-        user: Row = result.one()
-        if not user or not user.is_active: raise CommonExceptions.NOTHING_FOUND
-        return GetUserScheme(
-            id=user.id,
-            name=user.name,
-            decoded_credential=Credential(user.credential).name,
-            rating=user.rating,
-        )
+    usr: Row = result.one()
+    if not usr or not usr.is_active: raise CommonExceptions.NOTHING_FOUND
+    return UserSchema(
+        id=usr.id,
+        name=usr.name,
+        decoded_credential=DecodedCredential(Credential(usr.credential).name),
+        rating=usr.rating,
+    )
 
 
 @db_checker()
-async def get_all_users(db_session: AsyncSession) -> List[GetUserScheme]:
-    async with db_session as session:
-        result: Result = await session.execute(
-            select(
-                User.id,
-                User.name,
-                User.credential,
-                User.is_active,
-                User.rating,
-            )
-            .order_by(User.id)
+async def get_all_users(db_session: DBSession) -> List[UserSchema]:
+    result: Result = await db_session.execute(
+        select(
+            UserModel.id,
+            UserModel.name,
+            UserModel.credential,
+            UserModel.is_active,
+            UserModel.rating,
         )
+        .order_by(UserModel.id)
+    )
 
-        users: List[GetUserScheme] = []
-        for user in result.all():
-            if not user.is_active: continue
-            users.append(
-                GetUserScheme(
-                    id=user.id,
-                    name=user.name,
-                    decoded_credential=Credential(user.credential).name,
-                    rating=user.rating,
-                )
+    users: List[UserSchema] = []
+    for usr in result.all():
+        if not usr.is_active: continue
+        users.append(
+            UserSchema(
+                id=usr.id,
+                name=usr.name,
+                decoded_credential=DecodedCredential(Credential(usr.credential).name),
+                rating=usr.rating,
             )
-        if not users: raise CommonExceptions.NOTHING_FOUND
-        return users
+        )
+    if not users: raise CommonExceptions.NOTHING_FOUND
+    return users

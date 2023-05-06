@@ -14,9 +14,10 @@ class Base(DeclarativeBase):
     pass
 
 
-async def get_session() -> AsyncGenerator:
+async def get_session() -> AsyncGenerator[AsyncSession, ...]:
     async with async_session() as session:
         yield session
+
 
 
 DBSession = Annotated[AsyncSession, Depends(get_session)]

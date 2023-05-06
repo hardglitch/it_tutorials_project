@@ -1,46 +1,68 @@
-from typing import List
-from fastapi import APIRouter
-from starlette.requests import Request
-from app.common.responses import ResponseScheme
+from typing import Annotated, List
+from fastapi import APIRouter, Depends, Form, Path
+from app.common.responses import ResponseSchema
 from app.db import DBSession
-from app.language.crud import LangCode, add_language, delete_language, edit_language, get_all_languages, get_language
-from app.language.schemas import EditLanguageScheme, LanguageScheme
+from app.language.crud import LangCode, add_lang, delete_lang, edit_lang, get_all_langs, get_lang
+from app.language.schemas import IsUILang, LanguageSchema, ValidLangAbbr, ValidLangValue
 from app.tools import parameter_checker
-from app.user.auth import get_token_from_cookie, is_admin
-from app.user.exceptions import UserExceptions
+from app.user.auth import is_admin
 
 
 language_router = APIRouter(prefix="/lang", tags=["language"])
 
 
-@language_router.post("/add")
+@language_router.post("/add", dependencies=[Depends(is_admin)])
 @parameter_checker()
-async def add_new_language(request: Request, lang: LanguageScheme, db_session: DBSession) -> ResponseScheme:
-    if not await is_admin(get_token_from_cookie(request), db_session): raise UserExceptions.ACCESS_DENIED
-    return await add_language(lang, db_session)
+async def add_language(
+        lang_value: Annotated[ValidLangValue, Form()],
+        lang_abbr: Annotated[ValidLangAbbr, Form()],
+        is_ui_lang: Annotated[IsUILang, Form()],
+        db_session: DBSession,
+) -> ResponseSchema:
+    return await add_lang(
+        LanguageSchema(
+            lang_value=lang_value,
+            abbreviation=lang_abbr,
+            is_ui_lang=is_ui_lang,
+        ),
+        db_session=db_session
+    )
 
 
-@language_router.put("/edit")
+@language_router.post("/{lang_code}/edit", dependencies=[Depends(is_admin)])
 @parameter_checker()
-async def edit_existing_language(request: Request, lang: EditLanguageScheme, db_session: DBSession) -> ResponseScheme:
-    if not await is_admin(get_token_from_cookie(request), db_session): raise UserExceptions.ACCESS_DENIED
-    return await edit_language(lang, db_session)
+async def edit_language(
+        land_code: Annotated[LangCode, Path()],
+        lang_value: Annotated[ValidLangValue, Form()],
+        lang_abbr: Annotated[ValidLangAbbr, Form()],
+        is_ui_lang: Annotated[IsUILang, Form()],
+        db_session: DBSession,
+) -> ResponseSchema:
+
+    return await edit_lang(
+        LanguageSchema(
+            lang_code=land_code,
+            lang_value=lang_value,
+            abbreviation=lang_abbr,
+            is_ui_lang=is_ui_lang,
+        ),
+        db_session=db_session
+    )
 
 
-@language_router.delete("/del/{lang_code}")
+@language_router.delete("/{lang_code}/del", dependencies=[Depends(is_admin)])
 @parameter_checker()
-async def delete_existing_language(request: Request, lang_code: LangCode, db_session: DBSession) -> ResponseScheme:
-    if not await is_admin(get_token_from_cookie(request), db_session): raise UserExceptions.ACCESS_DENIED
-    return await delete_language(lang_code, db_session)
+async def delete_language(lang_code: Annotated[LangCode, Path()], db_session: DBSession) -> ResponseSchema:
+    return await delete_lang(lang_code, db_session)
+
+
+@language_router.get("/get-all", response_model_exclude_none=True)
+@parameter_checker()
+async def get_all_languages(db_session: DBSession) -> List[LanguageSchema]:
+    return await get_all_langs(db_session)
 
 
 @parameter_checker()
-@language_router.get("/get/{lang_code}")
-async def get_existing_language(lang_code: LangCode, db_session: DBSession) -> LanguageScheme:
-    return await get_language(lang_code, db_session)
-
-
-@language_router.get("/getall")
-@parameter_checker()
-async def get_all_existing_languages(db_session: DBSession) -> List[EditLanguageScheme]:
-    return await get_all_languages(db_session)
+@language_router.get("/{lang_code}", response_model_exclude_none=True)
+async def get_language(lang_code: Annotated[LangCode, Path()], db_session: DBSession) -> LanguageSchema:
+    return await get_lang(lang_code, db_session)

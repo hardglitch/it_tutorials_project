@@ -1,15 +1,16 @@
-from pydantic import BaseModel, Field
+from typing import Annotated
+from pydantic import BaseModel
+from app.dictionary.schemas import DictionarySchema
 
 
-class TypeCodeScheme(BaseModel):
-    type_code: int = Field(ge=0)
+class TypeCodeSchema(BaseModel):
+    type_code: int | None = None
 
-class TypeValueScheme(BaseModel):
-    value: str = Field(min_length=1, max_length=256, example="New type")
+TypeCode = Annotated[int, TypeCodeSchema]
 
 
-class GetTutorialTypeScheme(
-    TypeCodeScheme,
-    TypeValueScheme
+class TypeSchema(
+    TypeCodeSchema,
+    DictionarySchema
 ):
     pass

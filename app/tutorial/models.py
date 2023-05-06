@@ -4,7 +4,7 @@ from app.common.constants import Table
 from app.db import Base
 
 
-class Tutorial(Base):
+class TutorialModel(Base):
     __tablename__ = Table.Tutorial.table_name
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     title: Mapped[str] = mapped_column(String(length=1024), nullable=False)

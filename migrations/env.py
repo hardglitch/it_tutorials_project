@@ -9,6 +9,13 @@ from app.config import PG_HOST, PG_NAME, PG_PASS, PG_PORT, PG_USER, SECRET_KEY
 from app.db import Base
 
 # @formatter:off
+from app.user.models import UserModel
+from app.tutorial.models import TutorialModel
+from app.language.models import LanguageModel
+from app.dictionary.models import DictionaryModel
+from app.tutorial.theme.models import ThemeModel
+from app.tutorial.type.models import TypeModel
+from app.tutorial.dist_type.models import DistTypeModel
 # @formatter:on
 
 # this is the Alembic Config object, which provides

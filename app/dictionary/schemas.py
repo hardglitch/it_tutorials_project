@@ -1,24 +1,32 @@
-from pydantic import BaseModel, Field
-from app.language.schemas import LangCodeScheme
+from typing import Annotated
+from pydantic import BaseModel, validator
+from app.language.schemas import LangCodeSchema
+from app.tools import remove_dup_spaces
 
 
-class WordCodeScheme(BaseModel):
-    word_code: int = Field(ge=0)
+class WordCodeSchema(BaseModel):
+    word_code: int | None = None
 
-class ValueScheme(BaseModel):
-    value: str = Field(min_length=1, max_length=256, example="new word")
-
-
-class AddWordToDictionaryScheme(
-    LangCodeScheme,
-    ValueScheme
-):
-    pass
+DictWordCode = Annotated[int, WordCodeSchema]
 
 
-class EditDictionaryScheme(
-    WordCodeScheme,
-    LangCodeScheme,
-    ValueScheme
+class DictValueSchema(BaseModel):
+    dict_value: str | None = None
+
+class ValidDictValueSchema(BaseModel):
+    dict_value: str | None = None
+
+    @validator("dict_value")
+    def check_value(cls, value: str) -> str | None:
+        return value[:256] if remove_dup_spaces(value) else None
+
+DictValue = Annotated[str, DictValueSchema]
+ValidDictValue = Annotated[str, ValidDictValueSchema]
+
+
+class DictionarySchema(
+    WordCodeSchema,
+    LangCodeSchema,
+    DictValueSchema
 ):
     pass

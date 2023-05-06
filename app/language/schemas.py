@@ -1,28 +1,59 @@
-from pydantic import BaseModel, Field
-
-class LangCodeScheme(BaseModel):
-    lang_code: int = Field(ge=0)
-
-class LangValueScheme(BaseModel):
-    value: str = Field(min_length=1, max_length=100, example="english")
-
-class LangAbbrScheme(BaseModel):
-    abbreviation: str = Field(min_length=3, max_length=3, example="eng")
-
-class IsUILangScheme(BaseModel):
-    is_ui_lang: bool = Field(default=False)
+import re
+from typing import Annotated
+from pydantic import BaseModel, validator
+from app.tools import remove_dup_spaces
 
 
-class LanguageScheme(
-    LangValueScheme,
-    LangAbbrScheme,
-    IsUILangScheme
-):
-    pass
+class LangCodeSchema(BaseModel):
+    lang_code: int | None = None
+
+LangCode = Annotated[int, LangCodeSchema]
 
 
-class EditLanguageScheme(
-    LanguageScheme,
-    LangCodeScheme
+class LangValueSchema(BaseModel):
+    lang_value: str | None = None
+
+class ValidLangValueSchema(BaseModel):
+    lang_value: str | None = None
+
+    @validator("lang_value")
+    def check_value(cls, value: str) -> str | None:
+        return value[:100] if (value := remove_dup_spaces(value)) else None
+
+LangValue = Annotated[str, LangValueSchema]
+ValidLangValue = Annotated[str, ValidLangValueSchema]
+
+
+
+class LangAbbrSchema(BaseModel):
+    abbreviation: str | None = None
+
+class ValidLangAbbrSchema(BaseModel):
+    abbreviation: str | None = None
+
+    @classmethod
+    def clean_lang_abbr(cls, value: str) -> str:
+        pattern = re.compile(r"^[a-z]{3}")
+        return re.match(pattern, value)[0]
+
+    @validator("abbreviation")
+    def check_value(cls, value: str) -> str | None:
+        return value if (value := cls.clean_lang_abbr(value)) else None
+
+LangAbbr = Annotated[str, LangAbbrSchema]
+ValidLangAbbr = Annotated[str, ValidLangAbbrSchema]
+
+
+class IsUILangSchema(BaseModel):
+    is_ui_lang: bool | None = None
+
+IsUILang = Annotated[bool, IsUILangSchema]
+
+
+class LanguageSchema(
+    LangValueSchema,
+    LangAbbrSchema,
+    IsUILangSchema,
+    LangCodeSchema,
 ):
     pass

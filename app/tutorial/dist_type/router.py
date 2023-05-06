@@ -1,48 +1,94 @@
-from typing import List
-from fastapi import APIRouter
-from starlette.requests import Request
-from app.common.responses import ResponseScheme
+from typing import Annotated, List
+from fastapi import APIRouter, Depends, Form, Path
+from app.common.responses import ResponseSchema
 from app.db import DBSession
-from app.dictionary.schemas import AddWordToDictionaryScheme, EditDictionaryScheme
+from app.dictionary.schemas import DictWordCode, DictionarySchema, ValidDictValue
+from app.language.schemas import LangCode
 from app.tools import parameter_checker
-from app.tutorial.dist_type.crud import Code, add_distribution_type, delete_distribution_type, edit_distribution_type, \
-    get_all_distribution_types, get_distribution_type
-from app.tutorial.dist_type.schemas import GetTutorialDistTypeScheme
-from app.user.auth import get_token_from_cookie, is_admin
-from app.user.exceptions import UserExceptions
+from app.tutorial.dist_type.crud import add_dist_type, delete_dist_type, edit_dist_type, get_all_dist_types, \
+    get_dist_type
+from app.tutorial.dist_type.schemas import DistTypeCode, DistTypeSchema
+from app.user.auth import is_admin
 
 
 dist_type_router = APIRouter(prefix="/dist-type", tags=["tutorial distribution type"])
 
 
-@dist_type_router.post("/add")
+@dist_type_router.post("/add", dependencies=[Depends(is_admin)])
 @parameter_checker()
-async def add_new_distribution_type(request: Request, dist_type: AddWordToDictionaryScheme, db_session: DBSession) -> ResponseScheme:
-    if not await is_admin(get_token_from_cookie(request), db_session): raise UserExceptions.ACCESS_DENIED
-    return await add_distribution_type(dist_type, db_session)
+async def add_distribution_type(
+        lang_code: Annotated[LangCode, Form()],
+        dist_type_value: Annotated[ValidDictValue, Form()],
+        db_session: DBSession,
+        word_code: DictWordCode | None = Form(default=None),
+) -> ResponseSchema:
+
+    return await add_dist_type(
+        DictionarySchema(
+            word_code=word_code,
+            lang_code=lang_code,
+            dict_value=dist_type_value,
+        ),
+        db_session=db_session
+    )
 
 
-@dist_type_router.put("/edit")
+@dist_type_router.post("/{dist_type_code}/edit", dependencies=[Depends(is_admin)])
 @parameter_checker()
-async def edit_existing_distribution_type(request: Request, dist_type: EditDictionaryScheme, db_session: DBSession) -> ResponseScheme:
-    if not await is_admin(get_token_from_cookie(request), db_session): raise UserExceptions.ACCESS_DENIED
-    return await edit_distribution_type(dist_type, db_session)
+async def edit_distribution_type(
+        dist_type_code: Annotated[DistTypeCode, Path()],
+        lang_code: Annotated[LangCode, Form()],
+        dist_type_value: Annotated[ValidDictValue, Form()],
+        db_session: DBSession,
+) -> ResponseSchema:
+
+    return await edit_dist_type(
+        DistTypeSchema(
+            dist_type_code=dist_type_code,
+            lang_code=lang_code,
+            dict_value=dist_type_value,
+        ),
+        db_session=db_session
+    )
 
 
-@dist_type_router.post("/del/{code}")
+@dist_type_router.post("/{dist_type_code}/del", dependencies=[Depends(is_admin)])
 @parameter_checker()
-async def delete_existing_distribution_type(request: Request, code: Code, db_session: DBSession) -> ResponseScheme:
-    if not await is_admin(get_token_from_cookie(request), db_session): raise UserExceptions.ACCESS_DENIED
-    return await delete_distribution_type(code, db_session)
+async def delete_distribution_type(
+        dist_type_code: Annotated[DistTypeCode, Path()],
+        db_session: DBSession,
+) -> ResponseSchema:
+
+    return await delete_dist_type(
+        dist_type_code=dist_type_code,
+        db_session=db_session
+    )
 
 
-@dist_type_router.get("/get/{code}")
+@dist_type_router.get("/get-all/{ui_lang_code}", response_model_exclude_none=True)
 @parameter_checker()
-async def get_existing_distribution_type(code: Code, db_session: DBSession) -> GetTutorialDistTypeScheme:
-    return await get_distribution_type(code, db_session)
+async def get_all_distribution_types(
+        ui_lang_code: Annotated[LangCode, Path()],
+        db_session: DBSession,
+) -> List[DistTypeSchema]:
+
+    return await get_all_dist_types(
+        ui_lang_code=ui_lang_code,
+        db_session=db_session
+    )
 
 
-@dist_type_router.get("/getall")
+@dist_type_router.get("/{dist_type_code}/{ui_lang_code}", response_model_exclude_none=True)
 @parameter_checker()
-async def get_all_existing_distribution_types(db_session: DBSession) -> List[GetTutorialDistTypeScheme]:
-    return await get_all_distribution_types(db_session)
+async def get_distribution_type(
+        dist_type_code: Annotated[DistTypeCode, Path()],
+        ui_lang_code: Annotated[LangCode, Path()],
+        db_session: DBSession,
+) -> DistTypeSchema:
+
+    return await get_dist_type(
+        dist_type_code=dist_type_code,
+        ui_lang_code=ui_lang_code,
+        db_session=db_session
+    )
+
