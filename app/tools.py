@@ -3,7 +3,7 @@ from functools import wraps
 from inspect import iscoroutinefunction
 from typing import Any, Callable
 from sqlalchemy.exc import IntegrityError, NoResultFound
-from app.common.exceptions import CommonExceptions, DatabaseExceptions
+from .common.exceptions import CommonExceptions, DatabaseExceptions
 
 
 def parameter_checker() -> Any:

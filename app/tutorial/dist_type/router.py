@@ -1,14 +1,14 @@
 from typing import Annotated, List
 from fastapi import APIRouter, Depends, Form, Path
-from app.common.responses import ResponseSchema
-from app.db import DBSession
-from app.dictionary.schemas import DictWordCode, DictionarySchema, ValidDictValue
-from app.language.schemas import LangCode
-from app.tools import parameter_checker
-from app.tutorial.dist_type.crud import add_dist_type, delete_dist_type, edit_dist_type, get_all_dist_types, \
+from ...common.responses import ResponseSchema
+from ...db import DBSession
+from ...dictionary.schemas import DictWordCode, DictionarySchema, ValidDictValue
+from ...language.schemas import LangCode
+from ...tools import parameter_checker
+from ...tutorial.dist_type.crud import add_dist_type, delete_dist_type, edit_dist_type, get_all_dist_types, \
     get_dist_type
-from app.tutorial.dist_type.schemas import DistTypeCode, DistTypeSchema
-from app.user.auth import is_admin
+from ...tutorial.dist_type.schemas import DistTypeCode, DistTypeSchema
+from ...user.auth import is_admin
 
 
 dist_type_router = APIRouter(prefix="/dist-type", tags=["tutorial distribution type"])

@@ -1,7 +1,7 @@
 import re
 from typing import Annotated
 from pydantic import BaseModel, validator
-from app.tools import remove_dup_spaces
+from ..tools import remove_dup_spaces
 
 
 class LangCodeSchema(BaseModel):

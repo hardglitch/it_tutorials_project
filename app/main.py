@@ -1,9 +1,14 @@
-import uvicorn
+# import uvicorn
 from fastapi import FastAPI
-from app.router import MainRouter
+from .router import MainRouter
+
+# from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
+
 
 app = FastAPI(title="IT Tutorials")
+
+# app.add_middleware(HTTPSRedirectMiddleware)   # for production
 MainRouter(app)
 
-if __name__ == "__main__":
-    uvicorn.run(app, reload=True)
+# if __name__ == "__main__":
+#     uvicorn.run(app, reload=True)

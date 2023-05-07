@@ -1,19 +1,19 @@
 from typing import List
 from pydantic import EmailStr, HttpUrl, SecretStr, parse_obj_as
-from app.dictionary.schemas import DictionarySchema
-from app.language.crud import add_lang, get_all_langs
-from app.language.schemas import LanguageSchema
-from app.tutorial.crud import add_tutorial
-from app.tutorial.dist_type.crud import add_dist_type, get_all_dist_types
-from app.tutorial.dist_type.schemas import DistTypeSchema
-from app.tutorial.schemas import TutorialSchema
-from app.tutorial.theme.crud import add_theme, get_all_themes
-from app.tutorial.theme.schemas import ThemeSchema
-from app.tutorial.type.crud import add_type, get_all_types
-from app.tutorial.type.schemas import TypeSchema
-from app.user.auth import Credential
-from app.user.crud import add_user, get_all_users
-from app.user.schemas import UserSchema
+from .dictionary.schemas import DictionarySchema
+from .language.crud import add_lang, get_all_langs
+from .language.schemas import LanguageSchema
+from .tutorial.crud import add_tutorial
+from .tutorial.dist_type.crud import add_dist_type, get_all_dist_types
+from .tutorial.dist_type.schemas import DistTypeSchema
+from .tutorial.schemas import TutorialSchema
+from .tutorial.theme.crud import add_theme, get_all_themes
+from .tutorial.theme.schemas import ThemeSchema
+from .tutorial.type.crud import add_type, get_all_types
+from .tutorial.type.schemas import TypeSchema
+from .user.auth import Credential
+from .user.crud import add_user, get_all_users
+from .user.schemas import UserSchema
 
 
 #  Just for testing

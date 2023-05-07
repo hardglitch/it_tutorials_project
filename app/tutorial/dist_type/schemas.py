@@ -1,6 +1,6 @@
 from typing import Annotated
 from pydantic import BaseModel
-from app.dictionary.schemas import DictionarySchema
+from ...dictionary.schemas import DictionarySchema
 
 
 class DistTypeCodeSchema(BaseModel):

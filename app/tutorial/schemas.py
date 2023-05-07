@@ -1,12 +1,12 @@
 from typing import Annotated
 from pydantic import BaseModel, HttpUrl, validator
-from app.dictionary.schemas import DictValue
-from app.language.schemas import LangCode, LangValue
-from app.tools import remove_dup_spaces
-from app.tutorial.dist_type.schemas import DistTypeCode
-from app.tutorial.theme.schemas import ThemeCode
-from app.tutorial.type.schemas import TypeCode
-from app.user.schemas import UserID, UserName
+from ..dictionary.schemas import DictValue
+from ..language.schemas import LangCode, LangValue
+from ..tools import remove_dup_spaces
+from ..tutorial.dist_type.schemas import DistTypeCode
+from ..tutorial.theme.schemas import ThemeCode
+from ..tutorial.type.schemas import TypeCode
+from ..user.schemas import UserID, UserName
 
 
 class TutorialIDSchema(BaseModel):

@@ -1,11 +1,11 @@
 from typing import List
 from sqlalchemy import ScalarResult, select, update
-from app.common.exceptions import CommonExceptions
-from app.common.responses import CommonResponses, ResponseSchema
-from app.db import DBSession
-from app.language.models import LanguageModel
-from app.language.schemas import LangCode, LanguageSchema
-from app.tools import db_checker
+from ..common.exceptions import CommonExceptions
+from ..common.responses import CommonResponses, ResponseSchema
+from ..db import DBSession
+from ..language.models import LanguageModel
+from ..language.schemas import LangCode, LanguageSchema
+from ..tools import db_checker
 
 
 @db_checker()

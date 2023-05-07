@@ -1,7 +1,7 @@
 from typing import Annotated
 from pydantic import BaseModel, EmailStr, SecretStr, validator
-from app.common.constants import Credential, DecodedCredential
-from app.tools import hard_clean_text
+from ..common.constants import Credential, DecodedCredential
+from ..tools import hard_clean_text
 
 
 class IDSchema(BaseModel):

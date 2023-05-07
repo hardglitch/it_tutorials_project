@@ -6,15 +6,15 @@ from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import Row, ScalarResult, and_, select
 from starlette.requests import Request
-from app.config import SECRET_KEY
-from app.common.constants import AccessToken, Credential
-from app.db import DBSession
-from app.tools import db_checker, parameter_checker
-from app.tutorial.models import TutorialModel
-from app.tutorial.schemas import TutorialID
-from app.user.exceptions import AuthenticateExceptions, UserExceptions
-from app.user.schemas import Password, UserID, UserName, UserSchema
-from app.user.models import UserModel
+from ..config import SECRET_KEY
+from ..common.constants import AccessToken, Credential
+from ..db import DBSession
+from ..tools import db_checker, parameter_checker
+from ..tutorial.models import TutorialModel
+from ..tutorial.schemas import TutorialID
+from ..user.exceptions import AuthenticateExceptions, UserExceptions
+from ..user.schemas import Password, UserID, UserName, UserSchema
+from ..user.models import UserModel
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")

@@ -1,22 +1,22 @@
 from pydantic import HttpUrl, parse_obj_as
 from sqlalchemy import select, update
-from app.common.responses import CommonResponses, ResponseSchema
-from app.db import DBSession
-from app.language.crud import get_lang
-from app.language.schemas import LangCode, LanguageSchema
-from app.tools import db_checker, parameter_checker
-from app.tutorial.dist_type.crud import get_dist_type
-from app.tutorial.dist_type.schemas import DistTypeSchema
-from app.tutorial.exceptions import TutorialExceptions
-from app.tutorial.models import TutorialModel
-from app.tutorial.responses import TutorialResponses
-from app.tutorial.schemas import DecodedTutorialSchema, TutorialID, TutorialSchema
-from app.tutorial.theme.crud import get_theme
-from app.tutorial.theme.schemas import ThemeSchema
-from app.tutorial.type.crud import get_type
-from app.tutorial.type.schemas import TypeSchema
-from app.user.crud import get_user
-from app.user.schemas import UserSchema
+from ..common.responses import CommonResponses, ResponseSchema
+from ..db import DBSession
+from ..language.crud import get_lang
+from ..language.schemas import LangCode, LanguageSchema
+from ..tools import db_checker, parameter_checker
+from ..tutorial.dist_type.crud import get_dist_type
+from ..tutorial.dist_type.schemas import DistTypeSchema
+from ..tutorial.exceptions import TutorialExceptions
+from ..tutorial.models import TutorialModel
+from ..tutorial.responses import TutorialResponses
+from ..tutorial.schemas import DecodedTutorialSchema, TutorialID, TutorialSchema
+from ..tutorial.theme.crud import get_theme
+from ..tutorial.theme.schemas import ThemeSchema
+from ..tutorial.type.crud import get_type
+from ..tutorial.type.schemas import TypeSchema
+from ..user.crud import get_user
+from ..user.schemas import UserSchema
 
 
 @db_checker()

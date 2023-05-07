@@ -1,9 +1,5 @@
 version: "3.9"
 
-networks:
-  default:
-    driver: bridge
-
 services:
   postgres:
     container_name: "postgres"
@@ -15,8 +11,6 @@ services:
       - POSTGRES_USER=${PG_USER}
       - POSTGRES_PASSWORD=${PG_PASS}
       - POSTGRES_DB=${PG_NAME}
-    networks:
-      - default
     ports:
       - "${PG_PORT}:5432"
     volumes:
@@ -29,15 +23,18 @@ services:
     image: redis:7.0-alpine
     restart: always
     entrypoint: redis-server --port ${REDIS_PORT} --requirepass ${REDIS_PASS} --loglevel warning
-    networks:
-      - default
     ports:
       - "${REDIS_PORT}:6379"
+
+  uvicorn:
+    container_name: "uvicorn-fastapi"
+    build: .
+    ports:
+      - "80:80"
     volumes:
-      - redis:/data
+      - ./app:/code/app
 
 volumes:
   postgres:
     driver: local
-  redis:
-    driver: local
+  app:
