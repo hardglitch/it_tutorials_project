@@ -1,14 +1,14 @@
 from typing import Annotated, List
 from fastapi import APIRouter, Depends, Form, Path
-from app.common.responses import ResponseSchema
-from app.db import DBSession
-from app.dictionary.schemas import DictWordCode, ValidDictValue
-from app.language.schemas import LangCode
-from app.tools import parameter_checker
-from app.tutorial.theme.crud import add_theme, delete_theme, edit_theme, get_all_themes, get_theme
-from app.tutorial.theme.schemas import ThemeSchema, ThemeCode
-from app.tutorial.type.schemas import TypeCode
-from app.user.auth import is_admin
+from ...common.responses import ResponseSchema
+from ...db import DBSession
+from ...dictionary.schemas import DictWordCode, ValidDictValue
+from ...language.schemas import LangCode
+from ...tools import parameter_checker
+from ...tutorial.theme.crud import add_theme, delete_theme, edit_theme, get_all_themes, get_theme
+from ...tutorial.theme.schemas import ThemeSchema, ThemeCode
+from ...tutorial.type.schemas import TypeCode
+from ...user.auth import is_admin
 
 
 theme_router = APIRouter(prefix="/theme", tags=["tutorial theme"])

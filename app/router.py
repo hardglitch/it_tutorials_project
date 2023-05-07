@@ -2,12 +2,12 @@ from fastapi import FastAPI
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from fastapi.middleware.cors import CORSMiddleware
-from app._initial_values import insert_data
-from app.config import REDIS_HOST, REDIS_PASS, REDIS_PORT
-from app.db import DBSession
-from app.language.router import language_router
-from app.tutorial.router import tutorial_router
-from app.user.router import user_router
+from ._initial_values import insert_data
+from .config import REDIS_HOST, REDIS_PASS, REDIS_PORT
+from .db import DBSession
+from .language.router import language_router
+from .tutorial.router import tutorial_router
+from .user.router import user_router
 from redis import asyncio
 
 
@@ -16,7 +16,7 @@ class MainRouter:
 
         origins = [
             "http://localhost",
-            "http://localhost:8000",
+            "http://localhost:80",
         ]
 
         app.add_middleware(

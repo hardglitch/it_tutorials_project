@@ -1,7 +1,7 @@
 from typing import Annotated
 from pydantic import BaseModel
-from app.dictionary.schemas import DictionarySchema
-from app.tutorial.type.schemas import TypeCodeSchema
+from ...dictionary.schemas import DictionarySchema
+from ...tutorial.type.schemas import TypeCodeSchema
 
 
 class ThemeCodeSchema(BaseModel):

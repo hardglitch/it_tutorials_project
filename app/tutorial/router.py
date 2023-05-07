@@ -2,19 +2,19 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Form, Path
 from pydantic import HttpUrl
 from starlette.requests import Request
-from app.common.responses import ResponseSchema
-from app.db import DBSession
-from app.language.schemas import LangCode
-from app.tools import parameter_checker
-from app.tutorial.crud import add_tutorial, delete_tutorial, edit_tutorial, get_decoded_tutorial, get_tutorial
-from app.tutorial.dist_type.router import dist_type_router
-from app.tutorial.dist_type.schemas import DistTypeCode
-from app.tutorial.schemas import TutorialID, TutorialSchema, DecodedTutorialSchema, ValidDescription, ValidTitle
-from app.tutorial.theme.router import theme_router
-from app.tutorial.theme.schemas import ThemeCode
-from app.tutorial.type.router import type_router
-from app.tutorial.type.schemas import TypeCode
-from app.user.auth import decode_access_token, get_token, is_tutorial_editor
+from ..common.responses import ResponseSchema
+from ..db import DBSession
+from ..language.schemas import LangCode
+from ..tools import parameter_checker
+from ..tutorial.crud import add_tutorial, delete_tutorial, edit_tutorial, get_decoded_tutorial, get_tutorial
+from ..tutorial.dist_type.router import dist_type_router
+from ..tutorial.dist_type.schemas import DistTypeCode
+from ..tutorial.schemas import TutorialID, TutorialSchema, DecodedTutorialSchema, ValidDescription, ValidTitle
+from ..tutorial.theme.router import theme_router
+from ..tutorial.theme.schemas import ThemeCode
+from ..tutorial.type.router import type_router
+from ..tutorial.type.schemas import TypeCode
+from ..user.auth import decode_access_token, get_token, is_tutorial_editor
 
 
 tutorial_router = APIRouter(prefix="/tutorial", tags=["tutorial"])

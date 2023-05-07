@@ -1,11 +1,11 @@
 from typing import Annotated, List
 from fastapi import APIRouter, Depends, Form, Path
-from app.common.responses import ResponseSchema
-from app.db import DBSession
-from app.language.crud import LangCode, add_lang, delete_lang, edit_lang, get_all_langs, get_lang
-from app.language.schemas import IsUILang, LanguageSchema, ValidLangAbbr, ValidLangValue
-from app.tools import parameter_checker
-from app.user.auth import is_admin
+from ..common.responses import ResponseSchema
+from ..db import DBSession
+from ..language.crud import LangCode, add_lang, delete_lang, edit_lang, get_all_langs, get_lang
+from ..language.schemas import IsUILang, LanguageSchema, ValidLangAbbr, ValidLangValue
+from ..tools import parameter_checker
+from ..user.auth import is_admin
 
 
 language_router = APIRouter(prefix="/lang", tags=["language"])

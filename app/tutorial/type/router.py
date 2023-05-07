@@ -1,13 +1,13 @@
 from typing import Annotated, List
 from fastapi import APIRouter, Depends, Form, Path
-from app.common.responses import ResponseSchema
-from app.db import DBSession
-from app.dictionary.schemas import DictWordCode, DictionarySchema, ValidDictValue
-from app.language.schemas import LangCode
-from app.tools import parameter_checker
-from app.tutorial.type.crud import add_type, delete_type, edit_type, get_all_types, get_type
-from app.tutorial.type.schemas import TypeCode, TypeSchema
-from app.user.auth import is_admin
+from ...common.responses import ResponseSchema
+from ...db import DBSession
+from ...dictionary.schemas import DictWordCode, DictionarySchema, ValidDictValue
+from ...language.schemas import LangCode
+from ...tools import parameter_checker
+from ...tutorial.type.crud import add_type, delete_type, edit_type, get_all_types, get_type
+from ...tutorial.type.schemas import TypeCode, TypeSchema
+from ...user.auth import is_admin
 
 
 type_router = APIRouter(prefix="/type", tags=["tutorial type"])

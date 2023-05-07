@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from starlette import status
-from app.common.responses import ResponseSchema
+from ..common.responses import ResponseSchema
 
 
 @dataclass()

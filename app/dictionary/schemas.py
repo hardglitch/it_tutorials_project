@@ -1,7 +1,7 @@
 from typing import Annotated
 from pydantic import BaseModel, validator
-from app.language.schemas import LangCodeSchema
-from app.tools import remove_dup_spaces
+from ..language.schemas import LangCodeSchema
+from ..tools import remove_dup_spaces
 
 
 class WordCodeSchema(BaseModel):

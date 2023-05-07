@@ -1,8 +1,8 @@
 from pydantic import EmailStr
 from sqlalchemy import Boolean, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
-from app.common.constants import Credential, Table
-from app.db import Base
+from ..common.constants import Credential, Table
+from ..db import Base
 
 
 class UserModel(Base):

@@ -1,7 +1,7 @@
 from sqlalchemy import ForeignKey, Identity, Integer
 from sqlalchemy.orm import Mapped, mapped_column
-from app.common.constants import Table
-from app.db import Base
+from ...common.constants import Table
+from ...db import Base
 
 
 class ThemeModel(Base):

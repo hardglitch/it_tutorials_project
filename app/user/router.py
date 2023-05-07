@@ -4,13 +4,13 @@ from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import SecretStr
 from starlette import status
 from starlette.responses import RedirectResponse, Response
-from app.common.constants import AccessToken
-from app.common.responses import ResponseSchema
-from app.db import DBSession
-from app.tools import parameter_checker
-from app.user.auth import Token, authenticate_user, create_access_token, is_me_or_admin, get_token
-from app.user.crud import add_user, delete_user, edit_user, get_all_users, get_user
-from app.user.schemas import EMail, Password, UserID, UserSchema, ValidUserName
+from ..common.constants import AccessToken
+from ..common.responses import ResponseSchema
+from ..db import DBSession
+from ..tools import parameter_checker
+from ..user.auth import Token, authenticate_user, create_access_token, is_me_or_admin, get_token
+from ..user.crud import add_user, delete_user, edit_user, get_all_users, get_user
+from ..user.schemas import EMail, Password, UserID, UserSchema, ValidUserName
 
 
 user_router = APIRouter(prefix="/user", tags=["user"])

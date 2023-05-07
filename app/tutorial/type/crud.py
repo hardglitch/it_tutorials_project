@@ -1,14 +1,14 @@
 from typing import List
 from sqlalchemy import Result, Row, ScalarResult, and_, delete, func, select, update
-from app.common.exceptions import CommonExceptions
-from app.common.responses import CommonResponses, ResponseSchema
-from app.db import DBSession
-from app.dictionary.models import DictionaryModel
-from app.dictionary.schemas import DictWordCode, DictionarySchema
-from app.language.schemas import LangCode
-from app.tools import db_checker
-from app.tutorial.type.models import TypeModel
-from app.tutorial.type.schemas import TypeCode, TypeSchema
+from ...common.exceptions import CommonExceptions
+from ...common.responses import CommonResponses, ResponseSchema
+from ...db import DBSession
+from ...dictionary.models import DictionaryModel
+from ...dictionary.schemas import DictionarySchema
+from ...language.schemas import LangCode
+from ...tools import db_checker
+from ...tutorial.type.models import TypeModel
+from ...tutorial.type.schemas import TypeCode, TypeSchema
 
 
 @db_checker()
