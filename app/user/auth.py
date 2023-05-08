@@ -4,7 +4,8 @@ from fastapi import Depends, Path
 from jose import ExpiredSignatureError, JWTError, jwt
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
-from sqlalchemy import Row, ScalarResult, and_, select
+from sqlalchemy import Result, Row, ScalarResult, and_, select
+from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
 from ..config import SECRET_KEY
 from ..common.constants import AccessToken, Credential
@@ -30,7 +31,10 @@ def get_hashed_password(password: str) -> str:
 
 @db_checker()
 async def authenticate_user(user_name: UserName, user_pwd: Password, db_session: DBSession) -> (int, str):
-    result: ScalarResult = await db_session.scalars(select(UserModel).where(UserModel.name == user_name))
+    result: ScalarResult = await db_session.scalars(
+        select(UserModel)
+        .where(and_(UserModel.name == user_name, UserModel.is_active == True))
+    )
     user: UserModel | None = result.one_or_none()
     if not user or not bcrypt_context.verify(user_pwd.get_secret_value(), user.hashed_password):
         raise AuthenticateExceptions.INCORRECT_PARAMETERS
@@ -59,8 +63,8 @@ async def is_this(credential: Credential, request: Request, db_session: DBSessio
 
 
 @db_checker()
-def is_me(user_id: UserID, request: Request, db_session: DBSession) -> bool:
-    result: ScalarResult = db_session.scalars(
+async def is_me(user_id: UserID, request: Request, db_session: DBSession) -> bool:
+    result: ScalarResult = await db_session.scalars(
         select(UserModel.is_active).where(UserModel.id == user_id)
     )
     user: Row = result.one()
@@ -68,8 +72,8 @@ def is_me(user_id: UserID, request: Request, db_session: DBSession) -> bool:
 
 
 @parameter_checker()
-async def is_admin(db_session: DBSession) -> bool:
-    if not await is_this(credential=Credential.admin, db_session=db_session):
+async def is_admin(request: Request, db_session: DBSession) -> bool:
+    if not await is_this(credential=Credential.admin, request=request, db_session=db_session):
         raise UserExceptions.ACCESS_DENIED
     return True
 
@@ -84,7 +88,7 @@ async def is_tutorial_editor(
     token: Token = get_token(request)
     user_data: UserSchema = decode_access_token(token)
 
-    result: ScalarResult = await db_session.scalars(
+    result: Result = await db_session.execute(
         select(
             UserModel.credential,
             TutorialModel.who_added_id
@@ -105,9 +109,9 @@ async def is_tutorial_editor(
     return tutor_id
 
 
-async def is_me_or_admin(user_id: UserID, db_session: DBSession) -> bool:
-    if is_me(user_id=user_id, db_session=db_session) or\
-       await is_this(credential=Credential.admin, db_session=db_session):
+async def is_me_or_admin(user_id: UserID, request: Request, db_session: DBSession) -> bool:
+    if await is_me(user_id=user_id, request=request, db_session=db_session) or\
+       await is_this(credential=Credential.admin, request=request, db_session=db_session):
         return True
     raise UserExceptions.ACCESS_DENIED
 

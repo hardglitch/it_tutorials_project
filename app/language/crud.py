@@ -1,5 +1,5 @@
 from typing import List
-from sqlalchemy import ScalarResult, select, update
+from sqlalchemy import ScalarResult, delete, select, update
 from ..common.exceptions import CommonExceptions
 from ..common.responses import CommonResponses, ResponseSchema
 from ..db import DBSession
@@ -37,7 +37,10 @@ async def edit_lang(lang: LanguageSchema, db_session: DBSession) -> ResponseSche
 
 @db_checker()
 async def delete_lang(lang_code: LangCode, db_session: DBSession) -> ResponseSchema:
-    await db_session.delete(select(LanguageModel).where(LanguageModel.code == lang_code))
+    await db_session.execute(
+        delete(LanguageModel)
+        .where(LanguageModel.code == lang_code)
+    )
     await db_session.commit()
     return CommonResponses.SUCCESS
 
