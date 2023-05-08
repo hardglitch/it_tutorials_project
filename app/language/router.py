@@ -29,7 +29,7 @@ async def add_language(
     )
 
 
-@language_router.post("/{lang_code}/edit", dependencies=[Depends(is_admin)])
+@language_router.put("/{lang_code}/edit", dependencies=[Depends(is_admin)])
 @parameter_checker()
 async def edit_language(
         land_code: Annotated[LangCode, Path()],
@@ -50,7 +50,7 @@ async def edit_language(
     )
 
 
-@language_router.delete("/{lang_code}/del", dependencies=[Depends(is_admin)])
+@language_router.post("/{lang_code}/del", dependencies=[Depends(is_admin)])
 @parameter_checker()
 async def delete_language(lang_code: Annotated[LangCode, Path()], db_session: DBSession) -> ResponseSchema:
     return await delete_lang(lang_code, db_session)

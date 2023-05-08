@@ -35,7 +35,7 @@ async def add__theme(
     )
 
 
-@theme_router.post("/{theme_code}/edit", dependencies=[Depends(is_admin)])
+@theme_router.put("/{theme_code}/edit", dependencies=[Depends(is_admin)])
 @parameter_checker()
 async def edit__theme(
         theme_code: Annotated[ThemeCode, Path()],

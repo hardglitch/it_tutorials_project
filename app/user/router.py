@@ -60,7 +60,7 @@ async def logout() -> Response:
     return response
 
 
-@user_router.post("/{user_id}/edit", dependencies=[Depends(is_me_or_admin)])
+@user_router.put("/{user_id}/edit", dependencies=[Depends(is_me_or_admin)])
 @parameter_checker()
 async def edit__user(
         user_id: UserID,

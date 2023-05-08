@@ -38,8 +38,8 @@ async def authenticate_user(user_name: UserName, user_pwd: Password, db_session:
 
 
 @db_checker()
-async def is_this(credential: Credential, token: Token, db_session: DBSession) -> bool:
-    user_data: UserSchema = decode_access_token(token)
+async def is_this(credential: Credential, request: Request, db_session: DBSession) -> bool:
+    user_data: UserSchema = decode_access_token(get_token(request))
     result: ScalarResult = await db_session.scalars(
         select(UserModel.credential)
         .where(and_(UserModel.id == user_data.id, UserModel.name == user_data.name, UserModel.is_active == True))
@@ -58,19 +58,23 @@ async def is_this(credential: Credential, token: Token, db_session: DBSession) -
             return False
 
 
-@parameter_checker()
-def is_me(user_id: UserID, request: Request) -> bool:
-    return True if user_id == decode_access_token(get_token(request)).id else False
+@db_checker()
+def is_me(user_id: UserID, request: Request, db_session: DBSession) -> bool:
+    result: ScalarResult = db_session.scalars(
+        select(UserModel.is_active).where(UserModel.id == user_id)
+    )
+    user: Row = result.one()
+    return True if user_id == decode_access_token(get_token(request)).id and user.is_active else False
 
 
 @parameter_checker()
-async def is_admin(request: Request, db_session: DBSession) -> bool:
-    if not await is_this(credential=Credential.admin, token=get_token(request), db_session=db_session):
+async def is_admin(db_session: DBSession) -> bool:
+    if not await is_this(credential=Credential.admin, db_session=db_session):
         raise UserExceptions.ACCESS_DENIED
     return True
 
 
-@parameter_checker()
+@db_checker()
 async def is_tutorial_editor(
         tutor_id: Annotated[TutorialID, Path()],
         request: Request,
@@ -101,12 +105,11 @@ async def is_tutorial_editor(
     return tutor_id
 
 
-async def is_me_or_admin(user_id: UserID, request: Request, db_session: DBSession) -> bool:
-    token: Token = get_token(request)
-    if not user_id == decode_access_token(token).id and\
-       not await is_this(credential=Credential.admin, token=token, db_session=db_session):
-        raise UserExceptions.ACCESS_DENIED
-    return True
+async def is_me_or_admin(user_id: UserID, db_session: DBSession) -> bool:
+    if is_me(user_id=user_id, db_session=db_session) or\
+       await is_this(credential=Credential.admin, db_session=db_session):
+        return True
+    raise UserExceptions.ACCESS_DENIED
 
 
 def create_access_token(uid: UserID, name: UserName, exp_delta: int = AccessToken.exp_delta) -> str:
