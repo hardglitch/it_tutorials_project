@@ -5,7 +5,6 @@ from jose import ExpiredSignatureError, JWTError, jwt
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import Result, Row, ScalarResult, and_, select
-from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
 from ..config import SECRET_KEY
 from ..common.constants import AccessToken, Credential

@@ -17,7 +17,7 @@ user_router = APIRouter(prefix="/user", tags=["user"])
 
 
 @user_router.post("/reg", response_model_exclude_none=True)
-@parameter_checker()
+# @parameter_checker()
 async def add__user(
         user_name: Annotated[ValidUserName, Form()],
         email: Annotated[EMail, Form()],

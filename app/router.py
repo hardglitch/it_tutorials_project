@@ -15,8 +15,8 @@ class MainRouter:
     def __init__(self, app: FastAPI):
 
         origins = [
-            "http://localhost",
-            "http://localhost:80",
+            "https://localhost:80",
+            "https://localhost:8000",
         ]
 
         app.add_middleware(
