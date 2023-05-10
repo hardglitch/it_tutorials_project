@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" style="background-color: #333333;">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Tutorials</title>
+</head>
+
+<body style="color: lightgrey;">
+    <div align="center" style="horiz-align: center">
+        <div style="display: flex; width: 400px; align-items: center">
+            <div align="left" style="flex: 100px; horiz-align: left;">
+<!--                <a href="http://localhost"><img src="/static/home.png" width="32px" height="32px" alt="Home"></a>-->
+                <a href="https://localhost" title="Home"  style="color: lightgrey; font-size: 30px; text-decoration: none;">&#8962;</a>
+            </div>
+            <div style="flex: 200px;">
+                <span style="font-size: 22px">Tutorials</span>
+            </div>
+            <div align="right" style="flex: 100px; horiz-align: right;">
+                <a href="https://localhost/reg" title="Registration / Login"  style="color: lightgrey; font-size: 30px; text-decoration: none;">&#9094;</a>
+            </div>
+        </div>
+        {% block content %}
+        {% endblock %}
+        <div align="left" style="width: 400px; padding-top: 20px; horiz-align: left">
+            2023 <a href="https://github.com/hardglitch" title="Developer" style="color: lightblue; text-decoration: none">hardglitch</a>
+        </div>
+    </div>
+</body>
+
+</html>

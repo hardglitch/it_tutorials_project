@@ -1,5 +1,6 @@
+from typing import List
 from pydantic import HttpUrl, parse_obj_as
-from sqlalchemy import select, update
+from sqlalchemy import Result, ScalarResult, select, update
 from ..common.responses import CommonResponses, ResponseSchema
 from ..db import DBSession
 from ..language.crud import get_lang
@@ -81,7 +82,7 @@ async def get_tutorial(tutor_id: TutorialID, db_session: DBSession) -> TutorialS
     )
 
 
-@parameter_checker()
+@db_checker()
 async def get_decoded_tutorial(
         tutor_id: TutorialID,
         ui_lang_code: LangCode,
@@ -144,3 +145,51 @@ async def get_decoded_tutorial(
         source_link=parse_obj_as(HttpUrl, tutor.source_link),
         who_added=decoded_user.name,
     )
+
+
+@db_checker()
+async def get_all_decoded_tutorials(
+        ui_lang_code: LangCode,
+        db_session: DBSession
+) -> List[DecodedTutorialSchema]:
+
+    result: ScalarResult = await db_session.scalars(select(TutorialModel))
+    tutors_list: List[DecodedTutorialSchema] = []
+
+    for tutor in result:
+        decoded_lang: LanguageSchema = await get_lang(
+            lang_code=tutor.language_code,
+            db_session=db_session
+        )
+        decoded_user: UserSchema = await get_user(
+            user_id=tutor.who_added_id,
+            db_session=db_session
+        )
+        decoded_type: TypeSchema = await get_type(
+            type_code=tutor.type_code,
+            ui_lang_code=ui_lang_code,
+            db_session=db_session
+        )
+        decoded_theme: ThemeSchema = await get_theme(
+            theme_code=tutor.theme_code,
+            ui_lang_code=ui_lang_code,
+            db_session=db_session
+        )
+        decoded_dist_type: DistTypeSchema = await get_dist_type(
+            dist_type_code=tutor.dist_type_code,
+            ui_lang_code=ui_lang_code,
+            db_session=db_session
+        )
+
+        tutors_list.append(DecodedTutorialSchema(
+                title=tutor.title,
+                type=decoded_type.dict_value,
+                theme=decoded_theme.dict_value,
+                language=decoded_lang.lang_value,
+                description=tutor.description,
+                dist_type=decoded_dist_type.dict_value,
+                source_link=parse_obj_as(HttpUrl, tutor.source_link),
+                who_added=decoded_user.name,
+            )
+        )
+    return tutors_list
