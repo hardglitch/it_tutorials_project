@@ -27,12 +27,20 @@ services:
       - "${REDIS_PORT}:6379"
 
   uvicorn:
-    container_name: "uvicorn-fastapi"
+    container_name: "uvicorn-fastapi-ssl"
     build: .
+    depends_on:
+      - postgres
+      - redis
+    restart: on-failure
     ports:
-      - "80:80"
+      - "443:443"
     volumes:
       - ./app:/code/app
+
+  nettools:
+    container_name: "nettools"
+    image: wbitt/network-multitool:fedora-minimal
 
 volumes:
   postgres:

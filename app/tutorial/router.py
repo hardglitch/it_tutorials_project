@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, List
 from fastapi import APIRouter, Depends, Form, Path
 from pydantic import HttpUrl
 from starlette.requests import Request
@@ -6,7 +6,8 @@ from ..common.responses import ResponseSchema
 from ..db import DBSession
 from ..language.schemas import LangCode
 from ..tools import parameter_checker
-from ..tutorial.crud import add_tutorial, delete_tutorial, edit_tutorial, get_decoded_tutorial, get_tutorial
+from ..tutorial.crud import add_tutorial, delete_tutorial, edit_tutorial, get_all_decoded_tutorials, \
+    get_decoded_tutorial, get_tutorial
 from ..tutorial.dist_type.router import dist_type_router
 from ..tutorial.dist_type.schemas import DistTypeCode
 from ..tutorial.schemas import TutorialID, TutorialSchema, DecodedTutorialSchema, ValidDescription, ValidTitle
@@ -52,7 +53,7 @@ async def add__tutorial(
     )
 
 
-@tutorial_router.post("/{tutor_id}/edit")
+@tutorial_router.put("/{tutor_id}/edit")
 @parameter_checker()
 async def edit__tutorial(
         tutor_id: Annotated[TutorialID, Depends(is_tutorial_editor)],
@@ -117,6 +118,19 @@ async def get__decoded_tutorial(
 
     return await get_decoded_tutorial(
         tutor_id=tutor_id,
+        ui_lang_code=ui_lang_code,
+        db_session=db_session
+    )
+
+
+@tutorial_router.get("/{ui_lang_code}/decoded", response_model_exclude_none=True)
+@parameter_checker()
+async def get__all_decoded_tutorials(
+        ui_lang_code: Annotated[LangCode, Path()],
+        db_session: DBSession,
+) -> List[DecodedTutorialSchema]:
+
+    return await get_all_decoded_tutorials(
         ui_lang_code=ui_lang_code,
         db_session=db_session
     )

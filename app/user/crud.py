@@ -52,7 +52,7 @@ async def delete_user(user_id: UserID, db_session: DBSession) -> ResponseSchema:
     it changes 'is_active' to False.
     """
     await db_session.execute(
-        update(UserModel).where(UserModel.id == user_id).values(is_active=False)
+        update(UserModel).where(UserModel.id == user_id, UserModel.is_active == True).values(is_active=False)
     )
     await db_session.commit()
     return CommonResponses.SUCCESS

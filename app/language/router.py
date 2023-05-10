@@ -1,5 +1,7 @@
 from typing import Annotated, List
 from fastapi import APIRouter, Depends, Form, Path
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from ..common.responses import ResponseSchema
 from ..db import DBSession
 from ..language.crud import LangCode, add_lang, delete_lang, edit_lang, get_all_langs, get_lang
@@ -29,10 +31,10 @@ async def add_language(
     )
 
 
-@language_router.post("/{lang_code}/edit", dependencies=[Depends(is_admin)])
+@language_router.put("/{lang_code}/edit", dependencies=[Depends(is_admin)])
 @parameter_checker()
 async def edit_language(
-        land_code: Annotated[LangCode, Path()],
+        lang_code: Annotated[LangCode, Path()],
         lang_value: Annotated[ValidLangValue, Form()],
         lang_abbr: Annotated[ValidLangAbbr, Form()],
         is_ui_lang: Annotated[IsUILang, Form()],
@@ -41,7 +43,7 @@ async def edit_language(
 
     return await edit_lang(
         LanguageSchema(
-            lang_code=land_code,
+            lang_code=lang_code,
             lang_value=lang_value,
             abbreviation=lang_abbr,
             is_ui_lang=is_ui_lang,
@@ -50,7 +52,7 @@ async def edit_language(
     )
 
 
-@language_router.delete("/{lang_code}/del", dependencies=[Depends(is_admin)])
+@language_router.post("/{lang_code}/del", dependencies=[Depends(is_admin)])
 @parameter_checker()
 async def delete_language(lang_code: Annotated[LangCode, Path()], db_session: DBSession) -> ResponseSchema:
     return await delete_lang(lang_code, db_session)
