@@ -1,30 +1,194 @@
 <!DOCTYPE html>
-<html lang="en" style="background-color: #333333;">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <title>Tutorials</title>
+
+    <style>
+        body {
+            background: #333333;
+            font-family: raleway, ui-rounded;
+            color: lightgrey;
+            margin: 0;
+        }
+
+        .main-container {
+            width: 400px;
+        }
+
+        .auth-popup {
+            position: relative;
+            display: inline-block;
+        }
+
+        .auth-popup.active .content {
+            display: block;
+            transition: all 300ms ease-in-out;
+            transform: translate(-110%, -10%) scale(1);
+        }
+
+        .auth-popup .content {
+            z-index: 1;
+            text-align: center;
+            padding: 5px;
+            border-radius: 10px;
+            background: #333333;
+            display: none;
+            position: absolute;
+            box-shadow: 0 0 20px #1e1e1e;
+        }
+
+        .auth-button {
+            color: lightgrey;
+            font-size: 30px;
+        }
+
+        .auth-button:hover {
+            cursor: pointer;
+            color: cornsilk;
+        }
+
+        .home-button {
+            color: lightgrey;
+            font-size: 30px;
+        }
+
+        .home-button:hover {
+            color: cornsilk;
+        }
+
+        a {
+            color: lightblue;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: lightskyblue;
+        }
+
+        .input-field {
+            width: 140px;
+            border: none;
+            color: #bfc0c0;
+            background: #262626;
+            padding: 5px;
+            font-size: 16px;
+            border-radius: 10px;
+            box-shadow: inset 5px 5px 5px #232323,
+                        inset -5px -5px 5px #292929;
+            outline: none;
+        }
+
+        .signin-button {
+            margin-top: 5px;
+            padding: 1px 7px;
+            border-radius: 40px;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            color: #222222;
+            background: #666666;
+            box-shadow:  1px 1px 10px #202020,
+                         -1px -1px 10px #2c2c2c;
+            transition: box-shadow .35s ease !important;
+            outline: none;
+        }
+
+        .signin-button:hover {
+            color: cornsilk;
+        }
+
+        .signin-button:active{
+            background: linear-gradient(145deg,#222222, #292929);
+            box-shadow: 5px 5px 10px #262626, -5px -5px 10px #262626;
+            border: none;
+            outline: none;
+        }
+
+        .tutorial {
+            background-color: #484848;
+            /*margin: 10px;*/
+            outline: none;
+            border-width: 0;
+            border-radius: 15px;
+            box-shadow: 0 0 10px 1px #222222;
+        }
+
+        .tutorial .container {
+            margin: 10px;
+            margin-bottom: 20px;
+        }
+
+        .catalog {
+            padding-top: 10px;
+            text-align: left;
+        }
+
+        a.text-link {
+            color: lightgrey;
+        }
+
+        a.text-link:hover {
+            color: cornsilk;
+        }
+
+    </style>
+
+    <script>
+        function togglePopup() {
+            document.getElementById("auth-popup").classList.toggle("active");
+        }
+    </script>
+
 </head>
 
-<body style="color: lightgrey;">
-    <div align="center" style="horiz-align: center">
+<body>
+    <div align="center" class="main-container">
         <div style="display: flex; width: 400px; align-items: center">
-            <div align="left" style="flex: 100px; horiz-align: left;">
-<!--                <a href="http://localhost"><img src="/static/home.png" width="32px" height="32px" alt="Home"></a>-->
-                <a href="https://localhost" title="Home"  style="color: lightgrey; font-size: 30px; text-decoration: none;">&#8962;</a>
+
+            <div align="left" style="flex: 130px; horiz-align: left;">
+                <a href="https://localhost" title="Home" class="home-button">&#8962;</a>
             </div>
-            <div style="flex: 200px;">
+
+            <div style="flex: 140px;">
                 <span style="font-size: 22px">Tutorials</span>
             </div>
-            <div align="right" style="flex: 100px; horiz-align: right;">
-                <a href="https://localhost/reg" title="Registration / Login"  style="color: lightgrey; font-size: 30px; text-decoration: none;">&#9094;</a>
+
+            <div align="right" style="flex: 130px;">
+
+                <a title="Sign-In / Sign-Up" onclick=togglePopup() class="auth-button">&#9094;</a>
+
+                <div class="auth-popup" id="auth-popup">
+
+                    <div class="content">
+                       <div>
+                           <label>
+                               <input placeholder=“Name” class="input-field" id="user-name">
+                           </label>
+                       </div>
+
+                       <div class=“input-field”>
+                           <label>
+                               <input placeholder=“Password” class="input-field" id="password">
+                           </label>
+                       </div>
+
+                       <button class="signin-button">SignIn</button>
+                       <button class="signin-button">SignUp</button>
+                    </div>
+                </div>
+
             </div>
         </div>
+
         {% block content %}
         {% endblock %}
-        <div align="left" style="width: 400px; padding-top: 20px; horiz-align: left">
-            2023 <a href="https://github.com/hardglitch" title="Developer" style="color: lightblue; text-decoration: none">hardglitch</a>
+
+        <div align="left" style="width: 400px; padding-top: 20px;">
+            2023 <a href="https://github.com/hardglitch" title="Developer"">hardglitch</a>
         </div>
+
     </div>
 </body>
 
