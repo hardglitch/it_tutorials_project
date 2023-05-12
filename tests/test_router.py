@@ -4,7 +4,7 @@ from app.dictionary.schemas import DictionarySchema
 from app.language.schemas import LanguageSchema
 from app.tutorial.theme.schemas import ThemeSchema
 from app.user.exceptions import AuthenticateExceptions, UserExceptions
-from setup import Setup
+from conftest import Setup
 
 
 class TestUrlsNegative:

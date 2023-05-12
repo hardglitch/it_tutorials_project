@@ -1,4 +1,3 @@
-from pathlib import Path
 from typing import List
 from fastapi import FastAPI
 from fastapi_cache import FastAPICache
@@ -13,7 +12,7 @@ from .db import DBSession
 from .language.crud import get_lang
 from .language.router import language_router
 from .language.schemas import LanguageSchema
-from .tutorial.router import get__all_decoded_tutorials, get__decoded_tutorial, get__tutorial, tutorial_router
+from .tutorial.router import get__all_decoded_tutorials, tutorial_router
 from .tutorial.schemas import DecodedTutorialSchema
 from .user.router import user_router
 from redis import asyncio
@@ -43,15 +42,6 @@ class MainRouter:
         @app.post("/init_data", tags=["INIT"])
         async def __init_data(db_session: DBSession) -> None:
             await insert_data(db_session)
-
-        @app.on_event("startup")
-        async def startup() -> None:
-            redis = asyncio.from_url(
-                url=f"redis://{REDIS_PASS}@{REDIS_HOST}:{REDIS_PORT}/0",
-                encoding="utf-8",
-                decode_responses=True
-            )
-            FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
 
         @app.get("/", tags=["ROOT"], response_class=HTMLResponse)
         async def root(request: Request, db_session: DBSession):

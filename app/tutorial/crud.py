@@ -1,11 +1,11 @@
 from typing import List
 from pydantic import HttpUrl, parse_obj_as
-from sqlalchemy import Result, ScalarResult, select, update
+from sqlalchemy import ScalarResult, select, update
 from ..common.responses import CommonResponses, ResponseSchema
 from ..db import DBSession
 from ..language.crud import get_lang
 from ..language.schemas import LangCode, LanguageSchema
-from ..tools import db_checker, parameter_checker
+from ..tools import db_checker
 from ..tutorial.dist_type.crud import get_dist_type
 from ..tutorial.dist_type.schemas import DistTypeSchema
 from ..tutorial.exceptions import TutorialExceptions

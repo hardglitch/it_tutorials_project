@@ -1,23 +1,29 @@
 {% extends "base.html" %}
 {% block content %}
   {% for tutor in tutors %}
-      <div style="width: 400px; background-color: #484848; margin: 10px; border-width: 0; border-radius: 15px; box-shadow: 0 0 10px 1px #222222;">
-        <div style="margin: 10px">
-          <div align="left" style="horiz-align: left; padding-top: 10px">{{ tutor.type }}</div>
-          <div align="left" style="padding-left: 10px; horiz-align: left">&#10551; {{ tutor.theme }}</div>
-        </div>
+      <div class="tutorial">
+        <div class="container">
 
-        <div style="width: 350px">
-          <div>
-            <h3 style="color: cornsilk">{{ tutor.title }}</h3>
+          <div class="catalog">
+            <a class="text-link" href="">{{ tutor.type }}</a><br>
+            <a class="text-link" href="" style="padding-left: 10px;">&#10551; {{ tutor.theme }}</a>
           </div>
-          <div align="justify" style="margin-bottom: 20px">
-            {{ tutor.description }}
+
+          <div style="width: 350px;">
+            <div>
+              <h3 style="color: cornsilk; text-align: center">{{ tutor.title }}</h3>
+            </div>
+            <div style="margin-bottom: 20px; text-align: justify">
+              {{ tutor.description }}
+            </div>
+            <div align="left"><b style="color: cornsilk">Language:</b> {{ tutor.language }}</div>
+            <div align="left"><b style="color: cornsilk">Distribution:</b> {{ tutor.dist_type }}</div>
+            <div align="left"><b style="color: cornsilk">Source:</b> <a href="{{ tutor.source_link }}">{{ tutor.source_link }}</a></div>
+            <div style="padding-bottom: 10px; text-align: right">
+              <a href="" class="text-link">{{ tutor.who_added }}</a>
+            </div>
           </div>
-          <div align="left"><b style="color: cornsilk">Language:</b> {{ tutor.language }}</div>
-          <div align="left"><b style="color: cornsilk">Distribution:</b> {{ tutor.dist_type }}</div>
-          <div align="left"><b style="color: cornsilk">Source:</b> <a href="{{ tutor.source_link }}" style="color: lightblue; text-decoration: none">{{ tutor.source_link }}</a></div>
-          <div align="right" style="padding-bottom: 10px">{{ tutor.who_added }}</div>
+
         </div>
       </div>
   {% endfor %}
