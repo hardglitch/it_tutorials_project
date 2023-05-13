@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, Form
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import SecretStr
 from starlette import status
+from starlette.requests import Request
 from starlette.responses import RedirectResponse, Response
 from ..common.constants import AccessToken
 from ..common.responses import ResponseSchema
@@ -13,7 +14,7 @@ from ..user.crud import add_user, delete_user, edit_user, get_all_users, get_use
 from ..user.schemas import EMail, Password, UserID, UserSchema, ValidUserName
 
 
-user_router = APIRouter(prefix="/user", tags=["user"])
+user_router = APIRouter(prefix="/user", tags=["user"], responses={401: {"detail": "Not auth"}})
 
 
 @user_router.post("/reg", response_model_exclude_none=True)

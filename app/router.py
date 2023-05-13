@@ -1,13 +1,12 @@
 from typing import List
-from fastapi import FastAPI
-from fastapi_cache import FastAPICache
-from fastapi_cache.backends.redis import RedisBackend
+from fastapi import FastAPI, HTTPException
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.requests import Request
-from starlette.responses import HTMLResponse
+from starlette.responses import HTMLResponse, PlainTextResponse
 from starlette.templating import Jinja2Templates
 from ._initial_values import insert_data
-from .config import REDIS_HOST, REDIS_PASS, REDIS_PORT
+from .common.exceptions import CommonExceptions
 from .db import DBSession
 from .language.crud import get_lang
 from .language.router import language_router
@@ -15,7 +14,6 @@ from .language.schemas import LanguageSchema
 from .tutorial.router import get__all_decoded_tutorials, tutorial_router
 from .tutorial.schemas import DecodedTutorialSchema
 from .user.router import user_router
-from redis import asyncio
 
 
 class MainRouter:
@@ -49,6 +47,20 @@ class MainRouter:
                 await get__all_decoded_tutorials(ui_lang_code=23, db_session=db_session)
             ui_lang: LanguageSchema = await get_lang(lang_code=23, db_session=db_session)
             return templates.TemplateResponse(
-                name=f"tutorials.html",
+                name="tutorials.html",
                 context={"request": request, "tutors": tutors_list, "ui_lang": ui_lang}
+            )
+
+        @app.exception_handler(HTTPException)
+        async def http_exception_handler(request: Request, exc: HTTPException):
+            return templates.TemplateResponse(
+                name="exception.html",
+                context={"request": request, "code": exc.status_code, "detail": exc.detail}
+            )
+
+        @app.exception_handler(RequestValidationError)
+        async def validation_exception_handler(request: Request, exc: RequestValidationError):
+            return templates.TemplateResponse(
+                name="exception.html",
+                context={"request": request, "code": 400, "detail": "Invalid parameters"}
             )

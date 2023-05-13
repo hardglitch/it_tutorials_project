@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 from enum import IntEnum, StrEnum
+from pathlib import Path
+from starlette.templating import Jinja2Templates
 
 
-# from pathlib import Path
-
-# from fastapi.templating import Jinja2Templates
-
-# Template = Jinja2Templates(directory=Path("..").joinpath("templates"))
+templates_dir = Path(__name__.split(".")[0]).joinpath("templates")
+templates = Jinja2Templates(directory=templates_dir)
+# app.mount("/static", StaticFiles(directory=Path(__name__.split(".")[0]).joinpath("static")), name="static")
 
 
 class Credential(IntEnum):

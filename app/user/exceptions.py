@@ -4,7 +4,7 @@ from starlette import status
 
 
 @dataclass()
-class AuthenticateExceptions:
+class AuthenticateExceptions(BaseException):
 
     FAILED_TO_DECODE_TOKEN = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,

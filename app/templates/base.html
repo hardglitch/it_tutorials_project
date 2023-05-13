@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" name="viewport" content="width=device-width, height=device-height, initial-scale=1.0">
     <title>Tutorials</title>
 
     <style>
@@ -33,7 +33,7 @@
             text-align: center;
             padding: 5px;
             border-radius: 10px;
-            background: #333333;
+            background-color: rgba(51, 51, 51, 0.7);
             display: none;
             position: absolute;
             box-shadow: 0 0 20px #1e1e1e;
@@ -108,7 +108,6 @@
 
         .tutorial {
             background-color: #484848;
-            /*margin: 10px;*/
             outline: none;
             border-width: 0;
             border-radius: 15px;
@@ -116,8 +115,7 @@
         }
 
         .tutorial .container {
-            margin: 10px;
-            margin-bottom: 20px;
+            margin: 10px 10px 20px;
         }
 
         .catalog {
@@ -131,6 +129,14 @@
 
         a.text-link:hover {
             color: cornsilk;
+        }
+
+        .exception {
+            padding-top: 10vh;
+            min-height: 69vh;
+        }
+        .exception .status-code {
+            font-size: 40px;
         }
 
     </style>
@@ -148,7 +154,7 @@
         <div style="display: flex; width: 400px; align-items: center">
 
             <div align="left" style="flex: 130px; horiz-align: left;">
-                <a href="https://localhost" title="Home" class="home-button">&#8962;</a>
+                <a href="/" title="Home" class="home-button">&#8962;</a>
             </div>
 
             <div style="flex: 140px;">
@@ -160,23 +166,27 @@
                 <a title="Sign-In / Sign-Up" onclick=togglePopup() class="auth-button">&#9094;</a>
 
                 <div class="auth-popup" id="auth-popup">
+                    <form class="auth-form" action="/user/login" method="post">
 
-                    <div class="content">
-                       <div>
-                           <label>
-                               <input placeholder=“Name” class="input-field" id="user-name">
-                           </label>
-                       </div>
+                        <div class="content">
+                           <div>
+                               <label>
+                                   <input name="username" type="text" placeholder=“Name” class="input-field" id="username">
+                               </label>
+                           </div>
 
-                       <div class=“input-field”>
-                           <label>
-                               <input placeholder=“Password” class="input-field" id="password">
-                           </label>
-                       </div>
+                           <div>
+                               <label>
+                                   <input name="password" type="password" placeholder=“Password” class="input-field" id="password">
+                               </label>
+                           </div>
 
-                       <button class="signin-button">SignIn</button>
-                       <button class="signin-button">SignUp</button>
-                    </div>
+                           <button class="signin-button">SignIn</button>
+                           <a href="/reg">SignUp</a>
+
+                        </div>
+
+                    </form>
                 </div>
 
             </div>
@@ -186,7 +196,7 @@
         {% endblock %}
 
         <div align="left" style="width: 400px; padding-top: 20px;">
-            2023 <a href="https://github.com/hardglitch" title="Developer"">hardglitch</a>
+            2023 <a href="https://github.com/hardglitch" title="Developer">hardglitch</a>
         </div>
 
     </div>
