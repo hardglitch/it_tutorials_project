@@ -38,7 +38,7 @@ class AuthenticateExceptions(BaseException):
 
 
 @dataclass()
-class UserExceptions:
+class UserExceptions(BaseException):
     ACCESS_DENIED = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Access denied",

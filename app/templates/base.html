@@ -49,6 +49,33 @@
             color: cornsilk;
         }
 
+        .sign-out-form {
+            width: 25px;
+            height: 17px;
+        }
+
+        .sign-out-button {
+            color: lightgrey;
+            font-size: 30px;
+            border: none;
+            background: none;
+        }
+
+        .sign-out-button:hover {
+            cursor: pointer;
+            color: cornsilk;
+        }
+
+        .profile-button {
+            color: lightgrey;
+            font-size: 20px;
+        }
+
+        .profile-button:hover {
+            cursor: pointer;
+            color: cornsilk;
+        }
+
         .home-button {
             color: lightgrey;
             font-size: 30px;
@@ -80,7 +107,7 @@
             outline: none;
         }
 
-        .signin-button {
+        .button {
             margin-top: 5px;
             padding: 1px 7px;
             border-radius: 40px;
@@ -95,11 +122,11 @@
             outline: none;
         }
 
-        .signin-button:hover {
+        .button:hover {
             color: cornsilk;
         }
 
-        .signin-button:active{
+        .button:active{
             background: linear-gradient(145deg,#222222, #292929);
             box-shadow: 5px 5px 10px #262626, -5px -5px 10px #262626;
             border: none;
@@ -132,11 +159,17 @@
         }
 
         .exception {
-            padding-top: 10vh;
-            min-height: 69vh;
+            min-height: 80vh;
+            transform: translate(0, 5%) scale(1);
         }
+
         .exception .status-code {
             font-size: 40px;
+        }
+
+        .reg {
+            min-height: 80vh;
+            transform: translate(0, 5%) scale(1);
         }
 
     </style>
@@ -153,7 +186,7 @@
     <div align="center" class="main-container">
         <div style="display: flex; width: 400px; align-items: center">
 
-            <div align="left" style="flex: 130px; horiz-align: left;">
+            <div align="left" style="flex: 130px;">
                 <a href="/" title="Home" class="home-button">&#8962;</a>
             </div>
 
@@ -161,9 +194,14 @@
                 <span style="font-size: 22px">Tutorials</span>
             </div>
 
-            <div align="right" style="flex: 130px;">
+            <div style="flex: 130px; display: flex; justify-content: flex-end; align-items: center">
 
-                <a title="Sign-In / Sign-Up" onclick=togglePopup() class="auth-button">&#9094;</a>
+                {% if auth == True %}
+                    <a href="/user/{{ userdata.id }}" title="Profile" class="profile-button">{{ userdata.name }}</a>
+                    <a href="/user/logout" title="Sign-Out" class="sign-out-button">&#10799;</a>
+                {% else %}
+                    <a title="Sign-In / Sign-Up" onclick=togglePopup() class="auth-button">&#9094;</a>
+                {% endif %}
 
                 <div class="auth-popup" id="auth-popup">
                     <form class="auth-form" action="/user/login" method="post">
@@ -181,8 +219,8 @@
                                </label>
                            </div>
 
-                           <button class="signin-button">SignIn</button>
-                           <a href="/reg">SignUp</a>
+                           <button class="button">SignIn</button>
+                           <a href="/user/reg">SignUp</a>
 
                         </div>
 

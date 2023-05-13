@@ -44,7 +44,7 @@ async def authenticate_user(user_name: UserName, user_pwd: Password, db_session:
 
 @db_checker()
 async def is_this(credential: Credential, request: Request, db_session: DBSession) -> bool:
-    user_data: UserSchema = decode_access_token(request)
+    user_data: UserSchema = decode_access_token(token=get_token(request))
     result: ScalarResult = await db_session.scalars(
         select(UserModel.credential)
         .where(and_(UserModel.id == user_data.id, UserModel.name == user_data.name, UserModel.is_active == True))
@@ -69,7 +69,7 @@ async def is_me(user_id: UserID, request: Request, db_session: DBSession) -> boo
         select(UserModel.is_active).where(UserModel.id == user_id)
     )
     user: Row = result.one()
-    return True if user_id == decode_access_token(request).id and user.is_active else False
+    return True if user_id == decode_access_token(get_token(request)).id and user.is_active else False
 
 
 @parameter_checker()
@@ -130,9 +130,9 @@ def create_access_token(uid: UserID, name: UserName, exp_delta: int = AccessToke
         raise AuthenticateExceptions.FAILED_TO_CREATE_TOKEN
 
 
-def decode_access_token(request: Request) -> UserSchema:
+def decode_access_token(token: Token) -> UserSchema:
     try:
-        payload = jwt.decode(token=get_token(request), key=SECRET_KEY, algorithms=AccessToken.algorithm)
+        payload = jwt.decode(token=token, key=SECRET_KEY, algorithms=AccessToken.algorithm)
         user_name = payload.get(AccessToken.subject)
         user_id = payload.get(AccessToken.user_id)
         if not user_name or not user_id: raise AuthenticateExceptions.FAILED_TO_DECODE_TOKEN

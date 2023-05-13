@@ -47,7 +47,7 @@ async def add__tutorial(
             theme_code=theme_code,
             lang_code=lang_code,
             dist_type_code=dist_type_code,
-            who_added_id=decode_access_token(request=request).id
+            who_added_id=decode_access_token(token=get_token(request)).id
         ),
         db_session=db_session
     )

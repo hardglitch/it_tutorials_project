@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="reg">
+    <form class="reg-form" action="/user/add" method="post">
+
+      <div>
+
+        <label>
+          <input class="input-field" style="width: 250px" name="username-reg" id="username-reg" type="text" placeholder="Your_Name (1-256, no spaces)">
+        </label><br>
+
+        <label>
+          <input class="input-field" style="width: 250px" name="email-reg" id="email-reg" type="email" placeholder="youremail@example.com">
+        </label><br>
+
+        <label>
+          <input class="input-field" style="width: 250px" name="pwd-reg" id="pwd-reg" type="password" placeholder="password99 (10-100)">
+        </label><br>
+
+        <button class="button">SignUp</button>
+
+      </div>
+
+    </form>
+  </div>
+{% endblock %}
