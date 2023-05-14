@@ -107,18 +107,19 @@ async def get__all_users(db_session: DBSession) -> List[UserSchema]:
     return await get_all_users(db_session=db_session)
 
 
-@user_router.get("/me", response_class=HTMLResponse, dependencies=[Depends(is_me_or_admin)])
+@user_router.get("/{user_id}/me", response_class=HTMLResponse, dependencies=[Depends(is_me_or_admin)])
 @parameter_checker()
-async def get__me(request: Request, db_session: DBSession):
+async def get__me(user_id: UserID, request: Request, db_session: DBSession):
 
-    token = get_token(request)
-    auth: bool = False if token == "None" else True
-    current_user_data: UserSchema = await get_user(user_id=decode_access_token(token).id, db_session=db_session, is_me=True)
+    auth = True
+    # ui_lang: LanguageSchema = await get_lang(lang_code=23, db_session=db_session)
+    current_user_data: UserSchema = await get_user(user_id=user_id, db_session=db_session, is_me=True)
 
     return templates.TemplateResponse(
         name="profile_ext.html",
         context={
             "request": request,
+            # "ui_lang": ui_lang,
             "auth": auth,
             "current_user": current_user_data,
         }
@@ -129,7 +130,7 @@ async def get__me(request: Request, db_session: DBSession):
 @parameter_checker()
 async def get__user(user_id: UserID, request: Request, db_session: DBSession):
 
-    ui_lang: LanguageSchema = await get_lang(lang_code=23, db_session=db_session)
+    # ui_lang: LanguageSchema = await get_lang(lang_code=23, db_session=db_session)
     token = get_token(request)
     auth: bool = False if token == "None" else True
     current_user_data = decode_access_token(token) if auth else ""
@@ -139,7 +140,7 @@ async def get__user(user_id: UserID, request: Request, db_session: DBSession):
         name="profile.html",
         context={
             "request": request,
-            "ui_lang": ui_lang,
+            # "ui_lang": ui_lang,
             "auth": auth,
             "current_user": current_user_data,
             "userdata": userdata

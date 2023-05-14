@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" name="viewport" content="width=device-width, height=device-height, initial-scale=1.0">
+    <meta charset="UTF-8" name="viewport" content="width=device-width, height=device-height, initial-scale=1.5">
     <title>Tutorials</title>
 
     <style>
@@ -10,8 +10,8 @@
             background: #333333;
             font-family: raleway, ui-rounded;
             color: lightgrey;
-            padding: 0;
-            margin: 0;
+            padding: 0 0 10px;
+            margin: 0 auto;
         }
 
         .main-container {
@@ -197,9 +197,17 @@
     <div align="center" class="main-container">
         <div style="display: flex; width: 400px; align-items: center">
 
-            <div align="left" style="width: 130px;">
-                <a href="/" title="Home" class="home-button">&#8962;</a>
+            <div style="width: 130px; justify-content: left; display: flex">
+                <div>
+                    <a href="/" title="Home" class="home-button">&#8962;</a>
+                </div>
+
+                <div style="font-size: 10px; text-align: left; padding-left: 10px; padding-top: 7px">
+                    2023<br>
+                    <a href="https://github.com/hardglitch" title="Developer">hardglitch</a>
+                </div>
             </div>
+
 
             <div style="width: 140px;">
                 <span style="font-size: 22px">Tutorials</span>
@@ -209,7 +217,7 @@
 
                 {% if auth == True %}
                     <div style="overflow: hidden">
-                        <a href="/user/me" title="Profile" class="profile-button">{{ current_user.name }}</a>
+                        <a href="/user/{{ current_user.id }}/me" title="Profile" class="profile-button">&#128125;</a>
                     </div>
                     <a href="/user/logout" title="Sign-Out" class="sign-out-button">&#10799;</a>
                 {% else %}
@@ -245,10 +253,6 @@
 
         {% block content %}
         {% endblock %}
-
-        <div align="left" style="width: 400px; padding-top: 20px; padding-bottom: 10px">
-            2023 <a href="https://github.com/hardglitch" title="Developer">hardglitch</a>
-        </div>
 
     </div>
 </body>
