@@ -62,11 +62,12 @@ async def delete_user(user_id: UserID, db_session: DBSession) -> ResponseSchema:
 
 @cache(expire=3600)
 @db_checker()
-async def get_user(user_id: UserID, db_session: DBSession) -> UserSchema:
+async def get_user(user_id: UserID, db_session: DBSession, is_me: bool = False) -> UserSchema:
     result: Result = await db_session.execute(
         select(
             UserModel.id,
             UserModel.name,
+            UserModel.email,
             UserModel.credential,
             UserModel.is_active,
             UserModel.rating,
@@ -79,6 +80,7 @@ async def get_user(user_id: UserID, db_session: DBSession) -> UserSchema:
     return UserSchema(
         id=usr.id,
         name=usr.name,
+        email=usr.email if is_me else None,
         decoded_credential=DecodedCredential(Credential(usr.credential).name),
         rating=usr.rating,
     )

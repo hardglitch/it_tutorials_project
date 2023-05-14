@@ -166,8 +166,13 @@
         }
 
         .reg {
-            min-height: 80vh;
+            /*min-height: 80vh;*/
+            /*transform: translate(0, 5%) scale(1);*/
+            min-height: 400px;
             transform: translate(0, 5%) scale(1);
+            overflow-wrap: break-word;
+            margin-left: 20px;
+            margin-right: 20px;
         }
 
         .profile {
@@ -204,7 +209,7 @@
 
                 {% if auth == True %}
                     <div style="overflow: hidden">
-                        <a href="/user/{{ userdata.id }}" title="Profile" class="profile-button">{{ userdata.name }}</a>
+                        <a href="/user/me" title="Profile" class="profile-button">{{ current_user.name }}</a>
                     </div>
                     <a href="/user/logout" title="Sign-Out" class="sign-out-button">&#10799;</a>
                 {% else %}

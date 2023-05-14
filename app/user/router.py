@@ -12,7 +12,7 @@ from ..db import DBSession
 from ..language.crud import get_lang
 from ..language.schemas import LanguageSchema
 from ..tools import parameter_checker
-from ..user.auth import Token, authenticate_user, create_access_token, is_me_or_admin, get_token
+from ..user.auth import Token, authenticate_user, create_access_token, decode_access_token, is_me_or_admin, get_token
 from ..user.crud import add_user, delete_user, edit_user, get_all_users, get_user
 from ..user.schemas import EMail, Password, UserID, UserSchema, ValidUserName
 
@@ -107,13 +107,32 @@ async def get__all_users(db_session: DBSession) -> List[UserSchema]:
     return await get_all_users(db_session=db_session)
 
 
+@user_router.get("/me", response_class=HTMLResponse, dependencies=[Depends(is_me_or_admin)])
+@parameter_checker()
+async def get__me(request: Request, db_session: DBSession):
+
+    token = get_token(request)
+    auth: bool = False if token == "None" else True
+    current_user_data: UserSchema = await get_user(user_id=decode_access_token(token).id, db_session=db_session, is_me=True)
+
+    return templates.TemplateResponse(
+        name="profile_ext.html",
+        context={
+            "request": request,
+            "auth": auth,
+            "current_user": current_user_data,
+        }
+    )
+
+
 @user_router.get("/{user_id}", response_class=HTMLResponse)
-# @parameter_checker()
+@parameter_checker()
 async def get__user(user_id: UserID, request: Request, db_session: DBSession):
 
     ui_lang: LanguageSchema = await get_lang(lang_code=23, db_session=db_session)
     token = get_token(request)
     auth: bool = False if token == "None" else True
+    current_user_data = decode_access_token(token) if auth else ""
     userdata: UserSchema = await get_user(user_id=user_id, db_session=db_session)
 
     return templates.TemplateResponse(
@@ -122,7 +141,8 @@ async def get__user(user_id: UserID, request: Request, db_session: DBSession):
             "request": request,
             "ui_lang": ui_lang,
             "auth": auth,
-            "userdata": userdata,
+            "current_user": current_user_data,
+            "userdata": userdata
         }
     )
 

@@ -14,14 +14,16 @@ def parameter_checker() -> Any:
                 try:
                     return await func(*args, **kwargs)
                 except (TypeError, ValueError):
-                    raise CommonExceptions.INVALID_PARAMETERS
+                    # raise CommonExceptions.INVALID_PARAMETERS
+                    raise
         else:
             @wraps(func)
             def wrapped(*args: Any, **kwargs: Any) -> Any:
                 try:
                     return func(*args, **kwargs)
                 except (TypeError, ValueError):
-                    raise CommonExceptions.INVALID_PARAMETERS
+                    # raise CommonExceptions.INVALID_PARAMETERS
+                    raise
         return wrapped
     return wrapper
 

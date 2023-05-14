@@ -16,4 +16,3 @@ async def lifespan(app: FastAPI) -> None:
     FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
     yield
     await FastAPICache.clear()
-
