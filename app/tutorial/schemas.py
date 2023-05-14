@@ -23,7 +23,7 @@ class ValidTitleSchema(BaseModel):
 
     @validator("title")
     def check_value(cls, value: str):
-        return value if 1 < len(value := remove_dup_spaces(value)) <= 1024 else None
+        return value if 1 < len(value := remove_dup_spaces(value)) <= 256 else None
 
 Title = Annotated[str, TitleSchema]
 ValidTitle = Annotated[str, ValidTitleSchema]
@@ -37,7 +37,7 @@ class ValidDescriptionSchema(BaseModel):
 
     @validator("description")
     def check_value(cls, value: str):
-        return value if 1 < len(value := remove_dup_spaces(value)) <= 10000 else None
+        return value if 1 < len(value := remove_dup_spaces(value)) <= 1024 else None
 
 Description = Annotated[str, DescriptionSchema]
 ValidDescription = Annotated[str, ValidDescriptionSchema]
@@ -57,12 +57,10 @@ class TutorialSchema(
 
 
 class DecodedTutorialSchema(
-    TitleSchema,
-    DescriptionSchema,
+    TutorialSchema
 ):
     type: DictValue
     theme: DictValue
     language: LangValue
     dist_type: DictValue
-    source_link: HttpUrl
     who_added: UserName

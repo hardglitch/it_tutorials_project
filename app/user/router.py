@@ -1,13 +1,16 @@
 from typing import Annotated, List
 from fastapi import APIRouter, Depends, Form
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi_cache.decorator import cache
 from pydantic import SecretStr
 from starlette import status
 from starlette.requests import Request
-from starlette.responses import RedirectResponse, Response
+from starlette.responses import HTMLResponse, RedirectResponse, Response
 from ..common.constants import AccessToken, templates
 from ..common.responses import ResponseSchema
 from ..db import DBSession
+from ..language.crud import get_lang
+from ..language.schemas import LanguageSchema
 from ..tools import parameter_checker
 from ..user.auth import Token, authenticate_user, create_access_token, is_me_or_admin, get_token
 from ..user.crud import add_user, delete_user, edit_user, get_all_users, get_user
@@ -104,7 +107,22 @@ async def get__all_users(db_session: DBSession) -> List[UserSchema]:
     return await get_all_users(db_session=db_session)
 
 
-@user_router.get("/{user_id}", response_model_exclude_none=True)
-@parameter_checker()
-async def get__user(user_id: UserID, db_session: DBSession) -> UserSchema:
-    return await get_user(user_id=user_id, db_session=db_session)
+@user_router.get("/{user_id}", response_class=HTMLResponse)
+# @parameter_checker()
+async def get__user(user_id: UserID, request: Request, db_session: DBSession):
+
+    ui_lang: LanguageSchema = await get_lang(lang_code=23, db_session=db_session)
+    token = get_token(request)
+    auth: bool = False if token == "None" else True
+    userdata: UserSchema = await get_user(user_id=user_id, db_session=db_session)
+
+    return templates.TemplateResponse(
+        name="profile.html",
+        context={
+            "request": request,
+            "ui_lang": ui_lang,
+            "auth": auth,
+            "userdata": userdata,
+        }
+    )
+

@@ -6,10 +6,12 @@
     <title>Tutorials</title>
 
     <style>
-        body {
+        body, html {
             background: #333333;
             font-family: raleway, ui-rounded;
             color: lightgrey;
+            padding: 0;
+            margin: 0;
         }
 
         .main-container {
@@ -47,11 +49,6 @@
         .auth-button:hover {
             cursor: pointer;
             color: cornsilk;
-        }
-
-        .sign-out-form {
-            width: 25px;
-            height: 17px;
         }
 
         .sign-out-button {
@@ -148,6 +145,7 @@
         .catalog {
             padding-top: 10px;
             text-align: left;
+            overflow: hidden;
         }
 
         a.text-link {
@@ -172,6 +170,14 @@
             transform: translate(0, 5%) scale(1);
         }
 
+        .profile {
+            min-height: 400px;
+            transform: translate(0, 5%) scale(1);
+            overflow-wrap: break-word;
+            margin-left: 20px;
+            margin-right: 20px;
+        }
+
     </style>
 
     <script>
@@ -186,18 +192,20 @@
     <div align="center" class="main-container">
         <div style="display: flex; width: 400px; align-items: center">
 
-            <div align="left" style="flex: 130px;">
+            <div align="left" style="width: 130px;">
                 <a href="/" title="Home" class="home-button">&#8962;</a>
             </div>
 
-            <div style="flex: 140px;">
+            <div style="width: 140px;">
                 <span style="font-size: 22px">Tutorials</span>
             </div>
 
-            <div style="flex: 130px; display: flex; justify-content: flex-end; align-items: center">
+            <div style="width: 130px; display: flex; justify-content: flex-end; align-items: center;">
 
                 {% if auth == True %}
-                    <a href="/user/{{ userdata.id }}" title="Profile" class="profile-button">{{ userdata.name }}</a>
+                    <div style="overflow: hidden">
+                        <a href="/user/{{ userdata.id }}" title="Profile" class="profile-button">{{ userdata.name }}</a>
+                    </div>
                     <a href="/user/logout" title="Sign-Out" class="sign-out-button">&#10799;</a>
                 {% else %}
                     <a title="Sign-In / Sign-Up" onclick=togglePopup() class="auth-button">&#9094;</a>
@@ -233,7 +241,7 @@
         {% block content %}
         {% endblock %}
 
-        <div align="left" style="width: 400px; padding-top: 20px;">
+        <div align="left" style="width: 400px; padding-top: 20px; padding-bottom: 10px">
             2023 <a href="https://github.com/hardglitch" title="Developer">hardglitch</a>
         </div>
 

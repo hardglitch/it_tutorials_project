@@ -11,7 +11,7 @@ async def lifespan(app: FastAPI) -> None:
     redis = asyncio.from_url(
         url=f"redis://{REDIS_PASS}@{REDIS_HOST}:{REDIS_PORT}/0",
         encoding="utf-8",
-        decode_responses=True
+        decode_responses=False
     )
     FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
     yield

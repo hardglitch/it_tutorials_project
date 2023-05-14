@@ -14,7 +14,6 @@ from .tutorial.router import get__all_decoded_tutorials, tutorial_router
 from .tutorial.schemas import DecodedTutorialSchema
 from .user.auth import decode_access_token, get_token
 from .user.router import user_router
-from .user.schemas import UserSchema
 
 
 class MainRouter:
@@ -49,7 +48,6 @@ class MainRouter:
                 await get__all_decoded_tutorials(ui_lang_code=23, db_session=db_session)
 
             ui_lang: LanguageSchema = await get_lang(lang_code=23, db_session=db_session)
-
             token = get_token(request)
             auth: bool = False if token == "None" else True
             userdata = decode_access_token(token) if auth else ""

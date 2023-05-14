@@ -136,13 +136,19 @@ async def get_decoded_tutorial(
     # tutor: Row = result.one()
 
     return DecodedTutorialSchema(
+        id=tutor.id,
         title=tutor.title,
+        type_code=tutor.type_code,
         type=decoded_type.dict_value,
+        theme_code=tutor.theme_code,
         theme=decoded_theme.dict_value,
+        lang_code=tutor.lang_code,
         language=decoded_lang.lang_value,
         description=tutor.description,
+        dist_type_code=tutor.dist_type_code,
         dist_type=decoded_dist_type.dict_value,
         source_link=parse_obj_as(HttpUrl, tutor.source_link),
+        who_added_id=tutor.who_added_id,
         who_added=decoded_user.name,
     )
 
@@ -181,14 +187,21 @@ async def get_all_decoded_tutorials(
             db_session=db_session
         )
 
-        tutors_list.append(DecodedTutorialSchema(
+        tutors_list.append(
+            DecodedTutorialSchema(
+                id=tutor.id,
                 title=tutor.title,
+                type_code=tutor.type_code,
                 type=decoded_type.dict_value,
+                theme_code=tutor.theme_code,
                 theme=decoded_theme.dict_value,
+                lang_code=tutor.language_code,
                 language=decoded_lang.lang_value,
                 description=tutor.description,
+                dist_type_code=tutor.dist_type_code,
                 dist_type=decoded_dist_type.dict_value,
                 source_link=parse_obj_as(HttpUrl, tutor.source_link),
+                who_added_id=tutor.who_added_id,
                 who_added=decoded_user.name,
             )
         )
