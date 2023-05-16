@@ -36,8 +36,8 @@ def db_checker() -> Any:
                 return await func(*args, **kwargs)
             except StopAsyncIteration:
                 raise DatabaseExceptions.COMMON_EXCEPTION
-            # except (TypeError, ValueError):
-            #     raise CommonExceptions.INVALID_PARAMETERS
+            except (TypeError, ValueError):
+                raise CommonExceptions.INVALID_PARAMETERS
             except NoResultFound:
                 raise CommonExceptions.NOTHING_FOUND
             except IntegrityError:

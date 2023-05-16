@@ -1,10 +1,15 @@
-from typing import List
+from typing import Annotated, List
+
+from fastapi import Depends
+from fastapi_cache.decorator import cache
 from sqlalchemy import ScalarResult, delete, select, update
+
+from ..common.constants import DEFAULT_UI_LANGUAGE
 from ..common.exceptions import CommonExceptions
 from ..common.responses import CommonResponses, ResponseSchema
 from ..db import DBSession
 from ..language.models import LanguageModel
-from ..language.schemas import LangCode, LanguageSchema
+from ..language.schemas import LangAbbr, LangCode, LanguageSchema
 from ..tools import db_checker
 
 
@@ -54,6 +59,18 @@ async def get_lang(lang_code: LangCode, db_session: DBSession) -> LanguageSchema
         lang_value=lang_from_db.value,
         is_ui_lang=lang_from_db.is_ui_lang
     )
+
+
+@db_checker()
+@cache()
+async def get_default_ui_lang_code(db_session: DBSession) -> LangCode:
+    result: ScalarResult = await db_session.scalars(
+        select(LanguageModel.code).where(LanguageModel.abbreviation == DEFAULT_UI_LANGUAGE)
+    )
+    lang_code: LangCode = result.one()
+    return lang_code
+
+UILangCode = Annotated[LangCode, Depends(get_default_ui_lang_code)]
 
 
 @db_checker()

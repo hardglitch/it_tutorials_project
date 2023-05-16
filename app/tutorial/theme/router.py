@@ -69,7 +69,7 @@ async def delete__theme(
     )
 
 
-@theme_router.get("/{theme_code}/{ui_lang_code}/get", response_model_exclude_none=True)
+@theme_router.get("/{theme_code}/{ui_lang_code}", response_model_exclude_none=True)
 @parameter_checker()
 async def get__theme(
         theme_code: Annotated[ThemeCode, Path()],

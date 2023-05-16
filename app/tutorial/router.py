@@ -6,8 +6,7 @@ from ..common.responses import ResponseSchema
 from ..db import DBSession
 from ..language.schemas import LangCode
 from ..tools import parameter_checker
-from ..tutorial.crud import add_tutorial, delete_tutorial, edit_tutorial, get_all_decoded_tutorials, \
-    get_decoded_tutorial, get_tutorial
+from ..tutorial.crud import add_tutorial, delete_tutorial, edit_tutorial, get_all_tutorials, get_tutorial
 from ..tutorial.dist_type.router import dist_type_router
 from ..tutorial.dist_type.schemas import DistTypeCode
 from ..tutorial.schemas import TutorialID, TutorialSchema, DecodedTutorialSchema, ValidDescription, ValidTitle
@@ -47,7 +46,7 @@ async def add__tutorial(
             theme_code=theme_code,
             lang_code=lang_code,
             dist_type_code=dist_type_code,
-            who_added_id=decode_access_token(get_token(request)).id
+            who_added_id=decode_access_token(token=get_token(request)).id
         ),
         db_session=db_session
     )
@@ -99,38 +98,29 @@ async def delete__tutorial(
 @parameter_checker()
 async def get__tutorial(
         tutor_id: Annotated[TutorialID, Path()],
-        db_session: DBSession,
-) -> TutorialSchema:
-
-    return await get_tutorial(
-        tutor_id=tutor_id,
-        db_session=db_session
-    )
-
-
-@tutorial_router.get("/{tutor_id}/{ui_lang_code}/decoded", response_model_exclude_none=True)
-@parameter_checker()
-async def get__decoded_tutorial(
-        tutor_id: Annotated[TutorialID, Path()],
-        ui_lang_code: Annotated[LangCode, Path()],
+        ui_lang_code: LangCode,
         db_session: DBSession,
 ) -> DecodedTutorialSchema:
 
-    return await get_decoded_tutorial(
+    return await get_tutorial(
         tutor_id=tutor_id,
         ui_lang_code=ui_lang_code,
         db_session=db_session
     )
 
 
-@tutorial_router.get("/{ui_lang_code}/decoded", response_model_exclude_none=True)
+@tutorial_router.get("/", response_model_exclude_none=True)
 @parameter_checker()
-async def get__all_decoded_tutorials(
-        ui_lang_code: Annotated[LangCode, Path()],
+async def get__all_tutorials(
+        ui_lang_code: LangCode,
         db_session: DBSession,
+        type_code: TypeCode | None = None,
+        theme_code: ThemeCode | None = None,
 ) -> List[DecodedTutorialSchema]:
 
-    return await get_all_decoded_tutorials(
+    return await get_all_tutorials(
         ui_lang_code=ui_lang_code,
+        type_code=type_code,
+        theme_code=theme_code,
         db_session=db_session
     )

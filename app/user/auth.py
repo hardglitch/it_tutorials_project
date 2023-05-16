@@ -6,6 +6,8 @@ from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import Result, Row, ScalarResult, and_, select
 from starlette.requests import Request
+from starlette.templating import _TemplateResponse
+
 from ..config import SECRET_KEY
 from ..common.constants import AccessToken, Credential
 from ..db import DBSession
@@ -42,7 +44,7 @@ async def authenticate_user(user_name: UserName, user_pwd: Password, db_session:
 
 @db_checker()
 async def is_this(credential: Credential, request: Request, db_session: DBSession) -> bool:
-    user_data: UserSchema = decode_access_token(get_token(request))
+    user_data: UserSchema = decode_access_token(token=get_token(request))
     result: ScalarResult = await db_session.scalars(
         select(UserModel.credential)
         .where(and_(UserModel.id == user_data.id, UserModel.name == user_data.name, UserModel.is_active == True))
@@ -66,8 +68,8 @@ async def is_me(user_id: UserID, request: Request, db_session: DBSession) -> boo
     result: ScalarResult = await db_session.scalars(
         select(UserModel.is_active).where(UserModel.id == user_id)
     )
-    user: Row = result.one()
-    return True if user_id == decode_access_token(get_token(request)).id and user.is_active else False
+    user_is_active: bool = result.one()
+    return True if user_id == decode_access_token(get_token(request)).id and user_is_active else False
 
 
 @parameter_checker()

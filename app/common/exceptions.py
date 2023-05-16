@@ -3,7 +3,7 @@ from fastapi import HTTPException, status
 
 
 @dataclass()
-class DatabaseExceptions:
+class DatabaseExceptions(BaseException):
     COMMON_EXCEPTION = HTTPException(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         detail="Database error",
@@ -16,7 +16,7 @@ class DatabaseExceptions:
 
 
 @dataclass()
-class CommonExceptions:
+class CommonExceptions(BaseException):
     INVALID_PARAMETERS = HTTPException(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         detail="Invalid request parameters",

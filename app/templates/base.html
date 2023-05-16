@@ -2,19 +2,26 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" name="viewport" content="width=device-width, height=device-height, initial-scale=1.5">
     <title>Tutorials</title>
 
     <style>
-        body {
+        body, html {
             background: #333333;
             font-family: raleway, ui-rounded;
             color: lightgrey;
+            padding: 0 0 10px;
+            margin: 0 auto;
         }
 
         .main-container {
             width: 400px;
             margin: 0 auto;
+        }
+
+        .language_switcher-placeholder{
+            position: relative;
+            display: inline-block;
         }
 
         .auth-popup {
@@ -33,7 +40,7 @@
             text-align: center;
             padding: 5px;
             border-radius: 10px;
-            background: #333333;
+            background-color: rgba(51, 51, 51, 0.7);
             display: none;
             position: absolute;
             box-shadow: 0 0 20px #1e1e1e;
@@ -45,6 +52,28 @@
         }
 
         .auth-button:hover {
+            cursor: pointer;
+            color: cornsilk;
+        }
+
+        .sign-out-button {
+            color: lightgrey;
+            font-size: 30px;
+            border: none;
+            background: none;
+        }
+
+        .sign-out-button:hover {
+            cursor: pointer;
+            color: cornsilk;
+        }
+
+        .profile-button {
+            color: lightgrey;
+            font-size: 20px;
+        }
+
+        .profile-button:hover {
             cursor: pointer;
             color: cornsilk;
         }
@@ -80,7 +109,7 @@
             outline: none;
         }
 
-        .signin-button {
+        .button {
             margin-top: 5px;
             padding: 1px 7px;
             border-radius: 40px;
@@ -95,11 +124,11 @@
             outline: none;
         }
 
-        .signin-button:hover {
+        .button:hover {
             color: cornsilk;
         }
 
-        .signin-button:active{
+        .button:active{
             background: linear-gradient(145deg,#222222, #292929);
             box-shadow: 5px 5px 10px #262626, -5px -5px 10px #262626;
             border: none;
@@ -108,7 +137,6 @@
 
         .tutorial {
             background-color: #484848;
-            /*margin: 10px;*/
             outline: none;
             border-width: 0;
             border-radius: 15px;
@@ -116,13 +144,13 @@
         }
 
         .tutorial .container {
-            margin: 10px;
-            margin-bottom: 20px;
+            margin: 10px 10px 20px;
         }
 
         .catalog {
             padding-top: 10px;
             text-align: left;
+            overflow: hidden;
         }
 
         a.text-link {
@@ -131,6 +159,33 @@
 
         a.text-link:hover {
             color: cornsilk;
+        }
+
+        .exception {
+            min-height: 80vh;
+            transform: translate(0, 5%) scale(1);
+        }
+
+        .exception .status-code {
+            font-size: 40px;
+        }
+
+        .reg {
+            /*min-height: 80vh;*/
+            /*transform: translate(0, 5%) scale(1);*/
+            min-height: 400px;
+            transform: translate(0, 5%) scale(1);
+            overflow-wrap: break-word;
+            margin-left: 20px;
+            margin-right: 20px;
+        }
+
+        .profile {
+            min-height: 400px;
+            transform: translate(0, 5%) scale(1);
+            overflow-wrap: break-word;
+            margin-left: 20px;
+            margin-right: 20px;
         }
 
     </style>
@@ -147,36 +202,60 @@
     <div align="center" class="main-container">
         <div style="display: flex; width: 400px; align-items: center">
 
-            <div align="left" style="flex: 130px; horiz-align: left;">
-                <a href="https://localhost" title="Home" class="home-button">&#8962;</a>
+            <div style="width: 130px; justify-content: left; display: flex">
+                <div>
+                    <a href="/" title="Home" class="home-button">&#8962;</a>
+                </div>
+
+                <div style="font-size: 10px; text-align: left; padding-left: 10px; padding-top: 7px">
+                    2023<br>
+                    <a href="https://github.com/hardglitch" title="Developer">hardglitch</a>
+                </div>
             </div>
 
-            <div style="flex: 140px;">
+
+            <div style="width: 140px;">
                 <span style="font-size: 22px">Tutorials</span>
             </div>
 
-            <div align="right" style="flex: 130px;">
+            <div style="width: 130px; display: flex; justify-content: flex-end; align-items: center;">
 
-                <a title="Sign-In / Sign-Up" onclick=togglePopup() class="auth-button">&#9094;</a>
+                <div class="language_switcher">
+
+
+                </div>
+
+                {% if auth == True %}
+                    <div style="overflow: hidden">
+                        <a href="/user/{{ current_user.id }}/me" title="Profile" class="profile-button">&#128125;</a>
+                    </div>
+                    <a href="/user/logout" title="Sign-Out" class="sign-out-button">&#10799;</a>
+                {% else %}
+                    <a title="Sign-In / Sign-Up" onclick=togglePopup() class="auth-button">&#9094;</a>
+                {% endif %}
 
                 <div class="auth-popup" id="auth-popup">
+                    <form class="auth-form" action="/user/login" method="post">
 
-                    <div class="content">
-                       <div>
-                           <label>
-                               <input placeholder=“Name” class="input-field" id="user-name">
-                           </label>
-                       </div>
+                        <div class="content">
+                           <div>
+                               <label>
+                                   <input name="username" type="text" placeholder=“Name” class="input-field" id="username">
+                               </label>
+                           </div>
 
-                       <div class=“input-field”>
-                           <label>
-                               <input placeholder=“Password” class="input-field" id="password">
-                           </label>
-                       </div>
+                           <div>
+                               <label>
+                                   <input name="password" type="password" placeholder=“Password” class="input-field" id="password">
+                               </label>
+                           </div>
 
-                       <button class="signin-button">SignIn</button>
-                       <button class="signin-button">SignUp</button>
-                    </div>
+                           <button class="button">SignIn</button>
+                           <a href="/user/reg">SignUp</a>
+
+                        </div>
+
+                    </form>
                 </div>
 
             </div>
@@ -184,10 +263,6 @@
 
         {% block content %}
         {% endblock %}
-
-        <div align="left" style="width: 400px; padding-top: 20px;">
-            2023 <a href="https://github.com/hardglitch" title="Developer"">hardglitch</a>
-        </div>
 
     </div>
 </body>

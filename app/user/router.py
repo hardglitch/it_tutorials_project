@@ -3,29 +3,39 @@ from fastapi import APIRouter, Depends, Form
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import SecretStr
 from starlette import status
-from starlette.responses import RedirectResponse, Response
-from ..common.constants import AccessToken
+from starlette.requests import Request
+from starlette.responses import HTMLResponse, RedirectResponse, Response
+from ..common.constants import AccessToken, templates
 from ..common.responses import ResponseSchema
 from ..db import DBSession
+from ..language.crud import UILangCode
 from ..tools import parameter_checker
-from ..user.auth import Token, authenticate_user, create_access_token, is_me_or_admin, get_token
+from ..user.auth import Token, authenticate_user, create_access_token, decode_access_token, is_me_or_admin, get_token
 from ..user.crud import add_user, delete_user, edit_user, get_all_users, get_user
 from ..user.schemas import EMail, Password, UserID, UserSchema, ValidUserName
 
 
-user_router = APIRouter(prefix="/user", tags=["user"])
+user_router = APIRouter(prefix="/user", tags=["user"], responses={401: {"detail": "Not auth"}})
 
 
-@user_router.post("/reg", response_model_exclude_none=True)
+@user_router.get("/reg")
+async def reg_page(request: Request):
+    return templates.TemplateResponse(
+        name="reg.html",
+        context={"request": request}
+    )
+
+
+@user_router.post("/add", response_model_exclude_none=True)
 @parameter_checker()
 async def add__user(
         name: Annotated[ValidUserName, Form()],
         email: Annotated[EMail, Form()],
         password: Annotated[Password, Form()],
         db_session: DBSession,
-) -> UserSchema:
+) -> Response:
 
-    return await add_user(
+    new_user_data = await add_user(
         UserSchema(
             name=name,
             email=email,
@@ -33,6 +43,8 @@ async def add__user(
         ),
         db_session=db_session
     )
+    response = RedirectResponse(url="/", status_code=status.HTTP_201_CREATED)
+    return response
 
 
 @user_router.post("/login")
@@ -47,16 +59,16 @@ async def login(
         user_name=form_data.username, user_pwd=SecretStr(form_data.password), db_session=db_session
     )
     token: Token = create_access_token(uid=user_id, name=user_name)
-    response = RedirectResponse(url=f"/user/{user_id}", status_code=status.HTTP_302_FOUND)
-    response.set_cookie(key=AccessToken.name, value=token, httponly=True, max_age=AccessToken.exp_delta)
+    response = RedirectResponse(url="/", status_code=status.HTTP_302_FOUND)
+    response.set_cookie(key=AccessToken.name, value=token, httponly=True, secure=True, max_age=AccessToken.exp_delta)
     return response
 
 
-@user_router.post("/logout", dependencies=[Depends(get_token)])
+@user_router.get("/logout", dependencies=[Depends(get_token)])
 @parameter_checker()
 async def logout() -> Response:
-    response = RedirectResponse(url="/", status_code=status.HTTP_200_OK)
-    response.delete_cookie(key=AccessToken.name, httponly=True)
+    response = RedirectResponse(url="/", status_code=status.HTTP_302_FOUND)
+    response.delete_cookie(key=AccessToken.name, httponly=True, secure=True)
     return response
 
 
@@ -87,13 +99,57 @@ async def delete__user(user_id: UserID, db_session: DBSession) -> ResponseSchema
     return await delete_user(user_id=user_id, db_session=db_session)
 
 
-@user_router.get("/get-all", response_model_exclude_none=True)
+@user_router.get("/{user_id}/me", response_class=HTMLResponse, dependencies=[Depends(is_me_or_admin)])
+@parameter_checker()
+async def get__me(
+        user_id: UserID,
+        ui_lang_code: UILangCode,
+        request: Request,
+        db_session: DBSession
+):
+
+    auth = True
+    current_user_data: UserSchema = await get_user(user_id=user_id, db_session=db_session, is_me=True)
+
+    return templates.TemplateResponse(
+        name="profile_ext.html",
+        context={
+            "request": request,
+            "ui_lang": ui_lang_code,
+            "auth": auth,
+            "current_user": current_user_data,
+        }
+    )
+
+
+@user_router.get("/{user_id}", response_class=HTMLResponse)
+@parameter_checker()
+async def get__user(
+        user_id: UserID,
+        ui_lang_code: UILangCode,
+        request: Request,
+        db_session: DBSession
+):
+
+    token = get_token(request)
+    auth: bool = False if token == "None" else True
+    current_user_data = decode_access_token(token) if auth else ""
+    userdata: UserSchema = await get_user(user_id=user_id, db_session=db_session)
+
+    return templates.TemplateResponse(
+        name="profile.html",
+        context={
+            "request": request,
+            "ui_lang": ui_lang_code,
+            "auth": auth,
+            "current_user": current_user_data,
+            "userdata": userdata
+        }
+    )
+
+
+@user_router.get("/", response_model_exclude_none=True)
 @parameter_checker()
 async def get__all_users(db_session: DBSession) -> List[UserSchema]:
     return await get_all_users(db_session=db_session)
 
-
-@user_router.get("/{user_id}", response_model_exclude_none=True)
-@parameter_checker()
-async def get__user(user_id: UserID, db_session: DBSession) -> UserSchema:
-    return await get_user(user_id=user_id, db_session=db_session)
