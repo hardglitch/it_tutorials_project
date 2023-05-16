@@ -1,6 +1,4 @@
 from typing import List
-
-from fastapi_cache.decorator import cache
 from sqlalchemy import Result, Row, select, update
 from ..common.constants import DecodedCredential
 from ..common.exceptions import CommonExceptions
@@ -60,7 +58,6 @@ async def delete_user(user_id: UserID, db_session: DBSession) -> ResponseSchema:
     return CommonResponses.SUCCESS
 
 
-@cache(expire=3600)
 @db_checker()
 async def get_user(user_id: UserID, db_session: DBSession, is_me: bool = False) -> UserSchema:
     result: Result = await db_session.execute(

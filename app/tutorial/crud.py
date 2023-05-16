@@ -1,4 +1,5 @@
 from typing import List
+from fastapi_cache.decorator import cache
 from pydantic import HttpUrl, parse_obj_as
 from sqlalchemy import ScalarResult, and_, select, update
 from ..common.responses import CommonResponses, ResponseSchema
@@ -119,6 +120,7 @@ async def get_tutorial(
 
 
 @db_checker()
+@cache(expire=300)
 async def get_all_tutorials(
         ui_lang_code: LangCode,
         db_session: DBSession,
@@ -154,6 +156,8 @@ async def get_all_tutorials(
             user_id=tutor.who_added_id,
             db_session=db_session
         )
+        a = decoded_user.name
+
         decoded_type: TypeSchema = await get_type(
             type_code=tutor.type_code,
             ui_lang_code=ui_lang_code,
