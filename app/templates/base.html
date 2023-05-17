@@ -31,30 +31,19 @@
         .language-switcher .ui-languages.active {
             display: block;
             transition: all 300ms ease-in-out;
-            /*transform: translate(-110%, -10%) scale(1);*/
         }
 
         .language-switcher .ui-languages {
+            font-size: 16px;
+            text-transform: uppercase;
             z-index: 1;
             text-align: center;
-            padding: 5px;
             border-radius: 10px;
             background-color: rgba(51, 51, 51, 0.7);
             display: none;
             position: absolute;
             box-shadow: 0 0 20px #1e1e1e;
         }
-
-        .language-switcher-button {
-            color: lightgrey;
-            font-size: 16px;
-        }
-
-        .language-switcher-button:hover {
-            cursor: pointer;
-            color: cornsilk;
-        }
-
 
         .auth-popup {
             position: relative;
@@ -78,54 +67,24 @@
             box-shadow: 0 0 20px #1e1e1e;
         }
 
-        .auth-button {
-            color: lightgrey;
-            font-size: 30px;
-        }
-
-        .auth-button:hover {
-            cursor: pointer;
-            color: cornsilk;
-        }
-
-        .sign-out-button {
-            color: lightgrey;
-            font-size: 30px;
-            border: none;
-            background: none;
-        }
-
-        .sign-out-button:hover {
-            cursor: pointer;
-            color: cornsilk;
-        }
-
-        .profile-button {
-            color: lightgrey;
-            font-size: 20px;
-        }
-
-        .profile-button:hover {
-            cursor: pointer;
-            color: cornsilk;
-        }
-
-        .home-button {
-            color: lightgrey;
-            font-size: 30px;
-        }
-
-        .home-button:hover {
-            color: cornsilk;
-        }
-
         a {
             color: lightblue;
             text-decoration: none;
         }
 
         a:hover {
-            color: lightskyblue;
+            color: aliceblue;
+            text-shadow: 0 0 5px aliceblue;
+        }
+
+        a.text-link {
+            color: lightgrey;
+        }
+
+        a.text-link:hover {
+            color: cornsilk;
+            cursor: pointer;
+            text-shadow: 0 0 5px cornsilk;
         }
 
         .input-field {
@@ -158,6 +117,7 @@
 
         .button:hover {
             color: cornsilk;
+            text-shadow: 0 0 5px cornsilk;
         }
 
         .button:active{
@@ -183,14 +143,6 @@
             padding-top: 10px;
             text-align: left;
             overflow: hidden;
-        }
-
-        a.text-link {
-            color: lightgrey;
-        }
-
-        a.text-link:hover {
-            color: cornsilk;
         }
 
         .exception {
@@ -235,31 +187,36 @@
     <div align="center" class="main-container">
         <div style="display: flex; width: 400px; align-items: center">
 
-            <div style="width: 130px; justify-content: left; display: flex">
-                <div>
-                    <a href="/{{ ui_lang_code }}" title="Home" class="home-button">&#8962;</a>
-                </div>
+            <a class="text-link" href="https://github.com/hardglitch" title="Developer">
+                <div style="width: 130px; justify-content: left; display: flex">
+                    <div>
+                        <span style="font-size: 30px">&#8962;</span>
+                    </div>
 
-                <div style="font-size: 10px; text-align: left; padding-left: 10px; padding-top: 7px">
-                    2023<br>
-                    <a href="https://github.com/hardglitch" title="Developer">hardglitch</a>
+                    <div style="font-size: 10px; text-align: left; padding-left: 5px; padding-top: 7px">
+                        2023<br>
+                        hardglitch
+                    </div>
                 </div>
-            </div>
+            </a>
 
 
             <div style="width: 140px;">
-                <span style="font-size: 22px">Tutorials</span>
+                <a href="/{{ ui_lang_code }}" title="Home" class="text-link" style="font-size: 22px">Tutorials</a>
             </div>
+
 
             <div style="width: 130px; display: flex; justify-content: flex-end; align-items: center;">
 
                 <div class="language-switcher">
 
-                    <a onclick=toggleLangPopup() class="language-switcher-button">{{ ui_lang }}</a>
+                    <a class="text-link" onclick=toggleLangPopup() style="font-size: 16px">{{ ui_lang }}</a>
 
                     <div class="ui-languages" id="ui-languages">
                     {% for lang in ui_langs %}
-                        <a class="language-switcher-button" href="/{{ lang.lang_code }}">{{ lang.abbreviation }}</a><br>
+                        <div style="padding-top: 2px; padding-bottom: 2px;">
+                            <a class="text-link" href="/{{ lang.lang_code }}">{{ lang.abbreviation }}</a><br>
+                        </div>
                     {% endfor %}
                     </div>
 
@@ -267,11 +224,11 @@
 
                 {% if auth == True %}
                     <div style="overflow: hidden">
-                        <a href="/{{ ui_lang_code }}/user/{{ current_user.id }}/me" title="Profile" class="profile-button">&#128125;</a>
+                        <a href="/{{ ui_lang_code }}/user/{{ current_user.id }}/me" title="Profile" class="text-link" style="font-size: 20px">&#128125;</a>
                     </div>
-                    <a href="/{{ ui_lang_code }}/user/logout" title="Sign-Out" class="sign-out-button">&#10799;</a>
+                    <a href="/{{ ui_lang_code }}/user/logout" title="Sign-Out" class="text-link" style="font-size: 30px">&#10799;</a>
                 {% else %}
-                    <a title="Sign-In / Sign-Up" onclick=toggleAuthPopup() class="auth-button">&#9094;</a>
+                    <a title="Sign-In / Sign-Up" onclick=toggleAuthPopup() class="text-link" style="font-size: 30px">&#9094;</a>
                 {% endif %}
 
                 <div class="auth-popup" id="auth-popup">
@@ -291,7 +248,7 @@
                            </div>
 
                            <button class="button">SignIn</button>
-                           <a href="/{{ ui_lang_code }}/user/reg">SignUp</a>
+                           <a class="text-link" href="/{{ ui_lang_code }}/user/reg">SignUp</a>
 
                         </div>
 
