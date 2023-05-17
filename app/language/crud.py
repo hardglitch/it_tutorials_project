@@ -2,6 +2,8 @@ from typing import Annotated, List
 from fastapi import Depends
 from fastapi_cache.decorator import cache
 from sqlalchemy import ScalarResult, delete, select, update
+from starlette.requests import Request
+
 from ..common.constants import DEFAULT_UI_LANGUAGE
 from ..common.exceptions import CommonExceptions
 from ..common.responses import CommonResponses, ResponseSchema
@@ -86,7 +88,7 @@ async def get_all_ui_langs(db_session: DBSession) -> List[LanguageSchema]:
                 lang_code=lang.code,
                 abbreviation=lang.abbreviation,
                 lang_value=lang.value,
-                is_ui_lang=lang.is_ui_lang
+                is_ui_lang=lang.is_ui_lang,
             )
         )
     if not lang_list: raise CommonExceptions.NOTHING_FOUND

@@ -52,7 +52,7 @@ async def add__tutorial(
     )
 
 
-@tutorial_router.put("/{tutor_id}/edit")
+@tutorial_router.post("/{tutor_id}/edit")
 @parameter_checker()
 async def edit__tutorial(
         tutor_id: Annotated[TutorialID, Depends(is_tutorial_editor)],

@@ -91,7 +91,8 @@ class PageVars:
     @dataclass
     class Page:
         exception: str = "exception"
-        tutorials: str = "tutorials"
+        main: str = "main"
+        tutorial: str = "tutorial"
         profile: str = "profile"
         profile_ext: str = "profile-ext"
         reg: str = "reg"

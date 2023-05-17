@@ -19,10 +19,42 @@
             margin: 0 auto;
         }
 
-        .language_switcher-placeholder{
+        .language-switcher {
+            padding-right: 5px;
+        }
+
+        .language-switcher .ui-languages {
             position: relative;
             display: inline-block;
         }
+
+        .language-switcher .ui-languages.active {
+            display: block;
+            transition: all 300ms ease-in-out;
+            /*transform: translate(-110%, -10%) scale(1);*/
+        }
+
+        .language-switcher .ui-languages {
+            z-index: 1;
+            text-align: center;
+            padding: 5px;
+            border-radius: 10px;
+            background-color: rgba(51, 51, 51, 0.7);
+            display: none;
+            position: absolute;
+            box-shadow: 0 0 20px #1e1e1e;
+        }
+
+        .language-switcher-button {
+            color: lightgrey;
+            font-size: 16px;
+        }
+
+        .language-switcher-button:hover {
+            cursor: pointer;
+            color: cornsilk;
+        }
+
 
         .auth-popup {
             position: relative;
@@ -189,8 +221,11 @@
     </style>
 
     <script>
-        function togglePopup() {
+        function toggleAuthPopup() {
             document.getElementById("auth-popup").classList.toggle("active");
+        }
+        function toggleLangPopup() {
+            document.getElementById("ui-languages").classList.toggle("active");
         }
     </script>
 
@@ -218,8 +253,15 @@
 
             <div style="width: 130px; display: flex; justify-content: flex-end; align-items: center;">
 
-                <div class="language_switcher">
+                <div class="language-switcher">
 
+                    <a onclick=toggleLangPopup() class="language-switcher-button">{{ ui_lang }}</a>
+
+                    <div class="ui-languages" id="ui-languages">
+                    {% for lang in ui_langs %}
+                        <a class="language-switcher-button" href="/{{ lang.lang_code }}">{{ lang.abbreviation }}</a><br>
+                    {% endfor %}
+                    </div>
 
                 </div>
 
@@ -229,7 +271,7 @@
                     </div>
                     <a href="/{{ ui_lang_code }}/user/logout" title="Sign-Out" class="sign-out-button">&#10799;</a>
                 {% else %}
-                    <a title="Sign-In / Sign-Up" onclick=togglePopup() class="auth-button">&#9094;</a>
+                    <a title="Sign-In / Sign-Up" onclick=toggleAuthPopup() class="auth-button">&#9094;</a>
                 {% endif %}
 
                 <div class="auth-popup" id="auth-popup">
@@ -259,8 +301,8 @@
             </div>
         </div>
 
-        {% if page == "tutorials" %}
-            {% include "tutorials.html" %}
+        {% if page == "main" %}
+            {% include "main.html" %}
         {% elif page == "profile" %}
             {% include "profile.html" %}
         {% elif page == "profile-ext" %}

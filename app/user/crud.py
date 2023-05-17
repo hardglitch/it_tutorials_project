@@ -2,7 +2,6 @@ from typing import List
 from sqlalchemy import Result, Row, select, update
 from ..common.constants import DecodedCredential
 from ..common.exceptions import CommonExceptions
-from ..common.responses import CommonResponses, ResponseSchema
 from ..db import DBSession
 from ..tools import db_checker
 from ..user.auth import Credential, get_hashed_password

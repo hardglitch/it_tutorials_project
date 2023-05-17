@@ -32,7 +32,7 @@ async def add_tutorial_type(
     )
 
 
-@type_router.put("/{type_code}/edit", dependencies=[Depends(is_admin)])
+@type_router.post("/{type_code}/edit", dependencies=[Depends(is_admin)])
 @parameter_checker()
 async def edit_tutorial_type(
         type_code: Annotated[TypeCode, Path()],

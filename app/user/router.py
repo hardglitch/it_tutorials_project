@@ -15,7 +15,7 @@ from ..user.crud import add_user, delete_user, edit_user, get_user
 from ..user.schemas import EMail, Password, UserID, UserSchema, ValidUserName
 
 
-user_router = APIRouter(prefix="", tags=["user"], responses={401: {"detail": "Not auth"}})
+user_router = APIRouter(prefix="", tags=["user"])
 
 
 @user_router.get("/{ui_lang_code}/user/reg")
@@ -23,13 +23,19 @@ user_router = APIRouter(prefix="", tags=["user"], responses={401: {"detail": "No
 async def reg_page(
         ui_lang_code: UILangCode,
         request: Request,
+        db_session: DBSession,
 ) -> Response:
 
     page_vars = {
         PageVars.page: PageVars.Page.reg,
         PageVars.ui_lang_code: ui_lang_code,
     }
-    return await render_template(request=request, page_vars=page_vars)
+    return await render_template(
+        request=request,
+        db_session=db_session,
+        ui_lang_code=ui_lang_code,
+        page_vars=page_vars,
+    )
 
 
 @user_router.post("/{ui_lang_code}/user/add", response_model_exclude_none=True)
@@ -130,7 +136,12 @@ async def get__me(
         PageVars.ui_lang_code: ui_lang_code,
         PageVars.current_user: current_user_data,
     }
-    return await render_template(request=request, page_vars=page_vars)
+    return await render_template(
+        request=request,
+        db_session=db_session,
+        ui_lang_code=ui_lang_code,
+        page_vars=page_vars,
+    )
 
 
 @user_router.get("/{ui_lang_code}/user/{user_id}", response_class=HTMLResponse)
@@ -149,8 +160,12 @@ async def get__user(
         PageVars.ui_lang_code: ui_lang_code,
         "userdata": userdata
     }
-    return await render_template(request=request, page_vars=page_vars)
-
+    return await render_template(
+        request=request,
+        db_session=db_session,
+        ui_lang_code=ui_lang_code,
+        page_vars=page_vars,
+    )
 
 # @user_router.get("/{ui_lang_code}/user/", response_model_exclude_none=True)
 # @parameter_checker()
