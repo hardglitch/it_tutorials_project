@@ -78,3 +78,21 @@ class AccessToken:
     user_id: str = "uid"
     expired: str = "exp"
     exp_delta: int = 3600  # seconds
+
+
+@dataclass
+class PageVars:
+    page: str = "page"
+    ui_lang_code: str = "ui_lang_code"
+    code: str = "code"
+    detail: str = "detail"
+    current_user: str = "current_user"
+
+    @dataclass
+    class Page:
+        exception: str = "exception"
+        tutorials: str = "tutorials"
+        profile: str = "profile"
+        profile_ext: str = "profile-ext"
+        reg: str = "reg"
+

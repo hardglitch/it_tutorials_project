@@ -171,8 +171,6 @@
         }
 
         .reg {
-            /*min-height: 80vh;*/
-            /*transform: translate(0, 5%) scale(1);*/
             min-height: 400px;
             transform: translate(0, 5%) scale(1);
             overflow-wrap: break-word;
@@ -204,7 +202,7 @@
 
             <div style="width: 130px; justify-content: left; display: flex">
                 <div>
-                    <a href="/" title="Home" class="home-button">&#8962;</a>
+                    <a href="/{{ ui_lang_code }}" title="Home" class="home-button">&#8962;</a>
                 </div>
 
                 <div style="font-size: 10px; text-align: left; padding-left: 10px; padding-top: 7px">
@@ -227,15 +225,15 @@
 
                 {% if auth == True %}
                     <div style="overflow: hidden">
-                        <a href="/user/{{ current_user.id }}/me" title="Profile" class="profile-button">&#128125;</a>
+                        <a href="/{{ ui_lang_code }}/user/{{ current_user.id }}/me" title="Profile" class="profile-button">&#128125;</a>
                     </div>
-                    <a href="/user/logout" title="Sign-Out" class="sign-out-button">&#10799;</a>
+                    <a href="/{{ ui_lang_code }}/user/logout" title="Sign-Out" class="sign-out-button">&#10799;</a>
                 {% else %}
                     <a title="Sign-In / Sign-Up" onclick=togglePopup() class="auth-button">&#9094;</a>
                 {% endif %}
 
                 <div class="auth-popup" id="auth-popup">
-                    <form class="auth-form" action="/user/login" method="post">
+                    <form class="auth-form" action="/{{ ui_lang_code }}/user/login" method="post">
 
                         <div class="content">
                            <div>
@@ -251,7 +249,7 @@
                            </div>
 
                            <button class="button">SignIn</button>
-                           <a href="/user/reg">SignUp</a>
+                           <a href="/{{ ui_lang_code }}/user/reg">SignUp</a>
 
                         </div>
 
@@ -261,8 +259,17 @@
             </div>
         </div>
 
-        {% block content %}
-        {% endblock %}
+        {% if page == "tutorials" %}
+            {% include "tutorials.html" %}
+        {% elif page == "profile" %}
+            {% include "profile.html" %}
+        {% elif page == "profile-ext" %}
+            {% include "profile-ext.html" %}
+        {% elif page == "reg" %}
+            {% include "reg.html" %}
+        {% elif page == "exception" %}
+            {% include "exception.html" %}
+        {% endif %}
 
     </div>
 </body>

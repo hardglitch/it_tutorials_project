@@ -1,0 +1,27 @@
+<div class="reg">
+
+  <span>Credentials: {{ current_user.decoded_credential }}</span><br>
+  <span>Rating: {{ current_user.rating }}</span><br><br>
+
+  <form class="reg-form" action="/{{ ui_lang_code }}/user/{{ current_user.id }}/edit" method="post">
+    <div>
+
+      <label>
+        <input class="input-field" style="width: 250px" name="username-reg" id="username-reg" type="text" placeholder="{{ current_user.name }}" value="{{ current_user.name }}">
+      </label><br>
+
+      <label>
+        <input class="input-field" style="width: 250px" name="email-reg" id="email-reg" type="email" placeholder="{{ current_user.email }}" value="{{ current_user.email }}">
+      </label><br>
+
+      <label>
+        <input class="input-field" style="width: 250px" name="pwd-reg" id="pwd-reg" type="password" placeholder="New_password (10-100)">
+      </label><br>
+
+      <button class="button">Setup</button>
+
+    </div>
+
+  </form>
+
+</div>
