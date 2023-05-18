@@ -1,14 +1,14 @@
 from typing import List
 from fastapi_cache.decorator import cache
 from pydantic import HttpUrl, parse_obj_as
-from sqlalchemy import ScalarResult, and_, select, update
+from sqlalchemy import ScalarResult, select, update
 from ..common.responses import CommonResponses, ResponseSchema
 from ..db import DBSession
 from ..language.crud import get_lang
 from ..language.schemas import LangCode, LanguageSchema
 from ..tools import db_checker
 from ..tutorial.dist_type.crud import get_dist_type
-from ..tutorial.dist_type.schemas import DistTypeSchema
+from ..tutorial.dist_type.schemas import DistTypeCode, DistTypeSchema
 from ..tutorial.exceptions import TutorialExceptions
 from ..tutorial.models import TutorialModel
 from ..tutorial.responses import TutorialResponses
@@ -126,21 +126,29 @@ async def get_all_tutorials(
         db_session: DBSession,
         type_code: TypeCode | None = None,
         theme_code: ThemeCode | None = None,
+        dist_type_code: DistTypeCode | None = None,
+        tutor_lang_code: LangCode | None = None,
 ) -> List[DecodedTutorialSchema]:
 
     if type_code:
         result: ScalarResult = await db_session.scalars(
             select(TutorialModel)
-            .where(and_(
-                TutorialModel.type_code == type_code,
-            ))
+            .where(TutorialModel.type_code == type_code)
         )
     elif theme_code:
         result: ScalarResult = await db_session.scalars(
             select(TutorialModel)
-            .where(and_(
-                TutorialModel.theme_code == theme_code,
-            ))
+            .where(TutorialModel.theme_code == theme_code)
+        )
+    elif dist_type_code:
+        result: ScalarResult = await db_session.scalars(
+            select(TutorialModel)
+            .where(TutorialModel.dist_type_code == dist_type_code)
+        )
+    elif tutor_lang_code:
+        result: ScalarResult = await db_session.scalars(
+            select(TutorialModel)
+            .where(TutorialModel.language_code == tutor_lang_code)
         )
     else:
         result: ScalarResult = await db_session.scalars(select(TutorialModel))
@@ -156,8 +164,6 @@ async def get_all_tutorials(
             user_id=tutor.who_added_id,
             db_session=db_session
         )
-        a = decoded_user.name
-
         decoded_type: TypeSchema = await get_type(
             type_code=tutor.type_code,
             ui_lang_code=ui_lang_code,

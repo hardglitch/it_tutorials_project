@@ -13,8 +13,10 @@ from .common.exceptions import CommonExceptions
 from .db import DBSession
 from .language.crud import UILangCode
 from .language.router import language_router
+from .language.schemas import LangCode
 from .templates.render import render_template
 from .tutorial.crud import get_all_tutorials
+from .tutorial.dist_type.schemas import DistTypeCode
 from .tutorial.router import tutorial_router
 from .tutorial.schemas import DecodedTutorialSchema
 from .tutorial.theme.schemas import ThemeCode
@@ -48,6 +50,8 @@ class MainRouter:
             ui_lang_code: UILangCode,
             type_code: TypeCode | None = None,
             theme_code: ThemeCode | None = None,
+            dist_type_code: DistTypeCode | None = None,
+            tutor_lang_code: LangCode | None = None,
         ):
 
             tutors_list: List[DecodedTutorialSchema] = \
@@ -55,6 +59,8 @@ class MainRouter:
                     ui_lang_code=ui_lang_code,
                     type_code=type_code,
                     theme_code=theme_code,
+                    dist_type_code=dist_type_code,
+                    tutor_lang_code=tutor_lang_code,
                     db_session=db_session,
                 )
             page_vars = {
