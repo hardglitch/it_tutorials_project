@@ -1,6 +1,6 @@
 from typing import Dict, List
 from starlette.requests import Request
-from app.common.constants import templates
+from app.common.constants import PageVars, templates
 from app.db import DBSession
 from app.language.crud import UILangCode, get_all_ui_langs
 from app.language.schemas import LangAbbr, LanguageSchema
@@ -10,7 +10,6 @@ from app.user.schemas import UserSchema
 
 async def render_template(
         request: Request,
-        ui_lang_code: UILangCode | None = None,
         db_session: DBSession | None = None,
         page_vars: Dict[str, ...] | None = None,
 ):
@@ -24,6 +23,10 @@ async def render_template(
         "current_user": current_user_data,
     }
     if page_vars: context.update(page_vars)
+    try:
+        ui_lang_code: UILangCode = page_vars[PageVars.ui_lang_code]
+    except KeyError:
+        ui_lang_code = None
 
     if db_session and ui_lang_code:
         ui_langs: List[LanguageSchema] = await get_all_ui_langs(db_session=db_session)

@@ -1,26 +1,19 @@
 import time
-from typing import List
 from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_cache.decorator import cache
 from starlette import status
 from starlette.requests import Request
-from starlette.responses import HTMLResponse, RedirectResponse, Response
+from starlette.responses import RedirectResponse, Response
 from ._initial_values import insert_data
 from .common.constants import PageVars
 from .common.exceptions import CommonExceptions
 from .db import DBSession
 from .language.crud import UILangCode
 from .language.router import language_router
-from .language.schemas import LangCode
 from .templates.render import render_template
-from .tutorial.crud import get_all_tutorials
-from .tutorial.dist_type.schemas import DistTypeCode
 from .tutorial.router import tutorial_router
-from .tutorial.schemas import DecodedTutorialSchema
-from .tutorial.theme.schemas import ThemeCode
-from .tutorial.type.schemas import TypeCode
 from .user.router import user_router
 
 
@@ -43,41 +36,13 @@ class MainRouter:
         app.include_router(user_router)
         app.include_router(tutorial_router)
 
-        @app.get("/{ui_lang_code}", tags=["ROOT"], response_class=HTMLResponse)
-        async def root(
-            request: Request,
-            db_session: DBSession,
-            ui_lang_code: UILangCode,
-            type_code: TypeCode | None = None,
-            theme_code: ThemeCode | None = None,
-            dist_type_code: DistTypeCode | None = None,
-            tutor_lang_code: LangCode | None = None,
-        ):
-
-            tutors_list: List[DecodedTutorialSchema] = \
-                await get_all_tutorials(
-                    ui_lang_code=ui_lang_code,
-                    type_code=type_code,
-                    theme_code=theme_code,
-                    dist_type_code=dist_type_code,
-                    tutor_lang_code=tutor_lang_code,
-                    db_session=db_session,
-                )
-            page_vars = {
-                    PageVars.page: PageVars.Page.main,
-                    PageVars.ui_lang_code: ui_lang_code,
-                    "tutors": tutors_list,
-                }
-            return await render_template(
-                request=request,
-                db_session=db_session,
-                ui_lang_code=ui_lang_code,
-                page_vars=page_vars,
-            )
-
         @app.get("/")
         async def redirect(ui_lang_code: UILangCode) -> Response:
-            return RedirectResponse(url=f"/{ui_lang_code}", status_code=status.HTTP_302_FOUND)
+            return RedirectResponse(url=f"/{ui_lang_code}/tutorial", status_code=status.HTTP_302_FOUND)
+
+        @app.get("/{ui_lang_code}")
+        async def redirect(ui_lang_code: UILangCode) -> Response:
+            return RedirectResponse(url=f"/{ui_lang_code}/tutorial", status_code=status.HTTP_302_FOUND)
 
         @app.exception_handler(HTTPException)
         async def http_exception_handler(
@@ -108,6 +73,8 @@ class MainRouter:
                 request=request,
                 page_vars=page_vars,
             )
+
+        # ----------  TESTING -----------------------------
 
         @app.post("/init_data", tags=["TEST"])
         async def __init_data(db_session: DBSession) -> None:

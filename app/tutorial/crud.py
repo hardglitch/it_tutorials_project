@@ -22,7 +22,7 @@ from ..user.schemas import UserSchema
 
 
 @db_checker()
-async def add_tutorial(tutor: TutorialSchema, db_session: DBSession) -> ResponseSchema:
+async def add_tutorial(tutor: TutorialSchema, db_session: DBSession) -> TutorialID:
     new_tutor = TutorialModel(
         title=tutor.title,
         type_code=tutor.type_code,
@@ -35,7 +35,8 @@ async def add_tutorial(tutor: TutorialSchema, db_session: DBSession) -> Response
     )
     db_session.add(new_tutor)
     await db_session.commit()
-    return TutorialResponses.TUTORIAL_ADDED
+    await db_session.refresh(new_tutor)
+    return new_tutor.id
 
 
 @db_checker()

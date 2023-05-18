@@ -18,7 +18,7 @@ from ..user.schemas import EMail, Password, UserID, UserSchema, ValidUserName
 user_router = APIRouter(prefix="", tags=["user"])
 
 
-@user_router.get("/{ui_lang_code}/user/reg")
+@user_router.get("/{ui_lang_code}/user/reg", response_class=HTMLResponse)
 @parameter_checker()
 async def reg_page(
         ui_lang_code: UILangCode,
@@ -33,7 +33,6 @@ async def reg_page(
     return await render_template(
         request=request,
         db_session=db_session,
-        ui_lang_code=ui_lang_code,
         page_vars=page_vars,
     )
 
@@ -56,7 +55,7 @@ async def add__user(
         ),
         db_session=db_session
     ):
-        return RedirectResponse(url=f"/{ui_lang_code}", status_code=status.HTTP_201_CREATED)
+        return RedirectResponse(url=f"/{ui_lang_code}/tutorial", status_code=status.HTTP_201_CREATED)
 
 
 @user_router.post("/{ui_lang_code}/user/login")
@@ -72,7 +71,7 @@ async def login(
         user_name=form_data.username, user_pwd=SecretStr(form_data.password), db_session=db_session
     )
     token: Token = create_access_token(uid=user_id, name=user_name)
-    response = RedirectResponse(url=f"/{ui_lang_code}", status_code=status.HTTP_302_FOUND)
+    response = RedirectResponse(url=f"/{ui_lang_code}/tutorial", status_code=status.HTTP_302_FOUND)
     response.set_cookie(key=AccessToken.name, value=token, httponly=True, secure=True, max_age=AccessToken.exp_delta)
     return response
 
@@ -80,7 +79,7 @@ async def login(
 @user_router.get("/{ui_lang_code}/user/logout", dependencies=[Depends(get_token)])
 @parameter_checker()
 async def logout(ui_lang_code: UILangCode) -> Response:
-    response = RedirectResponse(url=f"/{ui_lang_code}", status_code=status.HTTP_302_FOUND)
+    response = RedirectResponse(url=f"/{ui_lang_code}/tutorial", status_code=status.HTTP_302_FOUND)
     response.delete_cookie(key=AccessToken.name, httponly=True, secure=True)
     return response
 
@@ -117,7 +116,7 @@ async def delete__user(
 ) -> Response:
 
     if await delete_user(user_id=user_id, db_session=db_session):
-        return RedirectResponse(url=f"/{ui_lang_code}", status_code=status.HTTP_302_FOUND)
+        return RedirectResponse(url=f"/{ui_lang_code}/tutorial", status_code=status.HTTP_302_FOUND)
 
 
 @user_router.get("/{ui_lang_code}/user/{user_id}/me", response_class=HTMLResponse, dependencies=[Depends(is_me_or_admin)])
@@ -139,7 +138,6 @@ async def get__me(
     return await render_template(
         request=request,
         db_session=db_session,
-        ui_lang_code=ui_lang_code,
         page_vars=page_vars,
     )
 
@@ -163,7 +161,6 @@ async def get__user(
     return await render_template(
         request=request,
         db_session=db_session,
-        ui_lang_code=ui_lang_code,
         page_vars=page_vars,
     )
 

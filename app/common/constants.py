@@ -93,6 +93,8 @@ class PageVars:
         exception: str = "exception"
         main: str = "main"
         tutorial: str = "tutorial"
+        tutorial_edit: str = "tutorial-edit"
+        tutorial_new: str = "tutorial-new"
         profile: str = "profile"
         profile_ext: str = "profile-ext"
         reg: str = "reg"
