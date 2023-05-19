@@ -1,6 +1,6 @@
 fastapi==0.95.2
 uvicorn==0.22
-SQLAlchemy==2.0.13
+SQLAlchemy==2.0.14
 alembic==1.11.1
 environs==9.5.0
 pydantic[email]==1.10.7

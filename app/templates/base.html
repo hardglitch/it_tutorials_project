@@ -168,16 +168,23 @@
     </style>
 
     <script>
-        function toggleAuthDropdown() {
-            document.getElementById("auth-dropdown").classList.toggle("active");
-        }
-        function toggleLangDropdown() {
-            document.getElementById("ui-languages-dropdown").classList.toggle("active");
+        function setDropdown(elem_id) {
+            document.getElementById(elem_id).classList.add("active");
+            onClickOutside(elem_id)
         }
 
-        function toggleTypeDropdown() {
-            document.getElementById("tutor-types-dropdown").classList.toggle("active");
+        function onClickOutside(elem_id) {
+          document.addEventListener("click", event => {
+            if (!document.getElementById(elem_id).contains(event.target))
+                document.getElementById(elem_id).classList.remove("active");
+          });
         }
+
+        function changeTType(element_id) {
+            document.getElementById("t-type-value").innerText = document.getElementById(element_id).innerText
+            document.getElementById("t-type-code").value = element_id.replace("t-type-", "")
+        }
+
     </script>
 
 </head>
@@ -212,7 +219,7 @@
 
                 <div class="dropdown" id="ui-languages-dropdown" style="padding-right: 5px;">
 
-                    <a class="text-link" onclick=toggleLangDropdown() style="font-size: 16px">{{ ui_lang }}</a>
+                    <a class="text-link" onclick=setDropdown("ui-languages-dropdown") style="font-size: 16px">{{ ui_lang }}</a>
 
                     <div class="content" style="font-size: 16px; text-transform: uppercase; transform: translate(-5px, 0) scale(1);">
                     {% for lang in ui_langs %}
@@ -230,34 +237,36 @@
                     </div>
                     <a href="/{{ ui_lang_code }}/user/logout" title="Sign-Out" class="text-link" style="font-size: 30px">&#10799;</a>
                 {% else %}
-                    <a title="Sign-In / Sign-Up" onclick=toggleAuthDropdown() class="text-link" style="font-size: 30px">&#9094;</a>
+
+                    <div class="dropdown" id="auth-dropdown">
+
+                        <a title="Sign-In / Sign-Up" onclick=setDropdown("auth-dropdown") class="text-link" style="font-size: 30px">&#9094;</a>
+
+                        <form action="/{{ ui_lang_code }}/user/login" method="post">
+
+                            <div class="content" style="transform: translate(-100%, 0%) scale(1);">
+                               <div>
+                                   <label>
+                                       <input name="username" type="text" placeholder=“Name” class="input-field" id="username">
+                                   </label>
+                               </div>
+
+                               <div>
+                                   <label>
+                                       <input name="password" type="password" placeholder=“Password” class="input-field" id="password">
+                                   </label>
+                               </div>
+
+                               <div style="display: flex; justify-content: space-around; align-items: center">
+                                   <input type="submit" class="button foil" value="SignIn">
+                                   <a class="text-link" style="padding-top: 5px" href="/{{ ui_lang_code }}/user/reg">SignUp</a>
+                               </div>
+
+                            </div>
+
+                        </form>
+                    </div>
                 {% endif %}
-
-                <div class="dropdown" id="auth-dropdown">
-                    <form action="/{{ ui_lang_code }}/user/login" method="post">
-
-                        <div class="content" style="transform: translate(-110%, 0%) scale(1);">
-                           <div>
-                               <label>
-                                   <input name="username" type="text" placeholder=“Name” class="input-field" id="username">
-                               </label>
-                           </div>
-
-                           <div>
-                               <label>
-                                   <input name="password" type="password" placeholder=“Password” class="input-field" id="password">
-                               </label>
-                           </div>
-
-                           <div style="display: flex; justify-content: space-around; align-items: center">
-                               <input type="submit" class="button foil" value="SignIn">
-                               <a class="text-link" style="padding-top: 5px" href="/{{ ui_lang_code }}/user/reg">SignUp</a>
-                           </div>
-
-                        </div>
-
-                    </form>
-                </div>
 
             </div>
         </div>

@@ -11,17 +11,15 @@
         <textarea class="input-field" style="height: 250px; width: 90%; resize: none; margin-top: 5px;" name="description" placeholder="Description (1-1024)"></textarea>
       </label>
 
-        <label>
-            <input class="input-field" style="width: 90%" name="type_code" disabled value="">
-        </label>
-        <div class="dropdown" style="transform: translate(0, -23px) scale(1); z-index: 1" id="tutor-types-dropdown">
+        <div class="dropdown input-field" style="width: 90%; margin-left: 15px" id="tutor-types-dropdown">
 
-            <div class="text-link" onclick=toggleTypeDropdown() style="font-size: 16px">{{ tutor_types[0].dict_value }}</div>
+            <div id="t-type-value" class="text-link" onclick=setDropdown("tutor-types-dropdown") style="font-size: 16px">{{ tutor_types[0].dict_value }}</div>
+            <input id="t-type-code" type="hidden" name="type_code" value="{{ tutor_types[0].type_code }}">
 
-            <div class="content" style="width: 90%; transform: translate(15px, 0) scale(1)">
+            <div class="content" style="width: 90%; transform: translate(8px, 0) scale(1)">
             {% for type in tutor_types %}
                 <div style="padding-top: 2px; padding-bottom: 2px;">
-                    <span class="text-link">{{ type.dict_value }}</span><br>
+                    <span class="text-link" id="t-type-{{ type.type_code }}" onclick="changeTType(this.id)">{{ type.dict_value }}</span><br>
                 </div>
             {% endfor %}
             </div>
