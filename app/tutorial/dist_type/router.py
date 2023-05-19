@@ -33,7 +33,7 @@ async def add_distribution_type(
     )
 
 
-@dist_type_router.put("/{dist_type_code}/edit", dependencies=[Depends(is_admin)])
+@dist_type_router.post("/{dist_type_code}/edit", dependencies=[Depends(is_admin)])
 @parameter_checker()
 async def edit_distribution_type(
         dist_type_code: Annotated[DistTypeCode, Path()],

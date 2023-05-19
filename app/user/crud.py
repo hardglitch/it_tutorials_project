@@ -2,7 +2,6 @@ from typing import List
 from sqlalchemy import Result, Row, select, update
 from ..common.constants import DecodedCredential
 from ..common.exceptions import CommonExceptions
-from ..common.responses import CommonResponses, ResponseSchema
 from ..db import DBSession
 from ..tools import db_checker
 from ..user.auth import Credential, get_hashed_password
@@ -11,7 +10,7 @@ from ..user.models import UserModel
 
 
 @db_checker()
-async def add_user(user: UserSchema, db_session: DBSession) -> UserSchema:
+async def add_user(user: UserSchema, db_session: DBSession) -> bool:
     new_user = UserModel(
         name=user.name,
         email=user.email,
@@ -20,18 +19,11 @@ async def add_user(user: UserSchema, db_session: DBSession) -> UserSchema:
 
     db_session.add(new_user)
     await db_session.commit()
-    await db_session.refresh(new_user)
-
-    return UserSchema(
-        id=new_user.id,
-        name=new_user.name,
-        decoded_credential=DecodedCredential(Credential(new_user.credential).name),
-        rating=new_user.rating
-    )
+    return True
 
 
 @db_checker()
-async def edit_user(user: UserSchema, db_session: DBSession) -> ResponseSchema:
+async def edit_user(user: UserSchema, db_session: DBSession) -> bool:
     await db_session.execute(
         update(UserModel)
         .where(UserModel.id == user.id)
@@ -42,11 +34,11 @@ async def edit_user(user: UserSchema, db_session: DBSession) -> ResponseSchema:
         )
     )
     await db_session.commit()
-    return CommonResponses.SUCCESS
+    return True
 
 
 @db_checker()
-async def delete_user(user_id: UserID, db_session: DBSession) -> ResponseSchema:
+async def delete_user(user_id: UserID, db_session: DBSession) -> bool:
     """
     This function doesn't remove 'User' from the DB,
     it changes 'is_active' to False.
@@ -55,7 +47,7 @@ async def delete_user(user_id: UserID, db_session: DBSession) -> ResponseSchema:
         update(UserModel).where(UserModel.id == user_id, UserModel.is_active == True).values(is_active=False)
     )
     await db_session.commit()
-    return CommonResponses.SUCCESS
+    return True
 
 
 @db_checker()

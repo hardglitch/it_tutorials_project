@@ -63,3 +63,8 @@ class UserSchema(
     token: str | None = None
 
 
+class TokenDataSchema(
+    IDSchema,
+    UserNameSchema,
+):
+    pass

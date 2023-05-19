@@ -29,7 +29,7 @@ async def add_language(
     )
 
 
-@language_router.put("/{lang_code}/edit", dependencies=[Depends(is_admin)])
+@language_router.post("/{lang_code}/edit", dependencies=[Depends(is_admin)])
 @parameter_checker()
 async def edit_language(
         lang_code: Annotated[LangCode, Path()],
