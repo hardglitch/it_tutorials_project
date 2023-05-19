@@ -180,9 +180,28 @@
           });
         }
 
-        function changeTType(element_id) {
-            document.getElementById("t-type-value").innerText = document.getElementById(element_id).innerText
-            document.getElementById("t-type-code").value = element_id.replace("t-type-", "")
+        function changeTType(elem_id) {
+            document.getElementById("t-type-value").innerText = document.getElementById(elem_id).innerText;
+            document.getElementById("t-type-code").value = elem_id.replace("t-type-", "");
+            document.getElementById("tutor-types-dropdown").classList.remove("active");
+        }
+
+        function changeTTheme(elem_id) {
+            document.getElementById("t-theme-value").innerText = document.getElementById(elem_id).innerText;
+            document.getElementById("t-theme-code").value = elem_id.replace("t-theme-", "");
+            document.getElementById("tutor-themes-dropdown").classList.remove("active");
+        }
+
+        function changeTLang(elem_id) {
+            document.getElementById("t-lang-value").innerText = document.getElementById(elem_id).innerText;
+            document.getElementById("t-lang-code").value = elem_id.replace("t-lang-", "");
+            document.getElementById("tutor-langs-dropdown").classList.remove("active");
+        }
+
+        function changeTDistType(elem_id) {
+            document.getElementById("t-dist-type-value").innerText = document.getElementById(elem_id).innerText;
+            document.getElementById("t-dist-type-code").value = elem_id.replace("t-dist-type-", "");
+            document.getElementById("tutor-dist-types-dropdown").classList.remove("active");
         }
 
     </script>
@@ -208,7 +227,7 @@
 
 
             <div style="width: 140px;">
-                <a href="/{{ ui_lang_code }}/tutorial" title="Home" class="text-link" style="font-size: 22px">Tutorials</a>
+                <a href="/{{ ui_lang_code }}" title="Home" class="text-link" style="font-size: 22px">Tutorials</a>
                 {% if auth == True %}
                     <a href="/{{ ui_lang_code }}/tutorial/new" title="Add Tutorial" class="text-link" style="font-size: 22px; font-weight: bold">+</a>
                 {% endif %}

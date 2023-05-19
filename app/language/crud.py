@@ -63,7 +63,7 @@ async def get_lang(lang_code: LangCode, db_session: DBSession) -> LanguageSchema
 
 @db_checker()
 async def ui_lang(db_session: DBSession, ui_lang_code: LangCode | None = None) -> LangCode:
-    if ui_lang_code in (lang.lang_code for lang in await get_all_ui_langs(db_session)): return ui_lang_code
+    if ui_lang_code is not None and ui_lang_code in (lang.lang_code for lang in await get_all_ui_langs(db_session)): return ui_lang_code
     result: ScalarResult = await db_session.scalars(
         select(LanguageModel.code).where(LanguageModel.abbreviation == DEFAULT_UI_LANGUAGE)
     )

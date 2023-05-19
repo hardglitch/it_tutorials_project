@@ -6,8 +6,6 @@ from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import Result, Row, ScalarResult, and_, select
 from starlette.requests import Request
-from starlette.templating import _TemplateResponse
-
 from ..config import SECRET_KEY
 from ..common.constants import AccessToken, Credential
 from ..db import DBSession
@@ -15,7 +13,7 @@ from ..tools import db_checker, parameter_checker
 from ..tutorial.models import TutorialModel
 from ..tutorial.schemas import TutorialID
 from ..user.exceptions import AuthenticateExceptions, UserExceptions
-from ..user.schemas import Password, UserID, UserName, UserSchema
+from ..user.schemas import Password, TokenDataSchema, UserID, UserName, UserSchema
 from ..user.models import UserModel
 
 
@@ -44,7 +42,7 @@ async def authenticate_user(user_name: UserName, user_pwd: Password, db_session:
 
 @db_checker()
 async def is_this(credential: Credential, request: Request, db_session: DBSession) -> bool:
-    user_data: UserSchema = decode_access_token(token=get_token(request))
+    user_data: TokenDataSchema = decode_access_token(token=get_token(request))
     result: ScalarResult = await db_session.scalars(
         select(UserModel.credential)
         .where(and_(UserModel.id == user_data.id, UserModel.name == user_data.name, UserModel.is_active == True))
@@ -87,7 +85,7 @@ async def is_tutorial_editor(
 ) -> TutorialID:
 
     token: Token = get_token(request)
-    user_data: UserSchema = decode_access_token(token)
+    user_data: TokenDataSchema = decode_access_token(token)
 
     result: Result = await db_session.execute(
         select(
@@ -130,13 +128,13 @@ def create_access_token(uid: UserID, name: UserName, exp_delta: int = AccessToke
         raise AuthenticateExceptions.FAILED_TO_CREATE_TOKEN
 
 
-def decode_access_token(token: Token) -> UserSchema:
+def decode_access_token(token: Token) -> TokenDataSchema:
     try:
         payload = jwt.decode(token=token, key=SECRET_KEY, algorithms=AccessToken.algorithm)
         user_name = payload.get(AccessToken.subject)
         user_id = payload.get(AccessToken.user_id)
         if not user_name or not user_id: raise AuthenticateExceptions.FAILED_TO_DECODE_TOKEN
-        return UserSchema(
+        return TokenDataSchema(
             name=user_name,
             id=user_id
         )
@@ -146,10 +144,10 @@ def decode_access_token(token: Token) -> UserSchema:
         raise AuthenticateExceptions.FAILED_TO_DECODE_TOKEN
 
 
-def get_token(request: Request) -> Token:
-    try:
-        return Token(request.cookies.get(AccessToken.name))
-    except (TypeError, ValueError):
-        raise AuthenticateExceptions.TOKEN_NOT_FOUND
-
-
+def get_token(request: Request, safe_mode: bool = False) -> Token:
+    token = Token(request.cookies.get(AccessToken.name))
+    if token and token != "None":
+        return token
+    else:
+        if not safe_mode: raise AuthenticateExceptions.TOKEN_NOT_FOUND
+        else: pass

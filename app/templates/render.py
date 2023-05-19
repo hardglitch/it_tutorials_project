@@ -5,7 +5,7 @@ from app.db import DBSession
 from app.language.crud import UILangCode, get_all_ui_langs
 from app.language.schemas import LangAbbr, LanguageSchema
 from app.user.auth import Token, decode_access_token, get_token
-from app.user.schemas import UserSchema
+from app.user.schemas import TokenDataSchema
 
 
 async def render_template(
@@ -13,16 +13,22 @@ async def render_template(
         db_session: DBSession | None = None,
         page_vars: Dict[str, ...] | None = None,
 ):
-    token: Token = get_token(request)
-    auth: bool = False if token == "None" else True
-    current_user_data: UserSchema = decode_access_token(token) if auth else ""
-
     context = {
         "request": request,
-        "auth": auth,
-        "current_user": current_user_data,
     }
+
     if page_vars: context.update(page_vars)
+
+    if page_vars[PageVars.page] != PageVars.Page.exception:
+        token: Token = get_token(request, safe_mode=True)
+        auth: bool = False if token == "None" or not token else True
+
+        if auth and not context.get("current_user"):
+            current_user_data: TokenDataSchema = decode_access_token(token)
+            context.update({"current_user": current_user_data})
+
+        context.update({"auth": auth})
+
     try:
         ui_lang_code: UILangCode = page_vars[PageVars.ui_lang_code]
     except KeyError:

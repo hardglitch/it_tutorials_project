@@ -26,8 +26,57 @@
 
         </div>
 
+
+        <div class="dropdown input-field" style="width: 90%; margin-left: 15px; margin-top: 5px" id="tutor-themes-dropdown">
+
+            <div id="t-theme-value" class="text-link" onclick=setDropdown("tutor-themes-dropdown") style="font-size: 16px">{{ tutor_themes[0].dict_value }}</div>
+            <input id="t-theme-code" type="hidden" name="theme_code" value="{{ tutor_themes[0].theme_code }}">
+
+            <div class="content" style="width: 90%; transform: translate(8px, 0) scale(1)">
+            {% for theme in tutor_themes %}
+                <div style="padding-top: 2px; padding-bottom: 2px;">
+                    <span class="text-link" id="t-theme-{{ theme.theme_code }}" onclick="changeTTheme(this.id)">{{ theme.dict_value }}</span><br>
+                </div>
+            {% endfor %}
+            </div>
+
+        </div>
+
+
+        <div class="dropdown input-field" style="width: 90%; margin-left: 15px; margin-top: 5px" id="tutor-langs-dropdown">
+
+            <div id="t-lang-value" class="text-link" onclick=setDropdown("tutor-langs-dropdown") style="font-size: 16px">{{ tutor_langs[0].lang_value }}</div>
+            <input id="t-lang-code" type="hidden" name="lang_code" value="{{ tutor_langs[0].lang_code }}">
+
+            <div class="content" style="width: 90%; transform: translate(8px, 0) scale(1)">
+            {% for lang in tutor_langs %}
+                <div style="padding-top: 2px; padding-bottom: 2px;">
+                    <span class="text-link" id="t-lang-{{ lang.lang_code }}" onclick="changeTLang(this.id)">{{ lang.lang_value }}</span><br>
+                </div>
+            {% endfor %}
+            </div>
+
+        </div>
+
+
+        <div class="dropdown input-field" style="width: 90%; margin-left: 15px; margin-top: 5px" id="tutor-dist-types-dropdown">
+
+            <div id="t-dist-type-value" class="text-link" onclick=setDropdown("tutor-dist-types-dropdown") style="font-size: 16px">{{ tutor_dist_types[0].dict_value }}</div>
+            <input id="t-dist-type-code" type="hidden" name="dist-type_code" value="{{ tutor_dist_types[0].dist_type_code }}">
+
+            <div class="content" style="width: 90%; transform: translate(8px, 0) scale(1)">
+            {% for dist_type in tutor_dist_types %}
+                <div style="padding-top: 2px; padding-bottom: 2px;">
+                    <span class="text-link" id="t-dist-type-{{ dist_type.dist_type_code }}" onclick="changeTDistType(this.id)">{{ dist_type.dict_value }}</span><br>
+                </div>
+            {% endfor %}
+            </div>
+
+        </div>
+
+
       <label>
-        <input class="input-field" style="width: 90%; margin-top: 5px" name="source_link" type="url" placeholder="Source link (1-256)">
+        <input class="input-field" style="width: 90%; margin-top: 5px; text-align: center" name="source_link" type="url" placeholder="Source link (1-256)">
       </label>
 
       <div style="padding-top: 10px">

@@ -1,6 +1,5 @@
 # import uvicorn
 from fastapi import FastAPI
-from .common.constants import templates
 from .router import MainRouter
 from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware

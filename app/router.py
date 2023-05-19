@@ -1,6 +1,6 @@
 import time
-from fastapi import FastAPI, HTTPException
-from fastapi.exceptions import RequestValidationError
+from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_cache.decorator import cache
 from starlette import status
@@ -38,11 +38,7 @@ class MainRouter:
 
         @app.get("/")
         async def redirect(ui_lang_code: UILangCode) -> Response:
-            return RedirectResponse(url=f"/{ui_lang_code}/tutorial", status_code=status.HTTP_302_FOUND)
-
-        @app.get("/{ui_lang_code}")
-        async def redirect(ui_lang_code: UILangCode) -> Response:
-            return RedirectResponse(url=f"/{ui_lang_code}/tutorial", status_code=status.HTTP_302_FOUND)
+            return RedirectResponse(url=f"/{ui_lang_code}", status_code=status.HTTP_302_FOUND)
 
         @app.exception_handler(HTTPException)
         async def http_exception_handler(
@@ -52,7 +48,7 @@ class MainRouter:
             page_vars = {
                 PageVars.page: PageVars.Page.exception,
                 PageVars.code: exc.status_code,
-                PageVars.detail: exc.detail
+                PageVars.detail: exc.detail,
             }
             return await render_template(
                 request=request,

@@ -11,7 +11,6 @@ from ..tutorial.dist_type.crud import get_dist_type
 from ..tutorial.dist_type.schemas import DistTypeCode, DistTypeSchema
 from ..tutorial.exceptions import TutorialExceptions
 from ..tutorial.models import TutorialModel
-from ..tutorial.responses import TutorialResponses
 from ..tutorial.schemas import DecodedTutorialSchema, TutorialID, TutorialSchema
 from ..tutorial.theme.crud import get_theme
 from ..tutorial.theme.schemas import ThemeCode, ThemeSchema
