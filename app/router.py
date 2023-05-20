@@ -1,4 +1,5 @@
 import time
+from pathlib import Path
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,6 +7,7 @@ from fastapi_cache.decorator import cache
 from starlette import status
 from starlette.requests import Request
 from starlette.responses import RedirectResponse, Response
+from starlette.staticfiles import StaticFiles
 from ._initial_values import insert_data
 from .common.constants import PageVars
 from .common.exceptions import CommonExceptions
@@ -35,6 +37,8 @@ class MainRouter:
         app.include_router(language_router)
         app.include_router(user_router)
         app.include_router(tutorial_router)
+
+        app.mount("/static", StaticFiles(directory=Path(__name__.split(".")[0]).joinpath("static")), name="static")
 
         @app.get("/")
         async def redirect(ui_lang_code: UILangCode) -> Response:

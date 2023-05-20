@@ -84,7 +84,7 @@ async def get__theme(
     )
 
 
-@theme_router.get("/get-all", response_model_exclude_none=True)
+@theme_router.get("/", response_model_exclude_none=True)
 @parameter_checker()
 async def get__all_themes(
         ui_lang_code: Annotated[LangCode, Path()],

@@ -1,229 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-US">
 
 <head>
-    <meta charset="UTF-8" name="viewport" content="width=device-width, height=device-height, initial-scale=1.5">
+    <meta charset="UTF-8" name="viewport" content="width=device-width, height=device-height, initial-scale=1">
+    <link rel="stylesheet" href="/static/styles.css">
     <title>Tutorials</title>
-
-    <style>
-        body, html {
-            background: #333333;
-            font-family: raleway, ui-rounded;
-            color: lightgrey;
-            padding: 0 0 10px;
-            margin: 0 auto;
-        }
-
-        .main-container {
-            width: 400px;
-            margin: 0 auto;
-        }
-
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-
-        .dropdown.active .content {
-            display: block;
-            transition: all 300ms ease-in-out;
-        }
-
-        .dropdown .content {
-            z-index: 1;
-            text-align: center;
-            padding: 5px;
-            border-radius: 10px;
-            background-color: rgba(51, 51, 51, 0.7);
-            display: none;
-            position: absolute;
-            box-shadow: 0 0 20px #1e1e1e;
-        }
-
-        a {
-            color: lightblue;
-            text-decoration: none;
-        }
-
-        a:hover {
-            color: aliceblue;
-            text-shadow: 0 0 5px aliceblue;
-        }
-
-        .text-link {
-            color: lightgrey;
-        }
-
-        .text-link:hover {
-            color: cornsilk;
-            cursor: pointer;
-            text-shadow: 0 0 5px cornsilk;
-        }
-
-        .input-field {
-            width: 140px;
-            border: none;
-            color: #bfc0c0;
-            background: #262626;
-            padding: 5px;
-            font-size: 16px;
-            border-radius: 10px;
-            box-shadow: inset 5px 5px 5px #232323,
-                        inset -5px -5px 5px #292929;
-            outline: none;
-        }
-
-        .button {
-            margin-top: 5px;
-            padding: 1px 7px;
-            border-radius: 40px;
-            border: none;
-            font-size: 16px;
-            font-weight: bold;
-            color: #222222;
-            background-color: #666666;
-            box-shadow: 1px 1px 10px #202020,
-                        inset -1px -1px 10px #2c2c2c;
-            transition: box-shadow .35s ease !important;
-            outline: none;
-        }
-
-        .button:hover {
-            color: cornsilk;
-            text-shadow: 0 0 5px cornsilk;
-        }
-
-        .button:active{
-            background: linear-gradient(145deg,#222222, #292929);
-            box-shadow: 5px 5px 10px #262626, -5px -5px 10px #262626;
-            border: none;
-            outline: none;
-        }
-
-        .foil{
-            background: linear-gradient(
-                48deg,
-                #666666,
-                cornsilk
-            );
-            animation: foil 3s ease infinite;
-            background-size:200% 200%;
-        }
-
-        @keyframes foil {
-            0% {
-                background-position: 84% 0;
-            }
-            50% {
-                background-position: 17% 100%;
-            }
-            100% {
-                background-position: 84% 0;
-            }
-        }
-
-        .tutorial {
-            background-color: #484848;
-            outline: none;
-            border-width: 0;
-            border-radius: 15px;
-            box-shadow: 0 0 10px 1px #222222;
-        }
-
-        .tutorial .container {
-            margin: 10px 10px 20px;
-        }
-
-        .catalog {
-            padding-top: 10px;
-            text-align: left;
-            overflow: hidden;
-        }
-
-        .exception {
-            min-height: 80vh;
-            transform: translate(0, 5%) scale(1);
-        }
-
-        .exception .status-code {
-            font-size: 40px;
-        }
-
-        .reg {
-            min-height: 400px;
-            transform: translate(0, 5%) scale(1);
-            overflow-wrap: break-word;
-            margin-left: 20px;
-            margin-right: 20px;
-        }
-
-        .profile {
-            min-height: 400px;
-            transform: translate(0, 5%) scale(1);
-            overflow-wrap: break-word;
-            margin-left: 20px;
-            margin-right: 20px;
-        }
-
-    </style>
-
-    <script>
-        function setDropdown(elem_id) {
-            document.getElementById(elem_id).classList.add("active");
-            onClickOutside(elem_id)
-        }
-
-        function onClickOutside(elem_id) {
-          document.addEventListener("click", event => {
-            if (!document.getElementById(elem_id).contains(event.target))
-                document.getElementById(elem_id).classList.remove("active");
-          });
-        }
-
-        function changeTType(elem_id) {
-            document.getElementById("t-type-value").innerText = document.getElementById(elem_id).innerText;
-            document.getElementById("t-type-code").value = elem_id.replace("t-type-", "");
-            document.getElementById("tutor-types-dropdown").classList.remove("active");
-        }
-
-        function changeTTheme(elem_id) {
-            document.getElementById("t-theme-value").innerText = document.getElementById(elem_id).innerText;
-            document.getElementById("t-theme-code").value = elem_id.replace("t-theme-", "");
-            document.getElementById("tutor-themes-dropdown").classList.remove("active");
-        }
-
-        function changeTLang(elem_id) {
-            document.getElementById("t-lang-value").innerText = document.getElementById(elem_id).innerText;
-            document.getElementById("t-lang-code").value = elem_id.replace("t-lang-", "");
-            document.getElementById("tutor-langs-dropdown").classList.remove("active");
-        }
-
-        function changeTDistType(elem_id) {
-            document.getElementById("t-dist-type-value").innerText = document.getElementById(elem_id).innerText;
-            document.getElementById("t-dist-type-code").value = elem_id.replace("t-dist-type-", "");
-            document.getElementById("tutor-dist-types-dropdown").classList.remove("active");
-        }
-
-    </script>
-
+    <script src="/static/scripts.js"></script>
 </head>
 
-<body>
+<body onload="getAllowedThemes()">
     <div align="center" class="main-container">
         <div style="display: flex; width: 400px; align-items: center">
 
-            <a class="text-link" href="https://github.com/hardglitch" title="Developer">
-                <div style="width: 130px; justify-content: left; display: flex">
-                    <div>
-                        <span style="font-size: 30px">&#8962;</span>
-                    </div>
+            <div style="width: 130px; justify-content: left; display: flex;">
+                <a class="text-link" href="https://github.com/hardglitch" title="Developer" style="font-size: 30px">
+                    <div style="display: flex; flex-direction: row">
+                        <div>
+                            <span style="font-size: 30px">&#8962;</span>
+                        </div>
 
-                    <div style="font-size: 10px; text-align: left; padding-left: 5px; padding-top: 7px">
-                        2023<br>
-                        hardglitch
+                        <div style="font-size: 10px; text-align: left; padding-left: 5px; padding-top: 7px">
+                            2023<br>
+                            hardglitch
+                        </div>
                     </div>
-                </div>
-            </a>
+                </a>
+            </div>
 
 
             <div style="width: 140px;">

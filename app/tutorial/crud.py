@@ -148,7 +148,7 @@ async def get_all_tutorials(
     elif tutor_lang_code:
         result: ScalarResult = await db_session.scalars(
             select(TutorialModel)
-            .where(TutorialModel.language_code == tutor_lang_code)
+            .where(TutorialModel.lang_code == tutor_lang_code)
         )
     else:
         result: ScalarResult = await db_session.scalars(select(TutorialModel))
@@ -157,7 +157,7 @@ async def get_all_tutorials(
 
     for tutor in result:
         decoded_lang: LanguageSchema = await get_lang(
-            lang_code=tutor.language_code,
+            lang_code=tutor.lang_code,
             db_session=db_session
         )
         decoded_user: UserSchema = await get_user(
@@ -188,9 +188,9 @@ async def get_all_tutorials(
                 type=decoded_type.dict_value,
                 theme_code=tutor.theme_code,
                 theme=decoded_theme.dict_value,
-                lang_code=tutor.language_code,
+                lang_code=tutor.lang_code,
                 language=decoded_lang.lang_value,
-                description=tutor.description,
+                description=tutor.description[:256] + "...",
                 dist_type_code=tutor.dist_type_code,
                 dist_type=decoded_dist_type.dict_value,
                 source_link=parse_obj_as(HttpUrl, tutor.source_link),

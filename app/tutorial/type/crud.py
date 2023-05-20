@@ -44,7 +44,7 @@ async def edit_type(tutor_type: TypeSchema, db_session: DBSession) -> ResponseSc
 
     await db_session.execute(
         update(DictionaryModel)
-        .where(DictionaryModel.word_code == word_code and DictionaryModel.lang_code == tutor_type.lang_code)
+        .where(and_(DictionaryModel.word_code == word_code, DictionaryModel.lang_code == tutor_type.lang_code))
         .values(value=tutor_type.dict_value)
     )
     await db_session.commit()
@@ -91,7 +91,7 @@ async def get_type(type_code: TypeCode, ui_lang_code: LangCode, db_session: DBSe
 async def get_all_types(ui_lang_code: LangCode, db_session: DBSession) -> List[TypeSchema]:
     result: Result = await db_session.execute(
         select(TypeModel.code, DictionaryModel.value)
-        .where(TypeModel.word_code == DictionaryModel.word_code, DictionaryModel.lang_code == ui_lang_code)
+        .where(and_(TypeModel.word_code == DictionaryModel.word_code, DictionaryModel.lang_code == ui_lang_code))
         .order_by(DictionaryModel.value)
     )
 

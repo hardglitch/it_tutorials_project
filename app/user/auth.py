@@ -13,7 +13,7 @@ from ..tools import db_checker, parameter_checker
 from ..tutorial.models import TutorialModel
 from ..tutorial.schemas import TutorialID
 from ..user.exceptions import AuthenticateExceptions, UserExceptions
-from ..user.schemas import Password, TokenDataSchema, UserID, UserName, UserSchema
+from ..user.schemas import Password, TokenDataSchema, UserID, UserName
 from ..user.models import UserModel
 
 
@@ -81,10 +81,12 @@ async def is_admin(request: Request, db_session: DBSession) -> bool:
 async def is_tutorial_editor(
         tutor_id: Annotated[TutorialID, Path()],
         request: Request,
-        db_session: DBSession
-) -> TutorialID:
+        db_session: DBSession,
+        safe_mode: bool = False,
+) -> TutorialID | None:
 
-    token: Token = get_token(request)
+    token: Token = get_token(request=request, safe_mode=safe_mode)
+    if safe_mode and not token: return None
     user_data: TokenDataSchema = decode_access_token(token)
 
     result: Result = await db_session.execute(
@@ -104,7 +106,8 @@ async def is_tutorial_editor(
 
     if not row.who_added_id == user_data.id and\
        not (row.credential == Credential.admin or row.credential == Credential.moderator):
-        raise UserExceptions.ACCESS_DENIED
+        if safe_mode: return None
+        else: raise UserExceptions.ACCESS_DENIED
     return tutor_id
 
 

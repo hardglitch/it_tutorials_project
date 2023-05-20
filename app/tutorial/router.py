@@ -5,7 +5,7 @@ from starlette import status
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, RedirectResponse, Response
 from .dist_type.crud import get_all_dist_types
-from .theme.crud import get_all_themes
+from .theme.crud import get_all_allowed_themes, get_all_themes
 from .type.crud import get_all_types
 from ..common.constants import PageVars
 from ..db import DBSession
@@ -151,24 +151,27 @@ async def get__tutorial(
         request: Request,
         db_session: DBSession,
         ui_lang_code: UILangCode,
-        type_code: TypeCode | None = None,
-        theme_code: ThemeCode | None = None,
-        dist_type_code: DistTypeCode | None = None,
-        tutor_lang_code: LangCode | None = None,
+        tutor_id: TutorialID,
 ) -> Response:
 
     tutor: DecodedTutorialSchema = \
         await get_tutorial(
+            tutor_id=tutor_id,
             ui_lang_code=ui_lang_code,
-            type_code=type_code,
-            theme_code=theme_code,
-            dist_type_code=dist_type_code,
-            tutor_lang_code=tutor_lang_code,
             db_session=db_session,
         )
+
+    is_editor: bool = True if await is_tutorial_editor(
+        tutor_id=tutor_id,
+        request=request,
+        db_session=db_session,
+        safe_mode=True
+    ) else False
+
     page_vars = {
-        PageVars.page: PageVars.Page.main,
+        PageVars.page: PageVars.Page.tutorial,
         PageVars.ui_lang_code: ui_lang_code,
+        "editor": is_editor,
         "tutor": tutor,
     }
     return await render_template(
