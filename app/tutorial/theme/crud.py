@@ -1,5 +1,6 @@
 from typing import List
 from sqlalchemy import Result, Row, ScalarResult, and_, delete, func, select, update
+from ..type.schemas import TypeCode
 from ...common.exceptions import CommonExceptions
 from ...common.responses import CommonResponses, ResponseSchema
 from ...db import DBSession
@@ -45,7 +46,7 @@ async def edit_theme(theme: ThemeSchema, db_session: DBSession) -> ResponseSchem
     # update word in the 'dictionary' table
     await db_session.execute(
         update(DictionaryModel)
-        .where(DictionaryModel.word_code == word_code and DictionaryModel.lang_code == theme.lang_code)
+        .where(and_(DictionaryModel.word_code == word_code, DictionaryModel.lang_code == theme.lang_code))
         .values(value=theme.dict_value)
     )
 
@@ -102,7 +103,40 @@ async def get_theme(theme_code: ThemeCode, ui_lang_code: LangCode, db_session: D
 async def get_all_themes(ui_lang_code: LangCode, db_session: DBSession) -> List[ThemeSchema]:
     result: Result = await db_session.execute(
         select(ThemeModel.code, ThemeModel.type_code, ThemeModel.word_code, DictionaryModel.value)
-        .where(ThemeModel.word_code == DictionaryModel.word_code, DictionaryModel.lang_code == ui_lang_code)
+        .where(and_(
+            ThemeModel.word_code == DictionaryModel.word_code,
+            DictionaryModel.lang_code == ui_lang_code
+        ))
+        .order_by(DictionaryModel.value)
+    )
+
+    theme_list = []
+    for theme in result.all():
+        theme_list.append(
+            ThemeSchema(
+                theme_code=theme.code,
+                dict_value=theme.value,
+                type_code=theme.type_code,
+            )
+        )
+    if not theme_list: raise CommonExceptions.NOTHING_FOUND
+    return theme_list
+
+
+@db_checker()
+async def get_all_allowed_themes(
+        type_code: TypeCode,
+        ui_lang_code: LangCode,
+        db_session: DBSession
+) -> List[ThemeSchema]:
+
+    result: Result = await db_session.execute(
+        select(ThemeModel.code, ThemeModel.word_code, DictionaryModel.value)
+        .where(and_(
+            ThemeModel.type_code == type_code,
+            ThemeModel.word_code == DictionaryModel.word_code,
+            DictionaryModel.lang_code == ui_lang_code
+        ))
         .order_by(DictionaryModel.value)
     )
 

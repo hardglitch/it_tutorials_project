@@ -1,5 +1,5 @@
 from typing import List
-from sqlalchemy import Result, Row, ScalarResult, and_, delete, distinct, func, select, update
+from sqlalchemy import Result, Row, ScalarResult, and_, delete, func, select, update
 from ...common.exceptions import CommonExceptions
 from ...common.responses import CommonResponses, ResponseSchema
 from ...db import DBSession
@@ -92,7 +92,7 @@ async def get_all_dist_types(ui_lang_code: LangCode, db_session: DBSession) -> L
     result: Result = await db_session.execute(
         select(DistTypeModel.code, DictionaryModel.value)
         .distinct(DictionaryModel.value)
-        .where(DistTypeModel.word_code == DictionaryModel.word_code, DictionaryModel.lang_code == ui_lang_code)
+        .where(and_(DistTypeModel.word_code == DictionaryModel.word_code, DictionaryModel.lang_code == ui_lang_code))
         .order_by(DictionaryModel.value)
     )
 

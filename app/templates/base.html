@@ -134,12 +134,6 @@
             margin: 10px 10px 20px;
         }
 
-        .catalog {
-            padding-top: 10px;
-            text-align: left;
-            overflow: hidden;
-        }
-
         .exception {
             min-height: 80vh;
             transform: translate(0, 5%) scale(1);
@@ -182,13 +176,38 @@
 
         function changeTType(elem_id) {
             document.getElementById("t-type-value").innerText = document.getElementById(elem_id).innerText;
-            document.getElementById("t-type-code").value = elem_id.replace("t-type-", "");
+            let type_code = elem_id.split("-")[2]
+            document.getElementById("t-type-code").value = type_code
             document.getElementById("tutor-types-dropdown").classList.remove("active");
+            getAllowedThemes(type_code)
+        }
+
+        function getAllowedThemes(type_code = undefined) {
+            if (type_code === undefined) {
+                try {
+                    type_code = document.getElementById("t-type-code").value
+                }
+                catch (TypeError) {}
+            }
+            let divs = document.querySelectorAll('[id^="inherit-from-type-code-"]');
+            for (i=0; i<divs.length; i++) {
+                divs[i].style.display = "none"
+            }
+            let first = false;
+            for (i=0; i<divs.length; i++) {
+                if (divs[i].id.startsWith("inherit-from-type-code-"+type_code)) {
+                    if (first === false) {
+                        changeTTheme(divs[i].id)
+                        first = true
+                    }
+                    divs[i].style.display = ""
+                }
+            }
         }
 
         function changeTTheme(elem_id) {
-            document.getElementById("t-theme-value").innerText = document.getElementById(elem_id).innerText;
-            document.getElementById("t-theme-code").value = elem_id.replace("t-theme-", "");
+            document.getElementById("t-theme-value").innerText = document.getElementById(elem_id).innerText.trim();
+            document.getElementById("t-theme-code").value = elem_id.split("-")[2];
             document.getElementById("tutor-themes-dropdown").classList.remove("active");
         }
 
@@ -208,22 +227,24 @@
 
 </head>
 
-<body>
+<body onload="getAllowedThemes()">
     <div align="center" class="main-container">
         <div style="display: flex; width: 400px; align-items: center">
 
-            <a class="text-link" href="https://github.com/hardglitch" title="Developer">
-                <div style="width: 130px; justify-content: left; display: flex">
-                    <div>
-                        <span style="font-size: 30px">&#8962;</span>
-                    </div>
+            <div style="width: 130px; justify-content: left; display: flex;">
+                <a class="text-link" href="https://github.com/hardglitch" title="Developer" style="font-size: 30px">
+                    <div style="display: flex; flex-direction: row">
+                        <div>
+                            <span style="font-size: 30px">&#8962;</span>
+                        </div>
 
-                    <div style="font-size: 10px; text-align: left; padding-left: 5px; padding-top: 7px">
-                        2023<br>
-                        hardglitch
+                        <div style="font-size: 10px; text-align: left; padding-left: 5px; padding-top: 7px">
+                            2023<br>
+                            hardglitch
+                        </div>
                     </div>
-                </div>
-            </a>
+                </a>
+            </div>
 
 
             <div style="width: 140px;">
