@@ -6,7 +6,6 @@ from starlette.templating import Jinja2Templates
 
 templates_dir = Path(__name__.split(".")[0]).joinpath("templates")
 templates = Jinja2Templates(directory=templates_dir)
-# app.mount("/static", StaticFiles(directory=Path(__name__.split(".")[0]).joinpath("static")), name="static")
 
 DEFAULT_UI_LANGUAGE: str = "eng"
 
