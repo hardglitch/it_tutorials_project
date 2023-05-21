@@ -26,3 +26,15 @@ class CommonExceptions(BaseException):
         status_code=status.HTTP_404_NOT_FOUND,
         detail="Nothing found",
     )
+
+
+class LocaleExceptions(BaseException):
+    LOCALE_NOT_FOUND = HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="A Locale not found",
+    )
+
+    WRONG_LOCALE = HTTPException(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        detail="A Wrong Locale",
+    )

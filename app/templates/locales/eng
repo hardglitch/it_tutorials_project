@@ -1,0 +1,30 @@
+{
+  "loc_tutorials": "Tutorials"
+  "loc_developer": "Developer",
+  "loc_add_tutorial": "Add Tutorial",
+  "loc_home": "Home",
+  "loc_profile": "Profile",
+  "loc_sign_out": "Sign-Out",
+  "loc_sign_in_sign_up": "Sign-In / Sign-Up",
+  "loc_name": "Name",
+  "loc_password": "Password",
+  "loc_signin": "SignIn",
+  "loc_signup": "SignUp",
+
+  "loc_language": "Language",
+  "loc_distribution": "Distribution",
+  "loc_source": "Source",
+  "loc_author": "Who added",
+
+  "loc_title": "Title",
+  "loc_description": "Description",
+  "loc_source_link": "Source link",
+  "loc_add_new": "Add New",
+
+  "loc_no_spaces": "no spaces",
+
+  "loc_credentials": "Credentials",
+  "loc_added_tutorials": "Added tutorials",
+
+  "loc_setup": "Setup"
+}

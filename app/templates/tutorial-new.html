@@ -4,11 +4,11 @@
     <div style="display: flex; flex-direction: column">
 
       <label>
-        <input class="input-field" style="width: 90%; text-align: center" name="title" type="text" placeholder="Title (1-256)">
+        <input class="input-field" style="width: 90%; text-align: center" name="title" type="text" placeholder="{{ loc_title }} (1-256)">
       </label>
 
       <label>
-        <textarea class="input-field" style="height: 250px; width: 90%; resize: none; margin-top: 5px;" name="description" placeholder="Description (1-1024)"></textarea>
+        <textarea class="input-field" style="height: 250px; width: 90%; resize: none; margin-top: 5px;" name="description" placeholder="{{ loc_description }} (1-1024)"></textarea>
       </label>
 
         <div class="dropdown input-field" style="width: 90%; margin-left: 15px" id="tutor-types-dropdown">
@@ -76,11 +76,11 @@
 
 
       <label>
-        <input class="input-field" style="width: 90%; margin-top: 5px; text-align: center" name="link" type="url" placeholder="Source link (1-256)">
+        <input class="input-field" style="width: 90%; margin-top: 5px; text-align: center" name="link" type="url" placeholder="{{ loc_source_link }} (1-256)">
       </label>
 
       <div style="padding-top: 10px">
-        <input type="submit" class="button foil" name="submit" value="Add New">
+        <input type="submit" class="button foil" name="submit" value="{{ loc_add_new }}">
       </div>
 
     </div>
