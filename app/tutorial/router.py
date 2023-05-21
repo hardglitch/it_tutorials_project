@@ -13,7 +13,7 @@ from ..language.crud import UILangCode, get_all_langs
 from ..language.schemas import LangCode, LanguageSchema
 from ..templates.render import render_template
 from ..tools import parameter_checker
-from ..tutorial.crud import add_tutorial, delete_tutorial, edit_tutorial, get_all_tutorials, get_tutorial
+from ..tutorial.crud import add_tutorial, delete_tutorial, edit_tutorial, get_all_tutorials, get_tutorial, tutorial_page
 from ..tutorial.dist_type.router import dist_type_router
 from ..tutorial.dist_type.schemas import DistTypeCode, DistTypeSchema
 from ..tutorial.schemas import TutorialID, TutorialSchema, DecodedTutorialSchema, ValidDescription, ValidTitle
@@ -30,45 +30,23 @@ tutorial_router.include_router(theme_router)
 tutorial_router.include_router(type_router)
 
 
-@tutorial_router.get("/{ui_lang_code}/tutorial/new", response_class=HTMLResponse, dependencies=[Depends(get_token)])
+@tutorial_router.get("/{ui_lang_code}/tutorial/addp"
+    , response_model_exclude_none=True, response_class=HTMLResponse, dependencies=[Depends(get_token)])
 @parameter_checker()
-async def new_tutorial_page(
+async def add_tutorial_page(
         ui_lang_code: UILangCode,
         request: Request,
         db_session: DBSession,
 ) -> Response:
 
-    tutor_types: List[TypeSchema] = await get_all_types(
+    return await tutorial_page(
         ui_lang_code=ui_lang_code,
-        db_session=db_session,
-    )
-    tutor_themes: List[ThemeSchema] = await get_all_themes(
-        ui_lang_code=ui_lang_code,
-        db_session=db_session,
-    )
-    tutor_dist_types: List[DistTypeSchema] = await get_all_dist_types(
-        ui_lang_code=ui_lang_code,
-        db_session=db_session,
-    )
-    tutor_langs: List[LanguageSchema] = await get_all_langs(
-        db_session=db_session,
-    )
-    page_vars = {
-        PageVars.page: PageVars.Page.tutorial_new,
-        PageVars.ui_lang_code: ui_lang_code,
-        "tutor_types": tutor_types,
-        "tutor_themes": tutor_themes,
-        "tutor_dist_types": tutor_dist_types,
-        "tutor_langs": tutor_langs,
-    }
-    return await render_template(
         request=request,
         db_session=db_session,
-        page_vars=page_vars,
     )
 
 
-@tutorial_router.post("/{ui_lang_code}/tutorial/add", dependencies=[Depends(get_token)])
+@tutorial_router.post("/{ui_lang_code}/tutorial/add", response_model_exclude_none=True, dependencies=[Depends(get_token)])
 @parameter_checker()
 async def add__tutorial(
         title: Annotated[ValidTitle, Form()],
@@ -99,7 +77,23 @@ async def add__tutorial(
         return RedirectResponse(url=f"/{ui_lang_code}/tutorial/{tutor_id}", status_code=status.HTTP_303_SEE_OTHER)
 
 
-@tutorial_router.post("/{ui_lang_code}/tutorial/{tutor_id}/edit")
+@tutorial_router.get("/{ui_lang_code}/tutorial/{tutor_id}/editp", response_model_exclude_none=True)
+@parameter_checker()
+async def edit_tutorial_page(
+        tutor_id: Annotated[TutorialID, Depends(is_tutorial_editor)],
+        ui_lang_code: LangCode,
+        request: Request,
+        db_session: DBSession,
+):
+    return await tutorial_page(
+        tutor_id=tutor_id,
+        ui_lang_code=ui_lang_code,
+        request=request,
+        db_session=db_session,
+    )
+
+
+@tutorial_router.post("/{ui_lang_code}/tutorial/{tutor_id}/edit", response_model_exclude_none=True)
 @parameter_checker()
 async def edit__tutorial(
         tutor_id: Annotated[TutorialID, Depends(is_tutorial_editor)],

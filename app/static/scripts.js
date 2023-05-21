@@ -11,7 +11,7 @@ function onClickOutside(elem_id) {
 }
 
 function changeTType(elem_id) {
-    document.getElementById("t-type-value").innerText = document.getElementById(elem_id).innerText;
+    document.getElementById("t-type-value").innerText = document.getElementById(elem_id).innerText.trim();
     let type_code = elem_id.split("-")[2]
     document.getElementById("t-type-code").value = type_code
     document.getElementById("tutor-types-dropdown").classList.remove("active");
@@ -21,7 +21,7 @@ function changeTType(elem_id) {
 function getAllowedThemes(type_code = undefined) {
     if (type_code === undefined) {
         try {
-            type_code = document.getElementById("t-type-code").value
+            type_code = document.getElementById("t-type-code").value.trim()
         }
         catch (TypeError) {}
     }
@@ -48,13 +48,13 @@ function changeTTheme(elem_id) {
 }
 
 function changeTLang(elem_id) {
-    document.getElementById("t-lang-value").innerText = document.getElementById(elem_id).innerText;
+    document.getElementById("t-lang-value").innerText = document.getElementById(elem_id).innerText.trim();
     document.getElementById("t-lang-code").value = elem_id.replace("t-lang-", "");
     document.getElementById("tutor-langs-dropdown").classList.remove("active");
 }
 
 function changeTDistType(elem_id) {
-    document.getElementById("t-dist-type-value").innerText = document.getElementById(elem_id).innerText;
+    document.getElementById("t-dist-type-value").innerText = document.getElementById(elem_id).innerText.trim();
     document.getElementById("t-dist-type-code").value = elem_id.replace("t-dist-type-", "");
     document.getElementById("tutor-dist-types-dropdown").classList.remove("active");
 }

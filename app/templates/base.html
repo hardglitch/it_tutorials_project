@@ -8,7 +8,7 @@
     <script src="/static/scripts.js"></script>
 </head>
 
-<body onload="getAllowedThemes()">
+<body onload="getAllowedThemes({% if tutor %}{{ tutor.theme_code }}{% endif %})">
     <div align="center" class="main-container">
         <div style="display: flex; width: 400px; align-items: center">
 
@@ -31,7 +31,7 @@
             <div style="width: 140px;">
                 <a href="/{{ ui_lang_code }}" title="{{ loc_home }}" class="text-link" style="font-size: 22px">{{ loc_tutorials }}</a>
                 {% if auth == True %}
-                    <a href="/{{ ui_lang_code }}/tutorial/new" title="{{ loc_add_tutorial }}" class="text-link" style="font-size: 22px; font-weight: bold">+</a>
+                    <a href="/{{ ui_lang_code }}/tutorial/addp" title="{{ loc_add_tutorial }}" class="text-link" style="font-size: 22px; font-weight: bold">+</a>
                 {% endif %}
             </div>
 
@@ -104,8 +104,8 @@
             {% include "exception.html" %}
         {% elif page == "tutorial" %}
             {% include "tutorial.html" %}
-        {% elif page == "tutorial-new" %}
-            {% include "tutorial-new.html" %}
+        {% elif page == "tutorial-form" %}
+            {% include "tutorial-form.html" %}
         {% endif %}
 
     </div>

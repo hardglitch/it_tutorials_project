@@ -1,5 +1,5 @@
 {
-  "loc_tutorials": "Tutorials"
+  "loc_tutorials": "Tutorials",
   "loc_developer": "Developer",
   "loc_add_tutorial": "Add Tutorial",
   "loc_home": "Home",
@@ -26,5 +26,6 @@
   "loc_credentials": "Credentials",
   "loc_added_tutorials": "Added tutorials",
 
-  "loc_setup": "Setup"
+  "loc_setup": "Setup",
+  "loc_save": "Save"
 }

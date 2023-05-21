@@ -1,20 +1,28 @@
 <div style="padding-top: 10px;">
 
-  <form action="/{{ ui_lang_code }}/tutorial/add" method="post">
+  <form action="/{{ ui_lang_code }}/tutorial/{% if tutor %}{{ tutor.id }}/edit{% else %}add{% endif %}" method="post">
     <div style="display: flex; flex-direction: column">
 
       <label>
-        <input class="input-field" style="width: 90%; text-align: center" name="title" type="text" placeholder="{{ loc_title }} (1-256)">
+        <input class="input-field" style="width: 90%; text-align: center" name="title" type="text" placeholder="{{ loc_title }} (1-256)"
+               value="{% if tutor %}{{ tutor.title }}{% endif %}">
       </label>
 
       <label>
-        <textarea class="input-field" style="height: 250px; width: 90%; resize: none; margin-top: 5px;" name="description" placeholder="{{ loc_description }} (1-1024)"></textarea>
+        <textarea class="input-field" style="height: 250px; width: 90%; resize: none; margin-top: 5px;" name="description" placeholder="{{ loc_description }} (1-1024)">{% if tutor %}{{ tutor.description }}{% endif %}</textarea>
       </label>
 
         <div class="dropdown input-field" style="width: 90%; margin-left: 15px" id="tutor-types-dropdown">
 
-            <div id="t-type-value" class="text-link" onclick=setDropdown("tutor-types-dropdown") style="font-size: 16px">{{ tutor_types[0].dict_value }}</div>
-            <input id="t-type-code" type="hidden" name="type_code" value="{{ tutor_types[0].type_code }}">
+            <div id="t-type-value" class="text-link" onclick=setDropdown("tutor-types-dropdown") style="font-size: 16px">
+                {% if tutor %}
+                    {{ tutor_types[tutor.type_code].dict_value }}
+                {% else %}
+                    {{ tutor_types[0].dict_value }}
+                {% endif %}
+            </div>
+            <input id="t-type-code" type="hidden" name="type_code"
+                   value="{% if tutor %}{{ tutor.type_code }}{% else %}{{ tutor_types[0].type_code }}{% endif %}">
 
             <div class="content" style="width: 90%; transform: translate(8px, 0) scale(1)">
             {% for type in tutor_types %}
@@ -29,7 +37,7 @@
 
         <div class="dropdown input-field" style="width: 90%; margin-left: 15px; margin-top: 5px" id="tutor-themes-dropdown">
 
-            <div id="t-theme-value" class="text-link" onclick=setDropdown("tutor-themes-dropdown") style="font-size: 16px;">1</div>
+            <div id="t-theme-value" class="text-link" onclick=setDropdown("tutor-themes-dropdown") style="font-size: 16px;"></div>
             <input id="t-theme-code" type="hidden" name="theme_code" value="">
 
             <div class="content" style="width: 90%; transform: translate(8px, 0) scale(1);">
@@ -45,8 +53,15 @@
 
         <div class="dropdown input-field" style="width: 90%; margin-left: 15px; margin-top: 5px" id="tutor-langs-dropdown">
 
-            <div id="t-lang-value" class="text-link" onclick=setDropdown("tutor-langs-dropdown") style="font-size: 16px">{{ tutor_langs[0].lang_value }}</div>
-            <input id="t-lang-code" type="hidden" name="lang_code" value="{{ tutor_langs[0].lang_code }}">
+            <div id="t-lang-value" class="text-link" onclick=setDropdown("tutor-langs-dropdown") style="font-size: 16px">
+                {% if tutor %}
+                    {{ tutor.language }}
+                {% else %}
+                    {{ tutor_langs[0].lang_value }}
+                {% endif %}
+            </div>
+            <input id="t-lang-code" type="hidden" name="lang_code"
+                   value="{% if tutor %}{{ tutor.lang_code }}{% else %}{{ tutor_langs[0].lang_code }}{% endif %}">
 
             <div class="content" style="width: 90%; transform: translate(8px, 0) scale(1)">
             {% for lang in tutor_langs %}
@@ -61,8 +76,15 @@
 
         <div class="dropdown input-field" style="width: 90%; margin-left: 15px; margin-top: 5px" id="tutor-dist-types-dropdown">
 
-            <div id="t-dist-type-value" class="text-link" onclick=setDropdown("tutor-dist-types-dropdown") style="font-size: 16px">{{ tutor_dist_types[0].dict_value }}</div>
-            <input id="t-dist-type-code" type="hidden" name="dist_type_code" value="{{ tutor_dist_types[0].dist_type_code }}">
+            <div id="t-dist-type-value" class="text-link" onclick=setDropdown("tutor-dist-types-dropdown") style="font-size: 16px">
+                {% if tutor %}
+                    {{ tutor_dist_types[tutor.dist_type_code].dict_value }}
+                {% else %}
+                    {{ tutor_dist_types[0].dict_value }}
+                {% endif %}
+            </div>
+            <input id="t-dist-type-code" type="hidden" name="dist_type_code"
+                   value="{% if tutor %}{{ tutor.dist_type_code }}{% else %}{{ tutor_dist_types[0].dist_type_code }}{% endif %}">
 
             <div class="content" style="width: 90%; transform: translate(8px, 0) scale(1)">
             {% for dist_type in tutor_dist_types %}
@@ -76,11 +98,12 @@
 
 
       <label>
-        <input class="input-field" style="width: 90%; margin-top: 5px; text-align: center" name="link" type="url" placeholder="{{ loc_source_link }} (1-256)">
+        <input class="input-field" style="width: 90%; margin-top: 5px; text-align: center" name="link" type="url" placeholder="{{ loc_source_link }} (1-256)"
+               value="{% if tutor %}{{ tutor.source_link }}{% endif %}">
       </label>
 
       <div style="padding-top: 10px">
-        <input type="submit" class="button foil" name="submit" value="{{ loc_add_new }}">
+        <input type="submit" class="button foil" name="submit" value="{% if tutor %}{{ loc_save }}{% else %}{{ loc_add_new }}{% endif %}">
       </div>
 
     </div>
