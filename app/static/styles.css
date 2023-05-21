@@ -52,6 +52,25 @@ a:hover {
     text-shadow: 0 0 5px cornsilk;
 }
 
+.pulse:hover {
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    50% {transform: scale(110%)}
+}
+
+input:invalid {
+    animation: shake .3s;
+}
+
+@keyframes shake {
+    20% {transform: rotateZ(-15grad)}
+    40% {transform: rotateZ(15grad)}
+    60% {transform: rotateZ(-5grad)}
+    80% {transform: rotateZ(5grad)}
+}
+
 .input-field {
     width: 140px;
     border: none;
@@ -83,6 +102,7 @@ a:hover {
 .button:hover {
     color: cornsilk;
     text-shadow: 0 0 5px cornsilk;
+    cursor: pointer;
 }
 
 .button:active{
