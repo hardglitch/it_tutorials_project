@@ -2,7 +2,7 @@
   "loc_tutorials": "Tutorials",
   "loc_developer": "Developer",
   "loc_add_tutorial": "Add Tutorial",
-  "loc_home": "Home",
+  "loc_home": "To Home page",
   "loc_profile": "Profile",
   "loc_sign_out": "Sign-Out",
   "loc_sign_in_sign_up": "Sign-In / Sign-Up",
@@ -26,6 +26,5 @@
   "loc_credentials": "Credentials",
   "loc_added_tutorials": "Added tutorials",
 
-  "loc_setup": "Setup",
   "loc_save": "Save"
 }

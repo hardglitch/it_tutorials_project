@@ -2,7 +2,7 @@
   "loc_tutorials": "Руководства",
   "loc_developer": "Разработчик",
   "loc_add_tutorial": "Добавить Руководство",
-  "loc_home": "Дом",
+  "loc_home": "На главную страницу",
   "loc_profile": "Профиль",
   "loc_sign_out": "Выйти",
   "loc_sign_in_sign_up": "Войти / Регистрация",
@@ -26,6 +26,5 @@
   "loc_credentials": "Права",
   "loc_added_tutorials": "Добавил Руководств",
 
-  "loc_setup": "Задать",
   "loc_save": "Сохранить"
 }

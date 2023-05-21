@@ -10,6 +10,8 @@
 
 <body onload="getAllowedThemes({% if tutor %}{{ tutor.theme_code }}{% endif %})">
     <div align="center" class="main-container">
+
+        {% if page != "exception" %}
         <div style="display: flex; width: 400px; align-items: center">
 
             <div style="width: 130px; justify-content: left; display: flex;">
@@ -31,7 +33,7 @@
             <div style="width: 140px;">
                 <a href="/{{ ui_lang_code }}" title="{{ loc_home }}" class="text-link" style="font-size: 22px">{{ loc_tutorials }}</a>
                 {% if auth == True %}
-                    <a href="/{{ ui_lang_code }}/tutorial/addp" title="{{ loc_add_tutorial }}" class="text-link" style="font-size: 22px; font-weight: bold">+</a>
+                    <a href="/{{ ui_lang_code }}/tutorial/addp" title="{{ loc_add_tutorial }}" class="text-link" style="font-size: 22px; font-weight: bold">&#10010;</a>
                 {% endif %}
             </div>
 
@@ -91,6 +93,7 @@
 
             </div>
         </div>
+        {% endif %}
 
         {% if page == "main" %}
             {% include "main.html" %}

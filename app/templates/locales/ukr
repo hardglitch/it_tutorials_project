@@ -1,0 +1,30 @@
+{
+  "loc_tutorials": "Посібники",
+  "loc_developer": "Розробник",
+  "loc_add_tutorial": "Додати посібник",
+  "loc_home": "На головну сторінку",
+  "loc_profile": "Профіль",
+  "loc_sign_out": "Вийти",
+  "loc_sign_in_sign_up": "Увійти / Реєстрація",
+  "loc_name": "Ім'я",
+  "loc_password": "Пароль",
+  "loc_signin": "Увійти",
+  "loc_signup": "Новий",
+
+  "loc_language": "Мова",
+  "loc_distribution": "Розподіл",
+  "loc_source": "Джерело",
+  "loc_author": "Хто додав",
+
+  "loc_title": "Назва",
+  "loc_description": "Опис",
+  "loc_source_link": "Посилання на джерело",
+  "loc_add_new": "Додати",
+
+  "loc_no_spaces": "немає пробілів",
+
+  "loc_credentials": "Права",
+  "loc_added_tutorials": "Додав Посібників",
+
+  "loc_save": "Зберегти"
+}
