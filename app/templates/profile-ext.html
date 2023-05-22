@@ -18,7 +18,16 @@
           <input class="input-field" style="width: 90%" name="password" type="password" placeholder="New_password (10-100)">
         </label>
 
-        <input type="submit" class="button foil pulse" style="padding: 0 20px 0 20px; margin-top: 15px" value="{{ loc_save }}">
+      <div style="padding-top: 15px; display: flex; flex-direction: row; justify-content: space-around">
+            <div>
+                <input type="submit" class="button foil pulse" value="{{ loc_save }}">
+            </div>
+            <div>
+              <input type="submit" name="delete" class="button foil pulse" value="{{ loc_delete }}"
+                     formaction="del" formmethod="post">
+            </div>
+        </div>
+
 
     </div>
 

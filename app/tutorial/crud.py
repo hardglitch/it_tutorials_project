@@ -98,7 +98,8 @@ async def get_tutorial(
     )
     decoded_user: UserSchema = await get_user(
         user_id=tutor.who_added_id,
-        db_session=db_session
+        db_session=db_session,
+        safe_mode=True,
     )
     decoded_type: TypeSchema = await get_type(
         type_code=tutor.type_code,
@@ -131,6 +132,7 @@ async def get_tutorial(
         source_link=parse_obj_as(HttpUrl, tutor.source_link),
         who_added_id=tutor.who_added_id,
         who_added=decoded_user.name,
+        who_added_is_active=decoded_user.is_active,
     )
 
 
@@ -177,7 +179,8 @@ async def get_all_tutorials(
         )
         decoded_user: UserSchema = await get_user(
             user_id=tutor.who_added_id,
-            db_session=db_session
+            db_session=db_session,
+            safe_mode=True,
         )
         decoded_type: TypeSchema = await get_type(
             type_code=tutor.type_code,
@@ -211,6 +214,7 @@ async def get_all_tutorials(
                 source_link=parse_obj_as(HttpUrl, tutor.source_link),
                 who_added_id=tutor.who_added_id,
                 who_added=decoded_user.name,
+                who_added_is_active=decoded_user.is_active,
             )
         )
     return tutors_list

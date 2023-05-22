@@ -1,5 +1,7 @@
 from typing import List
 from sqlalchemy import Result, Row, select, update
+
+from .exceptions import UserExceptions
 from ..common.constants import DecodedCredential
 from ..common.exceptions import CommonExceptions
 from ..db import DBSession
@@ -51,7 +53,7 @@ async def delete_user(user_id: UserID, db_session: DBSession) -> bool:
 
 
 @db_checker()
-async def get_user(user_id: UserID, db_session: DBSession, is_me: bool = False) -> UserSchema:
+async def get_user(user_id: UserID, db_session: DBSession, is_me: bool = False, safe_mode: bool = False) -> UserSchema:
     result: Result = await db_session.execute(
         select(
             UserModel.id,
@@ -65,13 +67,15 @@ async def get_user(user_id: UserID, db_session: DBSession, is_me: bool = False) 
     )
 
     usr: Row = result.one()
-    if not usr or not usr.is_active: raise CommonExceptions.NOTHING_FOUND
+    if not usr: raise CommonExceptions.NOTHING_FOUND
+    if not usr.is_active and not safe_mode: raise UserExceptions.USER_HAS_BEEN_DELETED
     return UserSchema(
         id=usr.id,
         name=usr.name,
         email=usr.email if is_me else None,
         decoded_credential=DecodedCredential(Credential(usr.credential).name),
         rating=usr.rating,
+        is_active=usr.is_active
     )
 
 

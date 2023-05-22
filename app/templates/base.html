@@ -78,7 +78,7 @@
                             <div class="content" style="transform: translate(-90%, -5%) scale(1);">
                                <div>
                                    <label>
-                                       <input name="username" type="text" pattern="[a-zA-Z_]*" placeholder=“{{ loc_name }}” class="input-field" id="username" required>
+                                       <input name="username" type="text" pattern="[a-zA-Z0-9_]*" placeholder=“{{ loc_name }}” class="input-field" id="username" required>
                                    </label>
                                </div>
 
@@ -89,7 +89,7 @@
                                </div>
 
                                <div style="display: flex; justify-content: space-around; align-items: center">
-                                   <input type="submit" class="button foil pulse" value="{{ loc_signin }}">
+                                   <input type="submit" class="button foil pulse" style="min-width: 60px" value="{{ loc_signin }}">
                                    <a class="text-link pulse" style="padding: 5px 5px 0 5px" href="/{{ ui_lang_code }}/user/reg">{{ loc_signup }}</a>
                                </div>
 

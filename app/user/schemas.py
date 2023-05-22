@@ -60,7 +60,7 @@ class UserSchema(
 
     credential: Credential | None = None
     decoded_credential: DecodedCredential | None = None
-    token: str | None = None
+    is_active: bool | None = None
 
 
 class TokenDataSchema(

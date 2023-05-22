@@ -54,6 +54,7 @@ class TutorialSchema(
     dist_type_code: DistTypeCode
     source_link: HttpUrl
     who_added_id: UserID | None = None
+    who_added_is_active: bool | None = None
 
 
 class DecodedTutorialSchema(

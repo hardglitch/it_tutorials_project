@@ -38,7 +38,11 @@
       </div>
       <div style="display: flex; justify-content: right">
         <div style="padding-bottom: 10px; width: 100px; overflow: hidden; text-align: right">
-          <a href="/{{ ui_lang_code }}/user/{{ tutor.who_added_id }}" title="{{ loc_author }}" class="text-link">{{ tutor.who_added }}</a>
+          {% if tutor.who_added_is_active == true %}
+            <a href="/{{ ui_lang_code }}/user/{{ tutor.who_added_id }}" title="{{ loc_author }}" class="text-link">{{ tutor.who_added }}</a>
+          {% else %}
+            <span title="{{ loc_author }}">{{ tutor.who_added }}</span>
+          {% endif %}
         </div>
       </div>
     </div>

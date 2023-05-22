@@ -63,10 +63,9 @@ async def is_this(credential: Credential, request: Request, db_session: DBSessio
 
 @db_checker()
 async def is_me(user_id: UserID, request: Request, db_session: DBSession) -> bool:
-    result: ScalarResult = await db_session.scalars(
+    user_is_active: bool = await db_session.scalar(
         select(UserModel.is_active).where(UserModel.id == user_id)
     )
-    user_is_active: bool = result.one()
     return True if user_id == decode_access_token(get_token(request)).id and user_is_active else False
 
 
