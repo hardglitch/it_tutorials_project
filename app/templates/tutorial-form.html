@@ -16,7 +16,7 @@
 
             <div id="t-type-value" class="text-link" onclick=setDropdown("tutor-types-dropdown") style="font-size: 16px">
                 {% if tutor %}
-                    {{ tutor_types[tutor.type_code].dict_value }}
+                    {{ tutor.type }}
                 {% else %}
                     {{ tutor_types[0].dict_value }}
                 {% endif %}
@@ -38,7 +38,7 @@
         <div class="dropdown input-field" style="width: 90%; margin-left: 15px; margin-top: 5px" id="tutor-themes-dropdown">
 
             <div id="t-theme-value" class="text-link" onclick=setDropdown("tutor-themes-dropdown") style="font-size: 16px;"></div>
-            <input id="t-theme-code" type="hidden" name="theme_code" value="" required>
+            <input id="t-theme-code" type="hidden" name="theme_code" required value="">
 
             <div class="content" style="width: 90%; transform: translate(8px, 0) scale(1);">
             {% for theme in tutor_themes %}
@@ -102,8 +102,17 @@
                value="{% if tutor %}{{ tutor.source_link }}{% endif %}" required>
       </label>
 
-      <div style="padding-top: 10px">
-        <input type="submit" class="button foil pulse" name="submit" value="{% if tutor %}{{ loc_save }}{% else %}{{ loc_add_new }}{% endif %}">
+      <div style="padding-top: 10px; display: flex; flex-direction: row; justify-content: space-around">
+          <div>
+            <input type="submit" class="button foil pulse" name="submit" value="{% if tutor %}{{ loc_save }}{% else %}{{ loc_add_new }}{% endif %}">
+          </div>
+
+        {% if tutor %}
+          <div>
+              <input type="submit" name="delete" class="button foil pulse" value="{{ loc_delete }}"
+                     formaction="del" formmethod="post">
+          </div>
+        {% endif %}
       </div>
 
     </div>

@@ -44,35 +44,35 @@ class MainRouter:
         async def redirect(ui_lang_code: UILangCode) -> Response:
             return RedirectResponse(url=f"/{ui_lang_code}", status_code=status.HTTP_302_FOUND)
 
-        @app.exception_handler(HTTPException)
-        async def http_exception_handler(
-                request: Request,
-                exc: HTTPException,
-        ):
-            page_vars = {
-                PageVars.page: PageVars.Page.exception,
-                PageVars.code: exc.status_code,
-                PageVars.detail: exc.detail,
-            }
-            return await render_template(
-                request=request,
-                page_vars=page_vars,
-            )
-
-        @app.exception_handler(RequestValidationError)
-        async def validation_exception_handler(
-                request: Request,
-                exc: RequestValidationError,
-        ):
-            page_vars = {
-                PageVars.page: PageVars.Page.exception,
-                PageVars.code: status.HTTP_400_BAD_REQUEST,
-                PageVars.detail: CommonExceptions.INVALID_PARAMETERS.detail
-            }
-            return await render_template(
-                request=request,
-                page_vars=page_vars,
-            )
+        # @app.exception_handler(HTTPException)
+        # async def http_exception_handler(
+        #         request: Request,
+        #         exc: HTTPException,
+        # ):
+        #     page_vars = {
+        #         PageVars.page: PageVars.Page.exception,
+        #         PageVars.code: exc.status_code,
+        #         PageVars.detail: exc.detail,
+        #     }
+        #     return await render_template(
+        #         request=request,
+        #         page_vars=page_vars,
+        #     )
+        #
+        # @app.exception_handler(RequestValidationError)
+        # async def validation_exception_handler(
+        #         request: Request,
+        #         exc: RequestValidationError,
+        # ):
+        #     page_vars = {
+        #         PageVars.page: PageVars.Page.exception,
+        #         PageVars.code: status.HTTP_400_BAD_REQUEST,
+        #         PageVars.detail: CommonExceptions.INVALID_PARAMETERS.detail
+        #     }
+        #     return await render_template(
+        #         request=request,
+        #         page_vars=page_vars,
+        #     )
 
         # ----------  TESTING -----------------------------
 

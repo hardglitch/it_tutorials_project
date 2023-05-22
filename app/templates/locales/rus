@@ -26,5 +26,6 @@
   "loc_credentials": "Права",
   "loc_added_tutorials": "Добавил Руководств",
 
-  "loc_save": "Сохранить"
+  "loc_save": "Сохранить",
+  "loc_delete": "Удалить"
 }

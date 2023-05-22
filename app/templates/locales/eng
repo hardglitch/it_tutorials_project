@@ -26,5 +26,6 @@
   "loc_credentials": "Credentials",
   "loc_added_tutorials": "Added tutorials",
 
-  "loc_save": "Save"
+  "loc_save": "Save",
+  "loc_delete": "Delete"
 }

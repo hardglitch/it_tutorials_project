@@ -85,6 +85,7 @@ input:invalid {
 }
 
 .button {
+    min-width: 100px;
     margin-top: 5px;
     padding: 1px 7px;
     border-radius: 40px;

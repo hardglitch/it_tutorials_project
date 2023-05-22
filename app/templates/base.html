@@ -8,7 +8,7 @@
     <script src="/static/scripts.js"></script>
 </head>
 
-<body onload="getAllowedThemes({% if tutor %}{{ tutor.theme_code }}{% endif %})">
+<body onload="getAllowedThemes({% if tutor %}{{ tutor.type_code }}{% endif %})">
     <div align="center" class="main-container">
 
         {% if page != "exception" %}

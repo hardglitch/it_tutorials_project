@@ -19,6 +19,7 @@ function changeTType(elem_id) {
 }
 
 function getAllowedThemes(type_code = undefined) {
+    console.log("type-code = "+type_code)
     if (type_code === undefined) {
         try {
             type_code = document.getElementById("t-type-code").value.trim()
@@ -42,8 +43,11 @@ function getAllowedThemes(type_code = undefined) {
 }
 
 function changeTTheme(elem_id) {
+    console.log("0 elem-id - "+elem_id);
     document.getElementById("t-theme-value").innerText = document.getElementById(elem_id).innerText.trim();
-    document.getElementById("t-theme-code").value = elem_id.split("-")[2];
+    console.log("1 theme-value - "+document.getElementById("t-theme-value").innerText);
+    document.getElementById("t-theme-code").value = elem_id.split("-").pop();
+    console.log("2 theme-code - "+document.getElementById("t-theme-code").value);
     document.getElementById("tutor-themes-dropdown").classList.remove("active");
 }
 

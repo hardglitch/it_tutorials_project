@@ -1,10 +1,9 @@
 from typing import List
 from fastapi_cache.decorator import cache
 from pydantic import HttpUrl, parse_obj_as
-from sqlalchemy import ScalarResult, select, update
+from sqlalchemy import ScalarResult, delete, select, update
 from starlette.requests import Request
 from starlette.responses import Response
-
 from ..common.constants import PageVars
 from ..common.responses import CommonResponses, ResponseSchema
 from ..db import DBSession
@@ -22,6 +21,7 @@ from ..tutorial.theme.schemas import ThemeCode, ThemeSchema
 from ..tutorial.type.crud import get_all_types, get_type
 from ..tutorial.type.schemas import TypeCode, TypeSchema
 from ..user.crud import get_user
+from ..user.models import UserModel
 from ..user.schemas import UserSchema
 
 
@@ -37,9 +37,14 @@ async def add_tutorial(tutor: TutorialSchema, db_session: DBSession) -> Tutorial
         dist_type_code=tutor.dist_type_code,
         who_added_id=tutor.who_added_id
     )
+
     db_session.add(new_tutor)
+    await db_session.execute(
+        update(UserModel)
+        .where(UserModel.id == tutor.who_added_id)
+        .values(rating=UserModel.rating + 1)
+    )
     await db_session.commit()
-    await db_session.refresh(new_tutor)
     return new_tutor.id
 
 
@@ -64,9 +69,14 @@ async def edit_tutorial(tutor: TutorialSchema, db_session: DBSession) -> Respons
 
 @db_checker()
 async def delete_tutorial(tutor_id: TutorialID, db_session: DBSession) -> ResponseSchema:
-    await db_session.delete(
-        select(TutorialModel)
+    await db_session.execute(
+        delete(TutorialModel)
         .where(TutorialModel.id == tutor_id)
+    )
+    await db_session.execute(
+        update(UserModel)
+        .where(UserModel.id == tutor_id)
+        .values(rating=UserModel.rating - 1)
     )
     await db_session.commit()
     return CommonResponses.SUCCESS
