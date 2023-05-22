@@ -30,13 +30,20 @@
             </div>
 
 
-            <div style="width: 40%; display: flex; flex-direction: row; justify-content: center">
+            <div style="width: 40%; display: flex; flex-direction: row; justify-content: center;">
+                {% if is_adm == true %}
+                    <div class="pulse">
+                        <a href="/{{ ui_lang_code }}/admin" title="{{ loc_admin_page }}" class="text-link" style="font-size: 18px; font-weight: bold">&#9881;&#65039;</a>
+                    </div>
+                {% endif %}
+
                 <div class="pulse">
-                    <a href="/{{ ui_lang_code }}" title="{{ loc_home }}" class="text-link" style="font-size: 22px">{{ loc_tutorials }}</a>
+                    <a href="/{{ ui_lang_code }}" title="{{ loc_home }}" class="text-link" style="font-size: 22px; margin: 0 10px 0 7px">{{ loc_tutorials }}</a>
                 </div>
+
                 {% if auth == True %}
                     <div class="pulse">
-                        <a href="/{{ ui_lang_code }}/tutorial/addp" title="{{ loc_add_tutorial }}" class="text-link" style="margin-left: 10px; font-size: 20px; font-weight: bold">&#10010;</a>
+                        <a href="/{{ ui_lang_code }}/tutorial/addp" title="{{ loc_add_tutorial }}" class="text-link" style="font-size: 20px; font-weight: bold">&#10010;</a>
                     </div>
                 {% endif %}
             </div>
@@ -73,7 +80,7 @@
                             <a title="{{ loc_sign_in_sign_up }}" onclick=setDropdown("auth-dropdown") class="text-link" style="font-size: 30px">&#9094;</a>
                         </div>
 
-                        <form action="/{{ ui_lang_code }}/user/login" method="post">
+                        <form action="/{{ ui_lang_code }}/user/login{% if is_adm == true %}?is_adm=true{% endif %}" method="post">
 
                             <div class="content" style="transform: translate(-90%, -5%) scale(1);">
                                <div>
@@ -117,6 +124,8 @@
             {% include "tutorial.html" %}
         {% elif page == "tutorial-form" %}
             {% include "tutorial-form.html" %}
+        {% elif page == "admin" %}
+            {% include "admin.html" %}
         {% endif %}
 
     </div>

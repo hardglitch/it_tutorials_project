@@ -1,12 +1,12 @@
 import json
 from typing import Dict, List
 from starlette.requests import Request
-from app.common.constants import DEFAULT_UI_LANGUAGE, PageVars, templates, templates_dir
+from app.common.constants import Credential, DEFAULT_UI_LANGUAGE, PageVars, templates, templates_dir
 from app.common.exceptions import LocaleExceptions
 from app.db import DBSession
 from app.language.crud import UILangCode, get_all_ui_langs
 from app.language.schemas import LangAbbr, LanguageSchema
-from app.user.auth import Token, decode_access_token, get_token
+from app.user.auth import Token, decode_access_token, get_token, is_admin, is_this
 from app.user.schemas import TokenDataSchema
 
 
@@ -24,6 +24,9 @@ async def render_template(
     if page_vars[PageVars.page] != PageVars.Page.exception:
         token: Token = get_token(request, safe_mode=True)
         auth: bool = False if token == "None" or not token else True
+        if token and (is_adm := await is_this(
+                credential=Credential.admin, token=token, db_session=db_session, safe_mode=True)):
+            context.update({"is_adm": is_adm})
 
         if auth and not context.get("current_user"):
             current_user_data: TokenDataSchema = decode_access_token(token)

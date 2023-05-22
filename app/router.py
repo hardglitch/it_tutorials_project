@@ -9,6 +9,7 @@ from starlette.requests import Request
 from starlette.responses import RedirectResponse, Response
 from starlette.staticfiles import StaticFiles
 from ._initial_values import insert_data
+from .admin import admin_router
 from .common.constants import PageVars
 from .common.exceptions import CommonExceptions
 from .db import DBSession
@@ -34,6 +35,7 @@ class MainRouter:
             allow_headers=["*"],
         )
 
+        app.include_router(admin_router)
         app.include_router(language_router)
         app.include_router(user_router)
         app.include_router(tutorial_router)
@@ -44,35 +46,35 @@ class MainRouter:
         async def redirect(ui_lang_code: UILangCode) -> Response:
             return RedirectResponse(url=f"/{ui_lang_code}", status_code=status.HTTP_302_FOUND)
 
-        # @app.exception_handler(HTTPException)
-        # async def http_exception_handler(
-        #         request: Request,
-        #         exc: HTTPException,
-        # ):
-        #     page_vars = {
-        #         PageVars.page: PageVars.Page.exception,
-        #         PageVars.code: exc.status_code,
-        #         PageVars.detail: exc.detail,
-        #     }
-        #     return await render_template(
-        #         request=request,
-        #         page_vars=page_vars,
-        #     )
-        #
-        # @app.exception_handler(RequestValidationError)
-        # async def validation_exception_handler(
-        #         request: Request,
-        #         exc: RequestValidationError,
-        # ):
-        #     page_vars = {
-        #         PageVars.page: PageVars.Page.exception,
-        #         PageVars.code: status.HTTP_400_BAD_REQUEST,
-        #         PageVars.detail: CommonExceptions.INVALID_PARAMETERS.detail
-        #     }
-        #     return await render_template(
-        #         request=request,
-        #         page_vars=page_vars,
-        #     )
+        @app.exception_handler(HTTPException)
+        async def http_exception_handler(
+                request: Request,
+                exc: HTTPException,
+        ):
+            page_vars = {
+                PageVars.page: PageVars.Page.exception,
+                PageVars.code: exc.status_code,
+                PageVars.detail: exc.detail,
+            }
+            return await render_template(
+                request=request,
+                page_vars=page_vars,
+            )
+
+        @app.exception_handler(RequestValidationError)
+        async def validation_exception_handler(
+                request: Request,
+                exc: RequestValidationError,
+        ):
+            page_vars = {
+                PageVars.page: PageVars.Page.exception,
+                PageVars.code: status.HTTP_400_BAD_REQUEST,
+                PageVars.detail: CommonExceptions.INVALID_PARAMETERS.detail
+            }
+            return await render_template(
+                request=request,
+                page_vars=page_vars,
+            )
 
         # ----------  TESTING -----------------------------
 

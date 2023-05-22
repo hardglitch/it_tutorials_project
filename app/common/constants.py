@@ -96,4 +96,5 @@ class PageVars:
         profile: str = "profile"
         profile_ext: str = "profile-ext"
         reg: str = "reg"
+        admin: str = "admin"
 

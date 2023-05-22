@@ -72,7 +72,8 @@ input:invalid {
 }
 
 .input-field {
-    width: 140px;
+    min-width: 100px;
+    min-height: 20px;
     border: none;
     color: #bfc0c0;
     background: #262626;

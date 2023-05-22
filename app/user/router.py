@@ -64,14 +64,19 @@ async def login(
         form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
         ui_lang_code: UILangCode,
         db_session: DBSession,
+        is_adm: bool | None = None,
 ) -> Response:
 
     """This one creates an Access Token and redirects to the Current User profile"""
     user_id, user_name = await authenticate_user(
-        user_name=form_data.username, user_pwd=SecretStr(form_data.password), db_session=db_session
+        user_name=form_data.username,
+        user_pwd=SecretStr(form_data.password),
+        db_session=db_session,
+        is_adm=is_adm,
     )
     token: Token = create_access_token(uid=user_id, name=user_name)
-    response = RedirectResponse(url=f"/{ui_lang_code}", status_code=status.HTTP_302_FOUND)
+    adm_str = "/admin" if is_adm else ""
+    response = RedirectResponse(url=f"/{ui_lang_code}" + adm_str, status_code=status.HTTP_302_FOUND)
     response.set_cookie(key=AccessToken.name, value=token, httponly=True, secure=True, max_age=AccessToken.exp_delta)
     return response
 

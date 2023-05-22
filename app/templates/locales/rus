@@ -27,5 +27,6 @@
   "loc_added_tutorials": "Добавил Руководств",
 
   "loc_save": "Сохранить",
-  "loc_delete": "Удалить"
+  "loc_delete": "Удалить",
+  "loc_admin_page": "Админка"
 }

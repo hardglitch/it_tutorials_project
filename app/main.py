@@ -5,9 +5,15 @@ from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from .startup import lifespan
+from pydantic import BaseSettings
 
 
-app = FastAPI(title="IT Tutorials", lifespan=lifespan)
+class Settings(BaseSettings):
+    openapi_url: str = ""  # "openapi.json" by default. It's nulled for safety.
+
+
+settings = Settings()
+app = FastAPI(title="IT Tutorials", lifespan=lifespan, openapi_url=settings.openapi_url)
 
 app.add_middleware(HTTPSRedirectMiddleware)
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=["localhost"])  # "example.com", "*.example.com"
