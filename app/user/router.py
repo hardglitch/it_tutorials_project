@@ -116,7 +116,9 @@ async def delete__user(
 ) -> Response:
 
     if await delete_user(user_id=user_id, db_session=db_session):
-        return RedirectResponse(url=f"/{ui_lang_code}/tutorial", status_code=status.HTTP_302_FOUND)
+        response = RedirectResponse(url=f"/{ui_lang_code}", status_code=status.HTTP_302_FOUND)
+        response.delete_cookie(key=AccessToken.name, secure=True, httponly=True)
+        return response
 
 
 @user_router.get("/{ui_lang_code}/user/{user_id}/me", response_class=HTMLResponse, dependencies=[Depends(is_me_or_admin)])
