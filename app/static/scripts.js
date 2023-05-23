@@ -12,13 +12,23 @@ function onClickOutside(elem_id) {
 
 function addNewTType() {
     document.getElementById("t-type-value").innerText = document.getElementById("t-type-new").innerText.trim();
-    document.getElementById("t-type-code").value = ""
     document.getElementById("tutor-types-dropdown").classList.remove("active");
-    document.getElementById("delete-type").style.display = "none"
+    document.getElementById("delete-type-button").style.display = "none"
 
     let type_values = document.querySelectorAll('[id^="type-value-"]');
     for (i=0; i<type_values.length; i++) {
         type_values[i].value = ""
+    }
+
+    let ui_langs = document.querySelectorAll('[id^="ui-lang-"]');
+    for (i=0; i<ui_langs.length; i++) {
+        let lang_code = ui_langs[i].id.split("-").pop();
+        document.getElementById("submit-type-button-" + lang_code).value =
+            document.getElementById("add-new-button-value").innerText.trim()
+        document.getElementById("type-editor-form-" + lang_code).action =
+            document.getElementById("type-editor-form-default-value").value
+        document.getElementById("t-lang-code-" + lang_code).value = lang_code
+        document.getElementById("t-type-code-" + lang_code).value = "";
     }
 }
 
@@ -28,14 +38,24 @@ function changeTTypeAdmin(elem_id, ui_lang_code) {
 
     for (i=0; i<ui_langs.length; i++) {
         let lang_code = ui_langs[i].id.split("-").pop();
+        document.getElementById("type-value-" + lang_code).value = ""
         document.getElementById("type-value-" + lang_code).value =
             document.getElementById("type-value-" + lang_code + "-" + type_code).innerText.trim();
 
+        document.getElementById("submit-type-button-" + lang_code).value =
+            document.getElementById("save-button-value").innerText.trim()
+        document.getElementById("type-editor-form-" + lang_code).action =
+            "/" + ui_lang_code + "/type/" + type_code + "/edit"
+        document.getElementById("t-lang-code-" + lang_code).value = lang_code
+
+        document.getElementById("t-type-code-" + lang_code).value = "";
+        document.getElementById("t-type-code-" + lang_code).value = type_code;
+
     document.getElementById("t-type-value").innerText
         = document.getElementById("type-value-" + ui_lang_code + "-" + type_code).innerText.trim();
-    document.getElementById("t-type-code").value = type_code;
     document.getElementById("tutor-types-dropdown").classList.remove("active");
-    document.getElementById("delete-type").style.display = "block"
+    document.getElementById("delete-type-button").style.display = "block"
+    document.getElementById("delete-type-button").formAction = type_code + "/del"
     }
 }
 
