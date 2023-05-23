@@ -10,6 +10,35 @@ function onClickOutside(elem_id) {
   });
 }
 
+function addNewTType() {
+    document.getElementById("t-type-value").innerText = document.getElementById("t-type-new").innerText.trim();
+    document.getElementById("t-type-code").value = ""
+    document.getElementById("tutor-types-dropdown").classList.remove("active");
+    document.getElementById("delete-type").style.display = "none"
+
+    let type_values = document.querySelectorAll('[id^="type-value-"]');
+    for (i=0; i<type_values.length; i++) {
+        type_values[i].value = ""
+    }
+}
+
+function changeTTypeAdmin(elem_id, ui_lang_code) {
+    let type_code = elem_id.split("-").pop();
+    let ui_langs = document.querySelectorAll('[id^="ui-lang-"]');
+
+    for (i=0; i<ui_langs.length; i++) {
+        let lang_code = ui_langs[i].id.split("-").pop();
+        document.getElementById("type-value-" + lang_code).value =
+            document.getElementById("type-value-" + lang_code + "-" + type_code).innerText.trim();
+
+    document.getElementById("t-type-value").innerText
+        = document.getElementById("type-value-" + ui_lang_code + "-" + type_code).innerText.trim();
+    document.getElementById("t-type-code").value = type_code;
+    document.getElementById("tutor-types-dropdown").classList.remove("active");
+    document.getElementById("delete-type").style.display = "block"
+    }
+}
+
 function changeTType(elem_id) {
     document.getElementById("t-type-value").innerText = document.getElementById(elem_id).innerText.trim();
     let type_code = elem_id.split("-")[2]
@@ -19,7 +48,6 @@ function changeTType(elem_id) {
 }
 
 function getAllowedThemes(type_code = undefined) {
-    console.log("type-code = "+type_code)
     if (type_code === undefined) {
         try {
             type_code = document.getElementById("t-type-code").value.trim()
@@ -43,11 +71,8 @@ function getAllowedThemes(type_code = undefined) {
 }
 
 function changeTTheme(elem_id) {
-    console.log("0 elem-id - "+elem_id);
     document.getElementById("t-theme-value").innerText = document.getElementById(elem_id).innerText.trim();
-    console.log("1 theme-value - "+document.getElementById("t-theme-value").innerText);
     document.getElementById("t-theme-code").value = elem_id.split("-").pop();
-    console.log("2 theme-code - "+document.getElementById("t-theme-code").value);
     document.getElementById("tutor-themes-dropdown").classList.remove("active");
 }
 

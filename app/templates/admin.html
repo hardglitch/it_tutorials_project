@@ -1,1 +1,57 @@
-<h1>ADMIN</h1>
+<div style="padding-top: 10px">
+
+    <details>
+        <summary class="text-link" style="font-size: 20px; font-weight: bold; padding-bottom: 10px;">Types</summary>
+
+        <form action="/{{ ui_lang_code }}/type" method="post">
+            <div style="display: flex; flex-direction: column">
+                <div class="dropdown input-field" style="width: 90%; margin: 0 0 5px 15px;" id="tutor-types-dropdown">
+
+                    <div id="t-type-value" class="text-link" onclick=setDropdown("tutor-types-dropdown") style="font-size: 16px">* {{ loc_add_new_type }} *</div>
+                    <input id="t-type-code" type="hidden" name="type_code" value="" required>
+
+                    <div class="content" style="width: 90%; transform: translate(8px, 0) scale(1)">
+                        <div style="padding: 2px 0 2px 0;">
+                            <span class="text-link" id="t-type-new" onclick="addNewTType()">* {{ loc_add_new_type }} *</span><br>
+                        </div>
+
+                        {% for type in tutor_types %}
+                        <div class="text-link" id="t-type-{{ type.type_code }}" onclick="changeTTypeAdmin(this.id, {{ ui_lang_code }})">
+                            {% if type.lang_code == ui_lang_code %}{{ type.dict_value }}{% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                </div>
+
+                {% for lang in ui_langs %}
+                <div>
+                  <label>
+                    <input class="input-field" style="width: 90%; text-align: center" name="type-value-{{ lang.lang_code }}" id="type-value-{{ lang.lang_code }}"
+                           type="text" placeholder="{{ lang.lang_value }} (1-100)" value="" required>
+                  </label>
+                </div>
+                {% endfor %}
+            </div>
+
+              <div style="padding-top: 10px; display: flex; flex-direction: row; justify-content: space-around">
+                  <div>
+                    <input type="submit" class="button foil pulse" name="submit" value="{{ loc_add_new }}">
+                  </div>
+
+                  <div id="delete-type" style="display: none">
+                      <input type="submit" name="delete" class="button foil pulse" value="{{ loc_delete }}"
+                             formaction="del" formmethod="post">
+                  </div>
+              </div>
+
+            <div style="display: none">
+                {% for type in tutor_types %}
+                    <span id="type-value-{{ type.lang_code }}-{{ type.type_code }}">{{ type.dict_value }}</span>
+                {% endfor %}
+            </div>
+
+        </form>
+    </details>
+
+</div>

@@ -88,18 +88,25 @@ async def get_type(type_code: TypeCode, ui_lang_code: LangCode, db_session: DBSe
 
 
 @db_checker()
-async def get_all_types(ui_lang_code: LangCode, db_session: DBSession) -> List[TypeSchema]:
-    result: Result = await db_session.execute(
-        select(TypeModel.code, DictionaryModel.value)
-        .where(and_(TypeModel.word_code == DictionaryModel.word_code, DictionaryModel.lang_code == ui_lang_code))
-        .order_by(DictionaryModel.value)
-    )
+async def get_all_types(db_session: DBSession, ui_lang_code: LangCode | None = None) -> List[TypeSchema]:
+    if ui_lang_code:
+        result: Result = await db_session.execute(
+            select(TypeModel.code, DictionaryModel.value)
+            .where(and_(TypeModel.word_code == DictionaryModel.word_code, DictionaryModel.lang_code == ui_lang_code))
+            .order_by(DictionaryModel.value)
+        )
+    else:
+        result: Result = await db_session.execute(
+            select(TypeModel.code, DictionaryModel.lang_code, DictionaryModel.value)
+            .where(TypeModel.word_code == DictionaryModel.word_code)
+        )
 
     type_list = []
     for row in result.all():
         type_list.append(
             TypeSchema(
                 type_code=row.code,
+                lang_code=row.lang_code,
                 dict_value=row.value,
             )
         )

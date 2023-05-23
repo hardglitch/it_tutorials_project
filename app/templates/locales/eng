@@ -28,5 +28,7 @@
 
   "loc_save": "Save",
   "loc_delete": "Delete",
-  "loc_admin_page": "Admin Page"
+
+  "loc_admin_page": "Admin Page",
+  "loc_add_new_type": "ADD NEW TYPE"
 }

@@ -28,5 +28,7 @@
 
   "loc_save": "Зберегти",
   "loc_delete": "Видалити",
-  "loc_admin_page": "Адмiнка"
+
+  "loc_admin_page": "Адмiнка",
+  "loc_add_new_type": "ДОДАТИ НОВИЙ ТИП"
 }

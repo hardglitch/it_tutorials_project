@@ -60,7 +60,7 @@
                     <div class="content" style="font-size: 16px; text-transform: uppercase; transform: translate(-5px, 0) scale(1);">
                     {% for lang in ui_langs %}
                         <div class="pulse" style="padding-top: 2px; padding-bottom: 2px;">
-                            <a class="text-link" href="/{{ lang.lang_code }}">{{ lang.abbreviation }}</a><br>
+                            <a id="ui-lang-{{ lang.lang_code }}" title="{{ lang.value }}" class="text-link" href="/{{ lang.lang_code }}">{{ lang.abbreviation }}</a><br>
                         </div>
                     {% endfor %}
                     </div>
