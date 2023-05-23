@@ -9,6 +9,7 @@ from starlette.requests import Request
 from starlette.responses import RedirectResponse, Response
 from starlette.staticfiles import StaticFiles
 from ._initial_values import insert_data
+from .admin import admin_router
 from .common.constants import PageVars
 from .common.exceptions import CommonExceptions
 from .db import DBSession
@@ -34,6 +35,7 @@ class MainRouter:
             allow_headers=["*"],
         )
 
+        app.include_router(admin_router)
         app.include_router(language_router)
         app.include_router(user_router)
         app.include_router(tutorial_router)

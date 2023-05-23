@@ -29,11 +29,28 @@ def get_hashed_password(password: str) -> str:
 
 
 @db_checker()
-async def authenticate_user(user_name: UserName, user_pwd: Password, db_session: DBSession) -> (int, str):
-    result: ScalarResult = await db_session.scalars(
-        select(UserModel)
-        .where(and_(UserModel.name == user_name, UserModel.is_active == True))
-    )
+async def authenticate_user(
+        user_name: UserName,
+        user_pwd: Password,
+        db_session: DBSession,
+        is_adm: bool | None = None,
+) -> (int, str):
+
+    if not is_adm:
+        result: ScalarResult = await db_session.scalars(
+            select(UserModel)
+            .where(and_(UserModel.name == user_name, UserModel.is_active == True))
+        )
+    else:
+        result: ScalarResult = await db_session.scalars(
+            select(UserModel)
+            .where(and_(
+                UserModel.name == user_name,
+                UserModel.is_active == True,
+                UserModel.credential == Credential.admin
+            ))
+        )
+
     user: UserModel | None = result.one_or_none()
     if not user or not bcrypt_context.verify(user_pwd.get_secret_value(), user.hashed_password):
         raise AuthenticateExceptions.INCORRECT_PARAMETERS
@@ -41,8 +58,16 @@ async def authenticate_user(user_name: UserName, user_pwd: Password, db_session:
 
 
 @db_checker()
-async def is_this(credential: Credential, request: Request, db_session: DBSession) -> bool:
-    user_data: TokenDataSchema = decode_access_token(token=get_token(request))
+async def is_this(
+        credential: Credential,
+        db_session: DBSession,
+        safe_mode: bool = False,
+        request: Request | None = None,
+        token: Token | None = None,
+) -> bool:
+
+    if not token and not (token := get_token(request=request, safe_mode=safe_mode)): return False
+    user_data: TokenDataSchema = decode_access_token(token=token)
     result: ScalarResult = await db_session.scalars(
         select(UserModel.credential)
         .where(and_(UserModel.id == user_data.id, UserModel.name == user_data.name, UserModel.is_active == True))
@@ -63,17 +88,17 @@ async def is_this(credential: Credential, request: Request, db_session: DBSessio
 
 @db_checker()
 async def is_me(user_id: UserID, request: Request, db_session: DBSession) -> bool:
-    result: ScalarResult = await db_session.scalars(
+    user_is_active: bool = await db_session.scalar(
         select(UserModel.is_active).where(UserModel.id == user_id)
     )
-    user_is_active: bool = result.one()
     return True if user_id == decode_access_token(get_token(request)).id and user_is_active else False
 
 
 @parameter_checker()
-async def is_admin(request: Request, db_session: DBSession) -> bool:
-    if not await is_this(credential=Credential.admin, request=request, db_session=db_session):
-        raise UserExceptions.ACCESS_DENIED
+async def is_admin(request: Request, db_session: DBSession, safe_mode: bool = False) -> bool:
+    if not await is_this(credential=Credential.admin, request=request, db_session=db_session, safe_mode=safe_mode):
+        if not safe_mode: raise UserExceptions.ACCESS_DENIED
+        else: return False
     return True
 
 

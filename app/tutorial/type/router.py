@@ -1,5 +1,8 @@
 from typing import Annotated, List
 from fastapi import APIRouter, Depends, Form, Path
+from starlette import status
+from starlette.responses import RedirectResponse, Response
+
 from ...common.responses import ResponseSchema
 from ...db import DBSession
 from ...dictionary.schemas import DictWordCode, DictionarySchema, ValidDictValue
@@ -22,16 +25,17 @@ async def add_tutorial_type(
         ui_lang_code: UILangCode,
         db_session: DBSession,
         word_code: DictWordCode | None = Form(None),
-) -> ResponseSchema:
+) -> Response:
 
-    return await add_type(
+    if await add_type(
         DictionarySchema(
             word_code=word_code,
             lang_code=lang_code,
             dict_value=type_value,
         ),
         db_session=db_session
-    )
+    ):
+        return RedirectResponse(url=f"/{ui_lang_code}/admin", status_code=status.HTTP_200_OK)
 
 
 @type_router.post("/{ui_lang_code}/type/{type_code}/edit", dependencies=[Depends(is_admin)])
@@ -42,16 +46,17 @@ async def edit_tutorial_type(
         type_value: Annotated[ValidDictValue, Form()],
         ui_lang_code: UILangCode,
         db_session: DBSession,
-) -> ResponseSchema:
+):
 
-    return await edit_type(
+    if await edit_type(
         TypeSchema(
             type_code=type_code,
             lang_code=lang_code,
             dict_value=type_value,
         ),
         db_session=db_session
-    )
+    ):
+        return RedirectResponse(url=f"/{ui_lang_code}/admin", status_code=status.HTTP_302_FOUND)
 
 
 @type_router.post("/{ui_lang_code}/type/{type_code}/del", dependencies=[Depends(is_admin)])
@@ -60,12 +65,13 @@ async def delete_tutorial_type(
         type_code: Annotated[TypeCode, Path()],
         ui_lang_code: UILangCode,
         db_session: DBSession,
-) -> ResponseSchema:
+) -> Response:
 
-    return await delete_type(
+    if await delete_type(
         type_code=type_code,
         db_session=db_session
-    )
+    ):
+        return RedirectResponse(url=f"/{ui_lang_code}/admin", status_code=status.HTTP_302_FOUND)
 
 
 @type_router.get("/{ui_lang_code}/type/{type_code}", response_model_exclude_none=True)

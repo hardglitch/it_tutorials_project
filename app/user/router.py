@@ -64,14 +64,19 @@ async def login(
         form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
         ui_lang_code: UILangCode,
         db_session: DBSession,
+        is_adm: bool | None = None,
 ) -> Response:
 
     """This one creates an Access Token and redirects to the Current User profile"""
     user_id, user_name = await authenticate_user(
-        user_name=form_data.username, user_pwd=SecretStr(form_data.password), db_session=db_session
+        user_name=form_data.username,
+        user_pwd=SecretStr(form_data.password),
+        db_session=db_session,
+        is_adm=is_adm,
     )
     token: Token = create_access_token(uid=user_id, name=user_name)
-    response = RedirectResponse(url=f"/{ui_lang_code}", status_code=status.HTTP_302_FOUND)
+    adm_str = "/admin" if is_adm else ""
+    response = RedirectResponse(url=f"/{ui_lang_code}" + adm_str, status_code=status.HTTP_302_FOUND)
     response.set_cookie(key=AccessToken.name, value=token, httponly=True, secure=True, max_age=AccessToken.exp_delta)
     return response
 
@@ -116,7 +121,9 @@ async def delete__user(
 ) -> Response:
 
     if await delete_user(user_id=user_id, db_session=db_session):
-        return RedirectResponse(url=f"/{ui_lang_code}/tutorial", status_code=status.HTTP_302_FOUND)
+        response = RedirectResponse(url=f"/{ui_lang_code}", status_code=status.HTTP_302_FOUND)
+        response.delete_cookie(key=AccessToken.name, secure=True, httponly=True)
+        return response
 
 
 @user_router.get("/{ui_lang_code}/user/{user_id}/me", response_class=HTMLResponse, dependencies=[Depends(is_me_or_admin)])

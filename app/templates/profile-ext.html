@@ -1,32 +1,33 @@
 <div class="reg">
 
-  <b>Credentials:</b> {{ current_user.decoded_credential }}<br>
-  <b>Added Tutorials:</b> {{ current_user.rating }}<br><br>
+  <b style="color: cornsilk">{{ loc_credentials }}:</b> {{ current_user.decoded_credential }}<br>
+  <b style="color: cornsilk">{{ loc_added_tutorials }}:</b> {{ current_user.rating }}<br><br>
 
   <form action="/{{ ui_lang_code }}/user/{{ current_user.id }}/edit" method="post">
-    <div style="display: flex; flex-direction: column">
+    <div>
 
-      <div style="padding-bottom: 5px">
         <label>
-          <input class="input-field" style="width: 250px" name="name" type="text" placeholder="{{ current_user.name }}" value="{{ current_user.name }}">
+          <input class="input-field" style="width: 90%" name="name" type="text" placeholder="{{ current_user.name }}" value="{{ current_user.name }}">
         </label>
-      </div>
 
-      <div style="padding-bottom: 5px">
         <label>
-          <input class="input-field" style="width: 250px" name="email" type="email" placeholder="{{ current_user.email }}" value="{{ current_user.email }}">
+          <input class="input-field" style="width: 90%" name="email" type="email" placeholder="{{ current_user.email }}" value="{{ current_user.email }}">
         </label>
-      </div>
 
-      <div style="padding-bottom: 5px">
         <label>
-          <input class="input-field" style="width: 250px" name="password" type="password" placeholder="New_password (10-100)">
+          <input class="input-field" style="width: 90%" name="password" type="password" placeholder="New_password (10-100)">
         </label>
-      </div>
 
-      <div style="padding-bottom: 5px">
-        <input type="submit" class="button foil" style="margin-top: 15px" value="Setup">
-      </div>
+      <div style="padding-top: 15px; display: flex; flex-direction: row; justify-content: space-around">
+            <div>
+                <input type="submit" class="button foil pulse" value="{{ loc_save }}">
+            </div>
+            <div>
+              <input type="submit" name="delete" class="button foil pulse" value="{{ loc_delete }}"
+                     formaction="del" formmethod="post">
+            </div>
+        </div>
+
 
     </div>
 

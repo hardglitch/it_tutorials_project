@@ -1,21 +1,21 @@
 <div class="reg">
-  <form class="reg-form" action="/{{ ui_lang_code }}/user/add" method="post">
+  <form action="/{{ ui_lang_code }}/user/add" method="post">
 
     <div>
 
       <label>
-        <input class="input-field" style="width: 250px" name="name" type="text" placeholder="Your_Name (1-256, no spaces)">
+        <input class="input-field" style="width: 90%" name="name" type="text" placeholder="Your_Name (1-256, {{ loc_no_spaces }})" required>
       </label><br>
 
       <label>
-        <input class="input-field" style="width: 250px" name="email" type="email" placeholder="youremail@example.com">
+        <input class="input-field" style="width: 90%" name="email" type="email" placeholder="youremail@example.com" required>
       </label><br>
 
       <label>
-        <input class="input-field" style="width: 250px" name="password" type="password" placeholder="password99 (10-100)">
+        <input class="input-field" style="width: 90%" name="password" type="password" placeholder="password99 (10-100)" required>
       </label><br>
 
-      <button class="button foil">SignUp</button>
+      <button class="button foil" style="margin-top: 15px">{{ loc_signup }}</button>
 
     </div>
 

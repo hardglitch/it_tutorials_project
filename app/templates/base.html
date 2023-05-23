@@ -8,13 +8,15 @@
     <script src="/static/scripts.js"></script>
 </head>
 
-<body onload="getAllowedThemes()">
+<body onload="getAllowedThemes({% if tutor %}{{ tutor.type_code }}{% endif %})">
     <div align="center" class="main-container">
+
+        {% if page != "exception" %}
         <div style="display: flex; width: 400px; align-items: center">
 
-            <div style="width: 130px; justify-content: left; display: flex;">
-                <a class="text-link" href="https://github.com/hardglitch" title="Developer" style="font-size: 30px">
-                    <div style="display: flex; flex-direction: row">
+            <div style="width: 30%; justify-content: left; display: flex;">
+                <a class="text-link" href="https://github.com/hardglitch" title="{{ loc_developer }}" style="font-size: 30px">
+                    <div class="pulse" style="display: flex; flex-direction: row">
                         <div>
                             <span style="font-size: 30px">&#8962;</span>
                         </div>
@@ -28,24 +30,37 @@
             </div>
 
 
-            <div style="width: 140px;">
-                <a href="/{{ ui_lang_code }}" title="Home" class="text-link" style="font-size: 22px">Tutorials</a>
+            <div style="width: 40%; display: flex; flex-direction: row; justify-content: center;">
+                {% if is_adm == true %}
+                    <div class="pulse">
+                        <a href="/{{ ui_lang_code }}/admin" title="{{ loc_admin_page }}" class="text-link" style="font-size: 18px; font-weight: bold">&#9881;&#65039;</a>
+                    </div>
+                {% endif %}
+
+                <div class="pulse">
+                    <a href="/{{ ui_lang_code }}" title="{{ loc_home }}" class="text-link" style="font-size: 22px; margin: 0 10px 0 7px">{{ loc_tutorials }}</a>
+                </div>
+
                 {% if auth == True %}
-                    <a href="/{{ ui_lang_code }}/tutorial/new" title="Add Tutorial" class="text-link" style="font-size: 22px; font-weight: bold">+</a>
+                    <div class="pulse">
+                        <a href="/{{ ui_lang_code }}/tutorial/addp" title="{{ loc_add_tutorial }}" class="text-link" style="font-size: 20px; font-weight: bold">&#10010;</a>
+                    </div>
                 {% endif %}
             </div>
 
 
-            <div style="width: 130px; display: flex; justify-content: flex-end; align-items: center;">
+            <div style="width: 30%; display: flex; justify-content: flex-end; align-items: center;">
 
                 <div class="dropdown" id="ui-languages-dropdown" style="padding-right: 5px;">
 
-                    <a class="text-link" onclick=setDropdown("ui-languages-dropdown") style="font-size: 16px">{{ ui_lang }}</a>
+                    <div class="pulse">
+                        <a class="text-link" onclick=setDropdown("ui-languages-dropdown") style="font-size: 16px">{{ ui_lang }}</a>
+                    </div>
 
                     <div class="content" style="font-size: 16px; text-transform: uppercase; transform: translate(-5px, 0) scale(1);">
                     {% for lang in ui_langs %}
-                        <div style="padding-top: 2px; padding-bottom: 2px;">
-                            <a class="text-link" href="/{{ lang.lang_code }}">{{ lang.abbreviation }}</a><br>
+                        <div class="pulse" style="padding-top: 2px; padding-bottom: 2px;">
+                            <a id="ui-lang-{{ lang.lang_code }}" title="{{ lang.value }}" class="text-link" href="/{{ lang.lang_code }}">{{ lang.abbreviation }}</a><br>
                         </div>
                     {% endfor %}
                     </div>
@@ -53,34 +68,36 @@
                 </div>
 
                 {% if auth == True %}
-                    <div style="overflow: hidden">
-                        <a href="/{{ ui_lang_code }}/user/{{ current_user.id }}/me" title="Profile" class="text-link" style="font-size: 20px">&#128125;</a>
+                    <div class="pulse" style="overflow: hidden">
+                        <a href="/{{ ui_lang_code }}/user/{{ current_user.id }}/me" title="{{ loc_profile }}" class="text-link" style="font-size: 20px">&#128125;</a>
                     </div>
-                    <a href="/{{ ui_lang_code }}/user/logout" title="Sign-Out" class="text-link" style="font-size: 30px">&#10799;</a>
+                    <a href="/{{ ui_lang_code }}/user/logout" title="{{ loc_sign_out }}" class="text-link pulse" style="font-size: 30px">&#10799;</a>
                 {% else %}
 
                     <div class="dropdown" id="auth-dropdown">
 
-                        <a title="Sign-In / Sign-Up" onclick=setDropdown("auth-dropdown") class="text-link" style="font-size: 30px">&#9094;</a>
+                        <div class="pulse">
+                            <a title="{{ loc_sign_in_sign_up }}" onclick=setDropdown("auth-dropdown") class="text-link" style="font-size: 30px">&#9094;</a>
+                        </div>
 
-                        <form action="/{{ ui_lang_code }}/user/login" method="post">
+                        <form action="/{{ ui_lang_code }}/user/login{% if is_adm == true %}?is_adm=true{% endif %}" method="post">
 
-                            <div class="content" style="transform: translate(-100%, 0%) scale(1);">
+                            <div class="content" style="transform: translate(-90%, -5%) scale(1);">
                                <div>
                                    <label>
-                                       <input name="username" type="text" placeholder=“Name” class="input-field" id="username">
+                                       <input name="username" type="text" pattern="[a-zA-Z0-9_]*" placeholder=“{{ loc_name }}” class="input-field" id="username" required>
                                    </label>
                                </div>
 
                                <div>
                                    <label>
-                                       <input name="password" type="password" placeholder=“Password” class="input-field" id="password">
+                                       <input name="password" type="password" placeholder=“{{ loc_password }}” class="input-field" id="password" required>
                                    </label>
                                </div>
 
                                <div style="display: flex; justify-content: space-around; align-items: center">
-                                   <input type="submit" class="button foil" value="SignIn">
-                                   <a class="text-link" style="padding-top: 5px" href="/{{ ui_lang_code }}/user/reg">SignUp</a>
+                                   <input type="submit" class="button foil pulse" style="min-width: 60px" value="{{ loc_signin }}">
+                                   <a class="text-link pulse" style="padding: 5px 5px 0 5px" href="/{{ ui_lang_code }}/user/reg">{{ loc_signup }}</a>
                                </div>
 
                             </div>
@@ -91,6 +108,7 @@
 
             </div>
         </div>
+        {% endif %}
 
         {% if page == "main" %}
             {% include "main.html" %}
@@ -104,8 +122,10 @@
             {% include "exception.html" %}
         {% elif page == "tutorial" %}
             {% include "tutorial.html" %}
-        {% elif page == "tutorial-new" %}
-            {% include "tutorial-new.html" %}
+        {% elif page == "tutorial-form" %}
+            {% include "tutorial-form.html" %}
+        {% elif page == "admin" %}
+            {% include "admin.html" %}
         {% endif %}
 
     </div>

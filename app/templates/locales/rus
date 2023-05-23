@@ -1,0 +1,34 @@
+{
+  "loc_tutorials": "Руководства",
+  "loc_developer": "Разработчик",
+  "loc_add_tutorial": "Добавить Руководство",
+  "loc_home": "На главную страницу",
+  "loc_profile": "Профиль",
+  "loc_sign_out": "Выйти",
+  "loc_sign_in_sign_up": "Войти / Регистрация",
+  "loc_name": "Имя",
+  "loc_password": "Пароль",
+  "loc_signin": "Войти",
+  "loc_signup": "Новый",
+
+  "loc_language": "Язык",
+  "loc_distribution": "Распространение",
+  "loc_source": "Источник",
+  "loc_author": "Кто добавил",
+
+  "loc_title": "Название",
+  "loc_description": "Описание",
+  "loc_source_link": "Ссылка на источник",
+  "loc_add_new": "Добавить",
+
+  "loc_no_spaces": "без пробелов",
+
+  "loc_credentials": "Права",
+  "loc_added_tutorials": "Добавил Руководств",
+
+  "loc_save": "Сохранить",
+  "loc_delete": "Удалить",
+
+  "loc_admin_page": "Админка",
+  "loc_add_new_type": "ДОБАВИТЬ НОВЫЙ ТИП"
+}

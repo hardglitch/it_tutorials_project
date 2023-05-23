@@ -43,3 +43,8 @@ class UserExceptions(BaseException):
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Access denied",
     )
+
+    USER_HAS_BEEN_DELETED = HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="User has been deleted",
+    )

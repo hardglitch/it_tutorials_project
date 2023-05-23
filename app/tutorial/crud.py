@@ -1,22 +1,27 @@
 from typing import List
 from fastapi_cache.decorator import cache
 from pydantic import HttpUrl, parse_obj_as
-from sqlalchemy import ScalarResult, select, update
+from sqlalchemy import ScalarResult, delete, select, update
+from starlette.requests import Request
+from starlette.responses import Response
+from ..common.constants import PageVars
 from ..common.responses import CommonResponses, ResponseSchema
 from ..db import DBSession
-from ..language.crud import get_lang
+from ..language.crud import UILangCode, get_all_langs, get_lang
 from ..language.schemas import LangCode, LanguageSchema
-from ..tools import db_checker
-from ..tutorial.dist_type.crud import get_dist_type
+from ..templates.render import render_template
+from ..tools import db_checker, parameter_checker
+from ..tutorial.dist_type.crud import get_all_dist_types, get_dist_type
 from ..tutorial.dist_type.schemas import DistTypeCode, DistTypeSchema
 from ..tutorial.exceptions import TutorialExceptions
 from ..tutorial.models import TutorialModel
 from ..tutorial.schemas import DecodedTutorialSchema, TutorialID, TutorialSchema
-from ..tutorial.theme.crud import get_theme
+from ..tutorial.theme.crud import get_all_themes, get_theme
 from ..tutorial.theme.schemas import ThemeCode, ThemeSchema
-from ..tutorial.type.crud import get_type
+from ..tutorial.type.crud import get_all_types, get_type
 from ..tutorial.type.schemas import TypeCode, TypeSchema
 from ..user.crud import get_user
+from ..user.models import UserModel
 from ..user.schemas import UserSchema
 
 
@@ -27,14 +32,19 @@ async def add_tutorial(tutor: TutorialSchema, db_session: DBSession) -> Tutorial
         type_code=tutor.type_code,
         theme_code=tutor.theme_code,
         description=tutor.description,
-        language_code=tutor.lang_code,
+        lang_code=tutor.lang_code,
         source_link=str(tutor.source_link),
         dist_type_code=tutor.dist_type_code,
         who_added_id=tutor.who_added_id
     )
+
     db_session.add(new_tutor)
+    await db_session.execute(
+        update(UserModel)
+        .where(UserModel.id == tutor.who_added_id)
+        .values(rating=UserModel.rating + 1)
+    )
     await db_session.commit()
-    await db_session.refresh(new_tutor)
     return new_tutor.id
 
 
@@ -45,11 +55,11 @@ async def edit_tutorial(tutor: TutorialSchema, db_session: DBSession) -> Respons
         .where(TutorialModel.id == tutor.id)
         .values(
             title=tutor.title,
-            type=tutor.type_code,
-            theme=tutor.theme_code,
-            language=tutor.lang_code,
+            type_code=tutor.type_code,
+            theme_code=tutor.theme_code,
+            lang_code=tutor.lang_code,
             description=tutor.description,
-            dist_type=tutor.dist_type_code,
+            dist_type_code=tutor.dist_type_code,
             source_link=tutor.source_link
         )
     )
@@ -59,9 +69,14 @@ async def edit_tutorial(tutor: TutorialSchema, db_session: DBSession) -> Respons
 
 @db_checker()
 async def delete_tutorial(tutor_id: TutorialID, db_session: DBSession) -> ResponseSchema:
-    await db_session.delete(
-        select(TutorialModel)
+    await db_session.execute(
+        delete(TutorialModel)
         .where(TutorialModel.id == tutor_id)
+    )
+    await db_session.execute(
+        update(UserModel)
+        .where(UserModel.id == tutor_id)
+        .values(rating=UserModel.rating - 1)
     )
     await db_session.commit()
     return CommonResponses.SUCCESS
@@ -83,7 +98,8 @@ async def get_tutorial(
     )
     decoded_user: UserSchema = await get_user(
         user_id=tutor.who_added_id,
-        db_session=db_session
+        db_session=db_session,
+        safe_mode=True,
     )
     decoded_type: TypeSchema = await get_type(
         type_code=tutor.type_code,
@@ -116,6 +132,7 @@ async def get_tutorial(
         source_link=parse_obj_as(HttpUrl, tutor.source_link),
         who_added_id=tutor.who_added_id,
         who_added=decoded_user.name,
+        who_added_is_active=decoded_user.is_active,
     )
 
 
@@ -162,7 +179,8 @@ async def get_all_tutorials(
         )
         decoded_user: UserSchema = await get_user(
             user_id=tutor.who_added_id,
-            db_session=db_session
+            db_session=db_session,
+            safe_mode=True,
         )
         decoded_type: TypeSchema = await get_type(
             type_code=tutor.type_code,
@@ -196,6 +214,53 @@ async def get_all_tutorials(
                 source_link=parse_obj_as(HttpUrl, tutor.source_link),
                 who_added_id=tutor.who_added_id,
                 who_added=decoded_user.name,
+                who_added_is_active=decoded_user.is_active,
             )
         )
     return tutors_list
+
+
+@parameter_checker()
+async def tutorial_page(
+        ui_lang_code: UILangCode,
+        request: Request,
+        db_session: DBSession,
+        tutor_id: TutorialID | None = None,
+) -> Response:
+
+    tutor_types: List[TypeSchema] = await get_all_types(
+        ui_lang_code=ui_lang_code,
+        db_session=db_session,
+    )
+    tutor_themes: List[ThemeSchema] = await get_all_themes(
+        ui_lang_code=ui_lang_code,
+        db_session=db_session,
+    )
+    tutor_dist_types: List[DistTypeSchema] = await get_all_dist_types(
+        ui_lang_code=ui_lang_code,
+        db_session=db_session,
+    )
+    tutor_langs: List[LanguageSchema] = await get_all_langs(
+        db_session=db_session,
+    )
+    page_vars = {
+        PageVars.page: PageVars.Page.tutorial_form,
+        PageVars.ui_lang_code: ui_lang_code,
+        "tutor_types": tutor_types,
+        "tutor_themes": tutor_themes,
+        "tutor_dist_types": tutor_dist_types,
+        "tutor_langs": tutor_langs,
+    }
+    if tutor_id:
+        tutor = await get_tutorial(
+            tutor_id=tutor_id,
+            ui_lang_code=ui_lang_code,
+            db_session=db_session,
+        )
+        page_vars.update({"tutor": tutor})
+
+    return await render_template(
+        request=request,
+        db_session=db_session,
+        page_vars=page_vars,
+    )

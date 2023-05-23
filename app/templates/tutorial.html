@@ -10,35 +10,38 @@
 
       <div style="text-align: right; width: 5%; padding-top: 5px">
         {% if editor == True %}
-          <a href="/{{ ui_lang_code }}/tutorial/{{ tutor.id }}}" class="text-link">&#9881;&#65039;</a>
+          <a href="/{{ ui_lang_code }}/tutorial/{{ tutor.id }}/editp" class="text-link">&#9881;&#65039;</a>
         {% endif %}
       </div>
 
     </div>
 
     <div style="margin-left: 10px; margin-right: 10px;">
-      <div>
-        <a href="/{{ ui_lang_code }}/tutorial/{{ tutor.id }}" class="text-link">
-          <h3 style="color: cornsilk; text-align: center">{{ tutor.title }}</h3>
-        </a>
+      <div style="padding: 10px 0 15px 0">
+        <a href="/{{ ui_lang_code }}/tutorial/{{ tutor.id }}" class="text-link"
+          style="font-size: 22px; font-weight: bold; color: cornsilk">{{ tutor.title }}</a>
       </div>
       <div style="margin-bottom: 20px; text-align: justify">
         {{ tutor.description }}
       </div>
       <div align="left">
-        <b style="color: cornsilk; overflow: hidden">Language:</b>
+        <b style="color: cornsilk; overflow: hidden">{{ loc_language }}:</b>
         <a class="text-link" href="/{{ ui_lang_code }}/?tutor_lang_code={{ tutor.lang_code }}">{{ tutor.language }}</a>
       </div>
       <div align="left">
-        <b style="color: cornsilk; overflow: hidden">Distribution:</b>
+        <b style="color: cornsilk; overflow: hidden">{{ loc_distribution }}:</b>
         <a class="text-link" href="/{{ ui_lang_code }}/?dist_type_code={{ tutor.dist_type_code }}">{{ tutor.dist_type }}</a>
       </div>
       <div align="left">
-        <b style="color: cornsilk; overflow: hidden">Source:</b> <a href="{{ tutor.source_link }}">{{ tutor.source_link }}</a>
+        <b style="color: cornsilk; overflow: hidden">{{ loc_source }}:</b> <a href="{{ tutor.source_link }}">{{ tutor.source_link }}</a>
       </div>
       <div style="display: flex; justify-content: right">
         <div style="padding-bottom: 10px; width: 100px; overflow: hidden; text-align: right">
-          <a href="/{{ ui_lang_code }}/user/{{ tutor.who_added_id }}" class="text-link">{{ tutor.who_added }}</a>
+          {% if tutor.who_added_is_active == true %}
+            <a href="/{{ ui_lang_code }}/user/{{ tutor.who_added_id }}" title="{{ loc_author }}" class="text-link">{{ tutor.who_added }}</a>
+          {% else %}
+            <span title="{{ loc_author }}">{{ tutor.who_added }}</span>
+          {% endif %}
         </div>
       </div>
     </div>
