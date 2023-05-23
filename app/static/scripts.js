@@ -29,6 +29,7 @@ function addNewTType() {
             document.getElementById("type-editor-form-default-value").value
         document.getElementById("t-lang-code-" + lang_code).value = lang_code
         document.getElementById("t-type-code-" + lang_code).value = "";
+        document.getElementById("type-editor-form-deleter").action = ""
     }
 }
 
@@ -51,11 +52,12 @@ function changeTTypeAdmin(elem_id, ui_lang_code) {
         document.getElementById("t-type-code-" + lang_code).value = "";
         document.getElementById("t-type-code-" + lang_code).value = type_code;
 
-    document.getElementById("t-type-value").innerText
-        = document.getElementById("type-value-" + ui_lang_code + "-" + type_code).innerText.trim();
-    document.getElementById("tutor-types-dropdown").classList.remove("active");
-    document.getElementById("delete-type-button").style.display = "block"
-    document.getElementById("delete-type-button").formAction = type_code + "/del"
+        document.getElementById("t-type-value").innerText
+            = document.getElementById("type-value-" + ui_lang_code + "-" + type_code).innerText.trim();
+        document.getElementById("tutor-types-dropdown").classList.remove("active");
+        document.getElementById("delete-type-button").style.display = "block"
+        document.getElementById("type-editor-form-deleter").action =
+            "/" + ui_lang_code + "/type/" + type_code + "/del"
     }
 }
 

@@ -111,12 +111,20 @@ async def get_all_types(db_session: DBSession, ui_lang_code: LangCode | None = N
 
     type_list = []
     for row in result.all():
-        type_list.append(
-            TypeSchema(
-                type_code=row.code,
-                lang_code=row.lang_code,
-                dict_value=row.value,
+        if ui_lang_code:
+            type_list.append(
+                TypeSchema(
+                    type_code=row.code,
+                    dict_value=row.value,
+                )
             )
-        )
+        else:
+            type_list.append(
+                TypeSchema(
+                    type_code=row.code,
+                    lang_code=row.lang_code,
+                    dict_value=row.value,
+                )
+            )
     if not type_list: raise CommonExceptions.NOTHING_FOUND
     return type_list
