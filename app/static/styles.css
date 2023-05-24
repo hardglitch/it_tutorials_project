@@ -172,3 +172,7 @@ input:invalid {
     margin-left: 20px;
     margin-right: 20px;
 }
+
+.button-section {
+    padding: 10px 0 10px 0;
+}

@@ -1,7 +1,7 @@
-<div style="padding-top: 10px">
+<div style="padding-top: 20px">
 
-    <details>
-        <summary style="padding-bottom: 10px;">
+    <details class="tutorial">
+        <summary style="padding: 10px 0 10px 0;">
             <span class="text-link" style="font-size: 20px; font-weight: bold;">
                 {{ loc_tutorial_types }}
             </span>
@@ -43,7 +43,7 @@
             {% endfor %}
         </div>
 
-          <div style="padding-top: 10px; display: flex; flex-direction: row; justify-content: space-around">
+          <div class="button-section">
               <div id="delete-type-button" style="display: none">
                 <form id="type-editor-form-deleter" action="" method="post">
                   <input type="submit" name="delete" class="button foil pulse" value="{{ loc_delete }}">
@@ -62,9 +62,10 @@
 
     </details>
 
+    <br>
 
-    <details>
-        <summary style="padding: 20px 0 10px 0;">
+    <details class="tutorial">
+        <summary style="padding: 10px 0 10px 0;">
             <span class="text-link" style="font-size: 20px; font-weight: bold;">
                 {{ loc_tutorial_themes }}
             </span>
@@ -125,7 +126,7 @@
             </div>
         </div>
 
-          <div style="padding-top: 10px; display: flex; flex-direction: row; justify-content: space-around">
+          <div class="button-section">
               <div id="delete-theme-button" style="display: none">
                 <form id="theme-editor-form-deleter" action="" method="post">
                   <input type="submit" name="delete" class="button foil pulse" value="{{ loc_delete }}">
@@ -145,6 +146,69 @@
 
     </details>
 
+    <br>
+
+    <details class="tutorial">
+        <summary style="padding: 10px 0 10px 0;">
+            <span class="text-link" style="font-size: 20px; font-weight: bold;">
+                {{ loc_tutorial_dist_types }}
+            </span>
+        </summary>
+
+        <div style="display: flex; flex-direction: column">
+            <div class="dropdown input-field" style="width: 90%; margin: 0 0 5px 15px;" id="tutor-dist-types-dropdown">
+
+                <div id="t-dist-type-value" class="text-link" onclick=setDropdown("tutor-dist-types-dropdown") style="font-size: 16px">* {{ loc_add_new_dist_type }} *</div>
+
+                <div class="content" style="width: 90%; transform: translate(8px, 0) scale(1)">
+                    <div style="padding: 2px 0 2px 0;">
+                        <span class="text-link" id="t-dist-type-new" onclick="addNewTDistType()">* {{ loc_add_new_dist_type }} *</span><br>
+                    </div>
+
+                    {% for dist_type in tutor_dist_types %}
+                        {% if dist_type.lang_code == ui_lang_code %}
+                            <div class="text-link" id="t-dist-type-{{ dist_type.dist_type_code }}" onclick="changeTDistTypeAdmin(this.id, {{ ui_lang_code }})">
+                                {{ dist_type.dict_value }}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+            </div>
+
+            {% for lang in ui_langs %}
+            <form id="dist-type-editor-form-{{ lang.lang_code }}" action="/{{ ui_lang_code }}/dist-type/add" method="post">
+                  <input id="t-dist-type-code-{{ lang.lang_code }}" type="hidden" name="dist_type_code" value="" required>
+                  <input id="dist-type-lang-code-{{ lang.lang_code }}" type="hidden" name="lang_code" value="{{ lang.lang_code }}" required>
+
+                  <label style="width: 20%">{{ lang.abbreviation.upper() }}
+                    <input class="input-field" style="width: 50%; text-align: center" name="dist_type_value" id="dist-type-value-{{ lang.lang_code }}"
+                           type="text" placeholder="{{ lang.lang_value }} (1-100)" value="" required>
+
+                    <input id="submit-dist-type-button-{{ lang.lang_code }}" type="submit" class="button foil pulse" name="submit" value="{{ loc_add_new }}">
+                  </label>
+            </form>
+            {% endfor %}
+        </div>
+
+          <div class="button-section">
+              <div id="delete-dist-type-button" style="display: none">
+                <form id="dist-type-editor-form-deleter" action="" method="post">
+                  <input type="submit" name="delete" class="button foil pulse" value="{{ loc_delete }}">
+                </form>
+              </div>
+          </div>
+
+
+        <!--        buffer-->
+        <div style="display: none">
+            {% for dist_type in tutor_dist_types %}
+                <span id="dist-type-value-{{ dist_type.lang_code }}-{{ dist_type.dist_type_code }}">{{ dist_type.dict_value }}</span>
+            {% endfor %}
+            <input type="hidden" id="dist-type-editor-form-default-value" value="/{{ ui_lang_code }}/dist-type/add">
+        </div>
+
+    </details>
 
 <!--     common buffer-->
     <div style="display: none">

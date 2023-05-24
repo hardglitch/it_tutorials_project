@@ -94,8 +94,11 @@ function changeTThemeAdmin(elem_id, ui_lang_code, type_code) {
     for (i=0; i<ui_langs.length; i++) {
         let lang_code = ui_langs[i].id.split("-").pop();
         document.getElementById("theme-value-" + lang_code).value = "";
-        document.getElementById("theme-value-" + lang_code).value =
-            document.getElementById("theme-value-" + lang_code + "-" + theme_code).innerText.trim();
+        try {
+            document.getElementById("theme-value-" + lang_code).value =
+                document.getElementById("theme-value-" + lang_code + "-" + theme_code).innerText.trim();
+        }
+        catch (TypeError) {}
 
         document.getElementById("submit-theme-button-" + lang_code).value =
             document.getElementById("save-button-value").innerText.trim();
@@ -116,4 +119,55 @@ function changeTThemeAdmin(elem_id, ui_lang_code, type_code) {
     }
     document.getElementById("bounded-t-type-value").innerText =
         document.getElementById("bounded-t-type-" + type_code).innerText.trim();
+}
+
+function addNewTDistType() {
+    document.getElementById("t-dist-type-value").innerText = document.getElementById("t-dist-type-new").innerText.trim();
+    document.getElementById("tutor-dist-types-dropdown").classList.remove("active");
+    document.getElementById("delete-dist-type-button").style.display = "none";
+
+    let dist_type_values = document.querySelectorAll('[id^="dist-type-value-"]');
+    for (i=0; i<dist_type_values.length; i++) {
+        dist_type_values[i].value = "";
+    }
+
+    let ui_langs = document.querySelectorAll('[id^="ui-lang-"]');
+    for (i=0; i<ui_langs.length; i++) {
+        let lang_code = ui_langs[i].id.split("-").pop();
+        document.getElementById("submit-dist-type-button-" + lang_code).value =
+            document.getElementById("add-new-button-value").innerText.trim();
+        document.getElementById("dist-type-editor-form-" + lang_code).action =
+            document.getElementById("dist-type-editor-form-default-value").value;
+        document.getElementById("dist-type-lang-code-" + lang_code).value = lang_code;
+        document.getElementById("t-dist-type-code-" + lang_code).value = "";
+        document.getElementById("dist-type-editor-form-deleter").action = "";
+    }
+}
+
+function changeTDistTypeAdmin(elem_id, ui_lang_code) {
+    let dist_type_code = elem_id.split("-").pop();
+    let ui_langs = document.querySelectorAll('[id^="ui-lang-"]');
+
+    for (i=0; i<ui_langs.length; i++) {
+        let lang_code = ui_langs[i].id.split("-").pop();
+        document.getElementById("dist-type-value-" + lang_code).value = "";
+        document.getElementById("dist-type-value-" + lang_code).value =
+            document.getElementById("dist-type-value-" + lang_code + "-" + dist_type_code).innerText.trim();
+
+        document.getElementById("submit-dist-type-button-" + lang_code).value =
+            document.getElementById("save-button-value").innerText.trim();
+        document.getElementById("dist-type-editor-form-" + lang_code).action =
+            "/" + ui_lang_code + "/dist-type/" + dist_type_code + "/edit";
+        document.getElementById("dist-type-lang-code-" + lang_code).value = lang_code;
+
+        document.getElementById("t-dist-type-code-" + lang_code).value = "";
+        document.getElementById("t-dist-type-code-" + lang_code).value = dist_type_code;
+
+        document.getElementById("t-dist-type-value").innerText
+            = document.getElementById("dist-type-value-" + ui_lang_code + "-" + dist_type_code).innerText.trim();
+        document.getElementById("tutor-dist-types-dropdown").classList.remove("active");
+        document.getElementById("delete-dist-type-button").style.display = "block";
+        document.getElementById("dist-type-editor-form-deleter").action =
+            "/" + ui_lang_code + "/dist-type/" + dist_type_code + "/del";
+    }
 }

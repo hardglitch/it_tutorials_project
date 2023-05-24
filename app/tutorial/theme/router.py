@@ -2,8 +2,6 @@ from typing import Annotated, List
 from fastapi import APIRouter, Depends, Form, Path
 from starlette import status
 from starlette.responses import RedirectResponse, Response
-
-from ...common.responses import ResponseSchema
 from ...db import DBSession
 from ...dictionary.schemas import DictWordCode, ValidDictValue
 from ...language.schemas import LangCode

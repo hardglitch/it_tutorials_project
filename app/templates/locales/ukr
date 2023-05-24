@@ -34,5 +34,7 @@
   "loc_add_new_theme": "ДОДАТИ НОВУ ТЕМУ",
   "loc_add_new_type": "ДОДАТИ НОВИЙ ТИП",
   "loc_tutorial_types": "Типи / Категорії",
-  "loc_tutorial_themes": "Теми"
+  "loc_tutorial_themes": "Теми",
+  "loc_tutorial_dist_types": "Тип Розподілу",
+  "loc_add_new_dist_type": "ДОДАТИ НОВИЙ ТИП"
 }

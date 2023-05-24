@@ -1,6 +1,6 @@
 from typing import List
 from sqlalchemy import Result, Row, ScalarResult, and_, delete, func, select, update
-from ...common.exceptions import CommonExceptions
+from ...common.exceptions import CommonExceptions, DatabaseExceptions
 from ...common.responses import CommonResponses, ResponseSchema
 from ...db import DBSession
 from ...dictionary.models import DictionaryModel
@@ -14,6 +14,13 @@ from ...tutorial.dist_type.schemas import DistTypeCode, DistTypeSchema
 @db_checker()
 async def add_dist_type(dist_type: DictionarySchema, db_session: DBSession) -> ResponseSchema:
     if not dist_type.word_code:
+        result: Result = await db_session.execute(
+            select(DictionaryModel.lang_code, DictionaryModel.value)
+        )
+        for row in result.all():
+            if row.lang_code == dist_type.lang_code and row.value == dist_type.dict_value:
+                raise DatabaseExceptions.DUPLICATED_ENTRY
+
         result: ScalarResult = await db_session.scalars(func.max(DictionaryModel.word_code))
         max_word_code: int | None = result.one_or_none()
         dist_type.word_code = max_word_code + 1 if max_word_code else 1
@@ -88,21 +95,43 @@ async def get_dist_type(dist_type_code: DistTypeCode, ui_lang_code: LangCode, db
 
 
 @db_checker()
-async def get_all_dist_types(ui_lang_code: LangCode, db_session: DBSession) -> List[DistTypeSchema]:
-    result: Result = await db_session.execute(
-        select(DistTypeModel.code, DictionaryModel.value)
-        .distinct(DictionaryModel.value)
-        .where(and_(DistTypeModel.word_code == DictionaryModel.word_code, DictionaryModel.lang_code == ui_lang_code))
-        .order_by(DictionaryModel.value)
-    )
+async def get_all_dist_types(db_session: DBSession, ui_lang_code: LangCode | None = None) -> List[DistTypeSchema]:
+    if ui_lang_code:
+        result: Result = await db_session.execute(
+            select(DistTypeModel.code, DictionaryModel.value)
+            .distinct(DictionaryModel.value)
+            .where(and_(
+                DistTypeModel.word_code == DictionaryModel.word_code,
+                DictionaryModel.lang_code == ui_lang_code
+            ))
+            .order_by(DictionaryModel.value)
+        )
+    else:
+        result: Result = await db_session.execute(
+            select(DistTypeModel.code, DictionaryModel.lang_code, DictionaryModel.value)
+            .distinct(DictionaryModel.value)
+            .where(and_(
+                DistTypeModel.word_code == DictionaryModel.word_code,
+            ))
+            .order_by(DictionaryModel.value)
+        )
 
     dist_type_list = []
     for row in result.all():
-        dist_type_list.append(
-            DistTypeSchema(
-                dist_type_code=row.code,
-                dict_value=row.value
+        if ui_lang_code:
+            dist_type_list.append(
+                DistTypeSchema(
+                    dist_type_code=row.code,
+                    dict_value=row.value
+                )
             )
-        )
+        else:
+            dist_type_list.append(
+                DistTypeSchema(
+                    dist_type_code=row.code,
+                    lang_code=row.lang_code,
+                    dict_value=row.value
+                )
+            )
     if not dist_type_list: raise CommonExceptions.NOTHING_FOUND
     return dist_type_list
