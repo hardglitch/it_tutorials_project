@@ -99,7 +99,10 @@ async def get_all_types(db_session: DBSession, ui_lang_code: LangCode | None = N
     if ui_lang_code:
         result: Result = await db_session.execute(
             select(TypeModel.code, DictionaryModel.value)
-            .where(and_(TypeModel.word_code == DictionaryModel.word_code, DictionaryModel.lang_code == ui_lang_code))
+            .where(and_(
+                TypeModel.word_code == DictionaryModel.word_code,
+                DictionaryModel.lang_code == ui_lang_code
+            ))
             .order_by(DictionaryModel.value)
         )
     else:

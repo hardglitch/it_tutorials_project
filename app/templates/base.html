@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="en-US">
+<html lang="{{ loc_page_language }}">
 
 <head>
     <meta charset="UTF-8" name="viewport" content="width=device-width, height=device-height, initial-scale=1">
     <link rel="stylesheet" href="/static/styles.css">
     <title>Tutorials</title>
     <script src="/static/scripts.js"></script>
+    {% if admin_js == true %}<script src="/static/admin.js"></script>{% endif %}
 </head>
 
 <body onload="getAllowedThemes({% if tutor %}{{ tutor.type_code }}{% endif %})">

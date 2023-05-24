@@ -9,6 +9,8 @@ from app.db import DBSession
 from app.language.crud import UILangCode, get_all_ui_langs
 from app.language.schemas import LanguageSchema
 from app.templates.render import render_template
+from app.tutorial.theme.crud import get_all_themes
+from app.tutorial.theme.schemas import ThemeSchema
 from app.tutorial.type.crud import get_all_types
 from app.tutorial.type.schemas import TypeSchema
 from app.user.auth import is_admin
@@ -29,10 +31,15 @@ async def admin(ui_lang_code: UILangCode, db_session: DBSession, request: Reques
         tutor_types: List[TypeSchema] = await get_all_types(
             db_session=db_session,
         )
+        tutor_themes: List[ThemeSchema] = await get_all_themes(
+            db_session=db_session,
+        )
         page_vars = {
             PageVars.page: PageVars.Page.admin,
             PageVars.ui_lang_code: ui_lang_code,
+            "admin_js": True,
             "tutor_types": tutor_types,
+            "tutor_themes": tutor_themes,
         }
         return await render_template(
             request=request,
