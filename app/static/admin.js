@@ -220,3 +220,31 @@ function changeTDistTypeAdmin(elem_id, ui_lang_code) {
             "/" + ui_lang_code + "/dist-type/" + dist_type_code + "/del";
     }
 }
+
+function addNewTLanguage() {
+    document.getElementById("t-lang-value").innerText = document.getElementById("t-lang-new").innerText.trim();
+    document.getElementById("tutorial-langs-dropdown").classList.remove("active");
+    document.getElementById("delete-lang-button").style.display = "none";
+    document.getElementById("tutorial-lang-code").value = "";
+    document.getElementById("tutorial-lang-value").value = "";
+    document.getElementById("submit-lang-button").value =
+        document.getElementById("add-new-button-value").innerText.trim();
+    document.getElementById("lang-editor-form").action =
+        document.getElementById("lang-editor-form-default-value").value;
+    document.getElementById("lang-editor-form-deleter").action = "";
+}
+
+function changeTLanguageAdmin(elem_id, ui_lang_code) {
+    let lang_code = elem_id.split("-").pop();
+    document.getElementById("tutorial-lang-code").value = lang_code;
+    document.getElementById("tutorial-lang-value").value = document.getElementById(elem_id).innerText.trim();
+    document.getElementById("t-lang-value").innerText = document.getElementById(elem_id).innerText.trim();
+    document.getElementById("submit-lang-button").value =
+            document.getElementById("save-button-value").innerText.trim();
+    document.getElementById("lang-editor-form").action =
+        "/" + ui_lang_code + "/lang/" + lang_code + "/edit";
+    document.getElementById("tutorial-langs-dropdown").classList.remove("active");
+    document.getElementById("delete-lang-button").style.display = "block";
+    document.getElementById("lang-editor-form-deleter").action =
+        "/" + ui_lang_code + "/lang/" + lang_code + "/del";
+}
