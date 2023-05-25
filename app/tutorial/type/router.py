@@ -22,7 +22,7 @@ async def add_tutorial_type(
         type_value: Annotated[ValidDictValue, Form()],
         ui_lang_code: UILangCode,
         db_session: DBSession,
-        word_code: DictWordCode | None = Form(None),
+        word_code: DictWordCode | None = Form(default=None),
 ) -> Response:
 
     if await add_type(

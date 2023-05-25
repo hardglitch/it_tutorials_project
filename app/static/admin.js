@@ -1,3 +1,12 @@
+function Test() {
+    let fdata = new FormData(document.forms.namedItem("type-editor-form-26"))
+    alert(document.getElementById("type-editor-form-26").action)
+    // alert(fdata.get("word_code"))
+    // alert(fdata.get("type_code"))
+    // alert(fdata.get("lang_code"))
+    // alert(fdata.get("type_value"))
+}
+
 function addNewTType() {
     document.getElementById("t-type-value").innerText = document.getElementById("t-type-new").innerText.trim();
     document.getElementById("tutor-types-dropdown").classList.remove("active");
@@ -17,6 +26,7 @@ function addNewTType() {
             document.getElementById("type-editor-form-default-value").value;
         document.getElementById("t-lang-code-" + lang_code).value = lang_code;
         document.getElementById("t-type-code-" + lang_code).value = "";
+        document.getElementById("t-type-word-code-" + lang_code).value = "";
         document.getElementById("type-editor-form-deleter").action = "";
     }
 }
@@ -27,14 +37,29 @@ function changeTTypeAdmin(elem_id, ui_lang_code) {
 
     for (i=0; i<ui_langs.length; i++) {
         let lang_code = ui_langs[i].id.split("-").pop();
+
         document.getElementById("type-value-" + lang_code).value = "";
-        document.getElementById("type-value-" + lang_code).value =
-            document.getElementById("type-value-" + lang_code + "-" + type_code).innerText.trim();
+        try {
+            document.getElementById("type-value-" + lang_code).value =
+                document.getElementById("type-value-" + lang_code + "-" + type_code).innerText.trim();
+        }
+        catch (TypeError) {}
+
+        document.getElementById("t-type-word-code-" + lang_code).value = "";
+        try {
+            document.getElementById("t-type-word-code-" + lang_code).value =
+                document.getElementById("type-word-code-" + lang_code + "-" + type_code).innerText.trim();
+        }
+        catch (TypeError) {}
 
         document.getElementById("submit-type-button-" + lang_code).value =
-            document.getElementById("save-button-value").innerText.trim();
+            (document.getElementById("type-value-" + lang_code).value !== "")
+                ? document.getElementById("save-button-value").innerText.trim()
+                : document.getElementById("add-new-button-value").innerText.trim()
+
         document.getElementById("type-editor-form-" + lang_code).action =
             "/" + ui_lang_code + "/type/" + type_code + "/edit";
+
         document.getElementById("t-lang-code-" + lang_code).value = lang_code;
 
         document.getElementById("t-type-code-" + lang_code).value = "";
@@ -42,6 +67,7 @@ function changeTTypeAdmin(elem_id, ui_lang_code) {
 
         document.getElementById("t-type-value").innerText
             = document.getElementById("type-value-" + ui_lang_code + "-" + type_code).innerText.trim();
+
         document.getElementById("tutor-types-dropdown").classList.remove("active");
         document.getElementById("delete-type-button").style.display = "block";
         document.getElementById("type-editor-form-deleter").action =
@@ -101,24 +127,35 @@ function changeTThemeAdmin(elem_id, ui_lang_code, type_code) {
         catch (TypeError) {}
 
         document.getElementById("submit-theme-button-" + lang_code).value =
-            document.getElementById("save-button-value").innerText.trim();
+            (document.getElementById("theme-value-" + lang_code).value !== "")
+                ? document.getElementById("save-button-value").innerText.trim()
+                : document.getElementById("add-new-button-value").innerText.trim()
+
         document.getElementById("theme-editor-form-" + lang_code).action =
             "/" + ui_lang_code + "/theme/" + theme_code + "/edit";
+
         document.getElementById("theme-lang-code-" + lang_code).value = lang_code;
 
         document.getElementById("t-theme-code-" + lang_code).value = "";
         document.getElementById("t-theme-code-" + lang_code).value = theme_code;
 
-        document.getElementById("t-theme-value").innerText
-            = document.getElementById("theme-value-" + ui_lang_code + "-" + theme_code).innerText.trim();
+        try {
+            document.getElementById("t-theme-value").innerText
+                = document.getElementById("theme-value-" + ui_lang_code + "-" + theme_code).innerText.trim();
+        }
+        catch (TypeError) {}
+
         document.getElementById("tutor-themes-dropdown").classList.remove("active");
         document.getElementById("delete-theme-button").style.display = "block";
         document.getElementById("theme-editor-form-deleter").action =
             "/" + ui_lang_code + "/theme/" + theme_code + "/del";
         document.getElementById("bounded-t-type-code-" + lang_code).value = type_code;
     }
-    document.getElementById("bounded-t-type-value").innerText =
-        document.getElementById("bounded-t-type-" + type_code).innerText.trim();
+    try {
+        document.getElementById("bounded-t-type-value").innerText =
+            document.getElementById("bounded-t-type-" + type_code).innerText.trim();
+    }
+    catch (TypeError) {}
 }
 
 function addNewTDistType() {
@@ -151,20 +188,32 @@ function changeTDistTypeAdmin(elem_id, ui_lang_code) {
     for (i=0; i<ui_langs.length; i++) {
         let lang_code = ui_langs[i].id.split("-").pop();
         document.getElementById("dist-type-value-" + lang_code).value = "";
-        document.getElementById("dist-type-value-" + lang_code).value =
-            document.getElementById("dist-type-value-" + lang_code + "-" + dist_type_code).innerText.trim();
+        try {
+            document.getElementById("dist-type-value-" + lang_code).value =
+                document.getElementById("dist-type-value-" + lang_code + "-" + dist_type_code).innerText.trim();
+        }
+        catch (TypeError) {}
 
         document.getElementById("submit-dist-type-button-" + lang_code).value =
-            document.getElementById("save-button-value").innerText.trim();
+            (document.getElementById("dist-type-value-" + lang_code).value !== "")
+                ? document.getElementById("save-button-value").innerText.trim()
+                : document.getElementById("add-new-button-value").innerText.trim()
+
         document.getElementById("dist-type-editor-form-" + lang_code).action =
-            "/" + ui_lang_code + "/dist-type/" + dist_type_code + "/edit";
+            "/" + ui_lang_code + "/dist-type/" + dist_type_code + "/edit"
+
         document.getElementById("dist-type-lang-code-" + lang_code).value = lang_code;
 
         document.getElementById("t-dist-type-code-" + lang_code).value = "";
         document.getElementById("t-dist-type-code-" + lang_code).value = dist_type_code;
 
-        document.getElementById("t-dist-type-value").innerText
-            = document.getElementById("dist-type-value-" + ui_lang_code + "-" + dist_type_code).innerText.trim();
+        document.getElementById("t-dist-type-value").innerText = ""
+        try {
+            document.getElementById("t-dist-type-value").innerText
+                = document.getElementById("dist-type-value-" + ui_lang_code + "-" + dist_type_code).innerText.trim();
+        }
+        catch (TypeError) {}
+
         document.getElementById("tutor-dist-types-dropdown").classList.remove("active");
         document.getElementById("delete-dist-type-button").style.display = "block";
         document.getElementById("dist-type-editor-form-deleter").action =

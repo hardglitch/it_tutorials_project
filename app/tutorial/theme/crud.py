@@ -51,10 +51,12 @@ async def edit_theme(theme: ThemeSchema, db_session: DBSession) -> ResponseSchem
     word_code: int = result.one()
 
     # update word in the 'dictionary' table
-    await db_session.execute(
-        update(DictionaryModel)
-        .where(and_(DictionaryModel.word_code == word_code, DictionaryModel.lang_code == theme.lang_code))
-        .values(value=theme.dict_value)
+    await db_session.merge(
+        DictionaryModel(
+            word_code=word_code,
+            lang_code=theme.lang_code,
+            value=theme.dict_value,
+        )
     )
 
     # update tutorial type code in the 'theme' table

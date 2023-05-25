@@ -36,5 +36,7 @@
   "loc_tutorial_types": "Типы / Категории",
   "loc_tutorial_themes": "Темы",
   "loc_tutorial_dist_types": "Тип Распространения",
-  "loc_add_new_dist_type": "ДОБАВИТЬ НОВЫЙ ТИП"
+  "loc_add_new_dist_type": "ДОБАВИТЬ НОВЫЙ ТИП",
+  "loc_languages": "Языки",
+  "loc_add_new_language": "Добавить новый язык"
 }

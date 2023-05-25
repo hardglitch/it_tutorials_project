@@ -6,7 +6,7 @@ from starlette.requests import Request
 from starlette.responses import RedirectResponse, Response
 from app.common.constants import PageVars
 from app.db import DBSession
-from app.language.crud import UILangCode, get_all_ui_langs
+from app.language.crud import UILangCode, get_all_langs, get_all_ui_langs
 from app.language.schemas import LanguageSchema
 from app.templates.render import render_template
 from app.tutorial.dist_type.crud import get_all_dist_types
@@ -39,6 +39,9 @@ async def admin(ui_lang_code: UILangCode, db_session: DBSession, request: Reques
         tutor_dist_types: List[DistTypeSchema] = await get_all_dist_types(
             db_session=db_session,
         )
+        tutor_langs: List[LanguageSchema] = await get_all_langs(
+            db_session=db_session,
+        )
         page_vars = {
             PageVars.page: PageVars.Page.admin,
             PageVars.ui_lang_code: ui_lang_code,
@@ -46,6 +49,7 @@ async def admin(ui_lang_code: UILangCode, db_session: DBSession, request: Reques
             "tutor_types": tutor_types,
             "tutor_themes": tutor_themes,
             "tutor_dist_types": tutor_dist_types,
+            "tutor_langs": tutor_langs,
         }
         return await render_template(
             request=request,

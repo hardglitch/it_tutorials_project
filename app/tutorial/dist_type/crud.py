@@ -48,11 +48,12 @@ async def edit_dist_type(dist_type: DistTypeSchema, db_session: DBSession) -> Re
         select(DistTypeModel.word_code).where(dist_type.dist_type_code == DistTypeModel.code)
     )
     word_code: int = result.one()
-
-    await db_session.execute(
-        update(DictionaryModel)
-        .where(and_(DictionaryModel.word_code == word_code, DictionaryModel.lang_code == dist_type.lang_code))
-        .values(value=dist_type.dict_value)
+    await db_session.merge(
+        DictionaryModel(
+            word_code=word_code,
+            lang_code=dist_type.lang_code,
+            value=dist_type.dict_value,
+        )
     )
     await db_session.commit()
     return CommonResponses.SUCCESS

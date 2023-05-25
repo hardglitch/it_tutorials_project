@@ -1,5 +1,5 @@
 from typing import List
-from sqlalchemy import Result, Row, ScalarResult, and_, delete, func, select, update
+from sqlalchemy import Result, Row, ScalarResult, and_, delete, func, insert, select, update
 from ...common.exceptions import CommonExceptions, DatabaseExceptions
 from ...common.responses import CommonResponses, ResponseSchema
 from ...db import DBSession
@@ -48,11 +48,12 @@ async def edit_type(tutor_type: TypeSchema, db_session: DBSession) -> ResponseSc
         select(TypeModel.word_code).where(tutor_type.type_code == TypeModel.code)
     )
     word_code: int = result.one()
-
-    await db_session.execute(
-        update(DictionaryModel)
-        .where(and_(DictionaryModel.word_code == word_code, DictionaryModel.lang_code == tutor_type.lang_code))
-        .values(value=tutor_type.dict_value)
+    await db_session.merge(
+        DictionaryModel(
+            word_code=word_code,
+            lang_code=tutor_type.lang_code,
+            value=tutor_type.dict_value,
+        )
     )
     await db_session.commit()
     return CommonResponses.SUCCESS
@@ -98,7 +99,7 @@ async def get_type(type_code: TypeCode, ui_lang_code: LangCode, db_session: DBSe
 async def get_all_types(db_session: DBSession, ui_lang_code: LangCode | None = None) -> List[TypeSchema]:
     if ui_lang_code:
         result: Result = await db_session.execute(
-            select(TypeModel.code, DictionaryModel.value)
+            select(TypeModel.code, DictionaryModel.word_code, DictionaryModel.value)
             .where(and_(
                 TypeModel.word_code == DictionaryModel.word_code,
                 DictionaryModel.lang_code == ui_lang_code
@@ -107,7 +108,7 @@ async def get_all_types(db_session: DBSession, ui_lang_code: LangCode | None = N
         )
     else:
         result: Result = await db_session.execute(
-            select(TypeModel.code, DictionaryModel.lang_code, DictionaryModel.value)
+            select(TypeModel.code, DictionaryModel.lang_code, DictionaryModel.word_code, DictionaryModel.value)
             .where(TypeModel.word_code == DictionaryModel.word_code)
             .order_by(DictionaryModel.value)
         )
@@ -119,6 +120,7 @@ async def get_all_types(db_session: DBSession, ui_lang_code: LangCode | None = N
                 TypeSchema(
                     type_code=row.code,
                     dict_value=row.value,
+                    word_code=row.word_code,
                 )
             )
         else:
@@ -127,6 +129,7 @@ async def get_all_types(db_session: DBSession, ui_lang_code: LangCode | None = N
                     type_code=row.code,
                     lang_code=row.lang_code,
                     dict_value=row.value,
+                    word_code=row.word_code,
                 )
             )
     if not type_list: raise CommonExceptions.NOTHING_FOUND
