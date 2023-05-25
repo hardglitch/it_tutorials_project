@@ -176,3 +176,12 @@ input:invalid {
 .button-section {
     padding: 10px 0 10px 0;
 }
+
+.hidden-message {
+    position: relative;
+    display: none;
+}
+
+.hidden-message.active {
+    display: inline-block;
+}

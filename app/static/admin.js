@@ -232,6 +232,8 @@ function addNewTLanguage() {
     document.getElementById("lang-editor-form").action =
         document.getElementById("lang-editor-form-default-value").value;
     document.getElementById("lang-editor-form-deleter").action = "";
+    document.getElementById("is-ui-lang").checked = false;
+    document.getElementById("ui-lang-ability-error").classList.remove("active");
 }
 
 function changeTLanguageAdmin(elem_id, ui_lang_code) {
@@ -247,4 +249,41 @@ function changeTLanguageAdmin(elem_id, ui_lang_code) {
     document.getElementById("delete-lang-button").style.display = "block";
     document.getElementById("lang-editor-form-deleter").action =
         "/" + ui_lang_code + "/lang/" + lang_code + "/del";
+
+    document.getElementById("is-ui-lang").checked =
+        document.getElementById("is-ui-lang-" + lang_code).innerText.trim() === "True";
+
+    let check = checkAbility();
+    document.getElementById("is-ui-lang").disabled = !check;
+    if (!check) {
+        document.getElementById("ui-lang-ability-error").classList.add("active");
+    } else {
+        document.getElementById("ui-lang-ability-error").classList.remove("active");
+    }
+}
+
+function checkAbility(elem_id) {
+    let lang_code = document.getElementById("tutorial-lang-code").value;
+
+    try {
+        let types = document.querySelectorAll('[id^="selector-t-type-"]');
+        for (i=0; i<types.length; i++) {
+            document.getElementById("type-value-" + lang_code + "-" +
+                types[i].id.split("-").pop()).innerText.trim();
+        }
+        let themes = document.querySelectorAll('[id^="selector-t-theme-"]');
+        for (i=0; i<themes.length; i++) {
+            document.getElementById("theme-value-" + lang_code + "-" +
+                themes[i].id.split("-").pop()).innerText.trim();
+        }
+        let dist_types = document.querySelectorAll('[id^="selector-t-dist-type-"]');
+        for (i=0; i<dist_types.length; i++) {
+            document.getElementById("dist-type-value-" + lang_code + "-" +
+                dist_types[i].id.split("-").pop()).innerText.trim();
+        }
+    }
+    catch (TypeError) {
+        return false
+    }
+    return true
 }

@@ -38,5 +38,7 @@
   "loc_tutorial_dist_types": "Тип Распространения",
   "loc_add_new_dist_type": "ДОБАВИТЬ НОВЫЙ ТИП",
   "loc_languages": "Языки",
-  "loc_add_new_language": "Добавить новый язык"
+  "loc_add_new_language": "Добавить новый язык",
+  "loc_set_ui_language": "Сделать языком интерфейса",
+  "loc_ui_lang_ability_error": "Не все Категории, Темы или Типы Распространения заполнены на этом языке!"
 }

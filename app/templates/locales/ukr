@@ -38,5 +38,7 @@
   "loc_tutorial_dist_types": "Тип Розподілу",
   "loc_add_new_dist_type": "ДОДАТИ НОВИЙ ТИП"б
   "loc_languages": "Мови",
-  "loc_add_new_language": "ДОДАТИ НОВУ МОВУ"
+  "loc_add_new_language": "ДОДАТИ НОВУ МОВУ",
+  "loc_set_ui_language": "Зробіти мовою інтерфейсу",
+  "loc_ui_lang_ability_error": "Не всі Категорії, Теми або Типи Розподілу заповнені цією мовою!"
 }
