@@ -19,13 +19,12 @@ function changeTType(elem_id) {
 }
 
 function changeTTheme(elem_id) {
-    console.log("1 - " + document.getElementById(elem_id).innerText.trim())
     document.getElementById("t-theme-value").innerText = document.getElementById(elem_id).innerText.trim();
     document.getElementById("t-theme-code").value = elem_id.split("-").pop();
     document.getElementById("tutor-themes-dropdown").classList.remove("active");
 }
 
-function getAllowedThemes(type_code = undefined) {
+function getAllowedThemes(type_code = undefined, set_default_theme = true) {
     if (type_code === undefined) {
         try {
             type_code = document.getElementById("t-type-code").value.trim()
@@ -41,7 +40,7 @@ function getAllowedThemes(type_code = undefined) {
     let first = false;
     for (i=0; i<divs.length; i++) {
         if (divs[i].id.startsWith("inherit-from-type-code-" + type_code)) {
-            if (first === false) {
+            if (first === false && set_default_theme === true) {
                 changeTTheme(divs[i].id)
                 first = true
             }

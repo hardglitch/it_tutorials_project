@@ -38,8 +38,12 @@
 
         <div class="dropdown input-field" style="width: 90%; margin-left: 15px; margin-top: 5px" id="tutor-themes-dropdown">
 
-            <div id="t-theme-value" class="text-link" onclick=setDropdown("tutor-themes-dropdown") style="font-size: 16px;"></div>
-            <input id="t-theme-code" type="hidden" name="theme_code" required value="">
+            <div id="t-theme-value" class="text-link" onclick=setDropdown("tutor-themes-dropdown") style="font-size: 16px;">
+                {% if tutor %}
+                    {{ tutor.theme }}
+                {% endif %}
+            </div>
+            <input id="t-theme-code" type="hidden" name="theme_code" required value="{% if tutor %}{{ tutor.theme_code }}{% endif %}">
 
             <div class="content" style="width: 90%; transform: translate(8px, 0) scale(1);">
             {% for theme in tutor_themes %}
@@ -79,7 +83,7 @@
 
             <div id="t-dist-type-value" class="text-link" onclick=setDropdown("tutor-dist-types-dropdown") style="font-size: 16px">
                 {% if tutor %}
-                    {{ tutor_dist_types[tutor.dist_type_code].dict_value }}
+                    {{ tutor.dist_type }}
                 {% else %}
                     {{ tutor_dist_types[0].dict_value }}
                 {% endif %}

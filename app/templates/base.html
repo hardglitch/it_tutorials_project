@@ -9,7 +9,7 @@
     {% if admin_js == true %}<script src="/static/admin.js"></script>{% endif %}
 </head>
 
-<body {% if admin_js != true %} onload="getAllowedThemes({% if tutor %}{{ tutor.type_code }}{% endif %})" {% endif %}>
+<body {% if admin_js != true %} onload="getAllowedThemes({% if tutor %}{{ tutor.type_code }}, set_default_theme = false {% endif %})" {% endif %}>
     <div align="center" class="main-container">
 
         {% if page != "exception" %}
