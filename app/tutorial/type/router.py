@@ -2,8 +2,6 @@ from typing import Annotated, List
 from fastapi import APIRouter, Depends, Form, Path
 from starlette import status
 from starlette.responses import RedirectResponse, Response
-
-from ...common.responses import ResponseSchema
 from ...db import DBSession
 from ...dictionary.schemas import DictWordCode, DictionarySchema, ValidDictValue
 from ...language.crud import UILangCode
@@ -24,7 +22,7 @@ async def add_tutorial_type(
         type_value: Annotated[ValidDictValue, Form()],
         ui_lang_code: UILangCode,
         db_session: DBSession,
-        word_code: DictWordCode | None = Form(None),
+        word_code: DictWordCode | None = Form(default=None),
 ) -> Response:
 
     if await add_type(

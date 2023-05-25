@@ -1,7 +1,7 @@
 from typing import List
 from sqlalchemy import Result, Row, ScalarResult, and_, delete, func, select, update
 from ..type.schemas import TypeCode
-from ...common.exceptions import CommonExceptions
+from ...common.exceptions import CommonExceptions, DatabaseExceptions
 from ...common.responses import CommonResponses, ResponseSchema
 from ...db import DBSession
 from ...dictionary.models import DictionaryModel
@@ -14,6 +14,13 @@ from ...tutorial.theme.schemas import ThemeSchema, ThemeCode
 @db_checker()
 async def add_theme(theme: ThemeSchema, db_session: DBSession) -> ResponseSchema:
     if not theme.word_code:
+        result: Result = await db_session.execute(
+            select(DictionaryModel.lang_code, DictionaryModel.value)
+        )
+        for row in result.all():
+            if row.lang_code == theme.lang_code and row.value == theme.dict_value:
+                raise DatabaseExceptions.DUPLICATED_ENTRY
+
         result: ScalarResult = await db_session.scalars(func.max(DictionaryModel.word_code))
         max_word_code: int | None = result.one_or_none()
         theme.word_code = max_word_code + 1 if max_word_code else 1
@@ -44,10 +51,12 @@ async def edit_theme(theme: ThemeSchema, db_session: DBSession) -> ResponseSchem
     word_code: int = result.one()
 
     # update word in the 'dictionary' table
-    await db_session.execute(
-        update(DictionaryModel)
-        .where(and_(DictionaryModel.word_code == word_code, DictionaryModel.lang_code == theme.lang_code))
-        .values(value=theme.dict_value)
+    await db_session.merge(
+        DictionaryModel(
+            word_code=word_code,
+            lang_code=theme.lang_code,
+            value=theme.dict_value,
+        )
     )
 
     # update tutorial type code in the 'theme' table
@@ -100,25 +109,53 @@ async def get_theme(theme_code: ThemeCode, ui_lang_code: LangCode, db_session: D
 
 
 @db_checker()
-async def get_all_themes(ui_lang_code: LangCode, db_session: DBSession) -> List[ThemeSchema]:
-    result: Result = await db_session.execute(
-        select(ThemeModel.code, ThemeModel.type_code, ThemeModel.word_code, DictionaryModel.value)
-        .where(and_(
-            ThemeModel.word_code == DictionaryModel.word_code,
-            DictionaryModel.lang_code == ui_lang_code
-        ))
-        .order_by(DictionaryModel.value)
-    )
+async def get_all_themes(db_session: DBSession, ui_lang_code: LangCode | None = None) -> List[ThemeSchema]:
+    if ui_lang_code:
+        result: Result = await db_session.execute(
+            select(
+                ThemeModel.code,
+                ThemeModel.type_code,
+                ThemeModel.word_code,
+                DictionaryModel.value
+            )
+            .where(and_(
+                ThemeModel.word_code == DictionaryModel.word_code,
+                DictionaryModel.lang_code == ui_lang_code
+            ))
+            .order_by(DictionaryModel.value)
+        )
+    else:
+        result: Result = await db_session.execute(
+            select(
+                ThemeModel.code,
+                ThemeModel.type_code,
+                ThemeModel.word_code,
+                DictionaryModel.lang_code,
+                DictionaryModel.value
+            )
+            .where(ThemeModel.word_code == DictionaryModel.word_code)
+            .order_by(DictionaryModel.value)
+        )
 
     theme_list = []
     for theme in result.all():
-        theme_list.append(
-            ThemeSchema(
-                theme_code=theme.code,
-                dict_value=theme.value,
-                type_code=theme.type_code,
+        if ui_lang_code:
+            theme_list.append(
+                ThemeSchema(
+                    theme_code=theme.code,
+                    dict_value=theme.value,
+                    type_code=theme.type_code,
+                )
             )
-        )
+        else:
+            theme_list.append(
+                ThemeSchema(
+                    theme_code=theme.code,
+                    dict_value=theme.value,
+                    lang_code=theme.lang_code,
+                    type_code=theme.type_code,
+                )
+            )
     if not theme_list: raise CommonExceptions.NOTHING_FOUND
     return theme_list
 

@@ -29,6 +29,14 @@
   "loc_save": "Зберегти",
   "loc_delete": "Видалити",
 
+  "loc_page_language": "uk-UA",
   "loc_admin_page": "Адмiнка",
-  "loc_add_new_type": "ДОДАТИ НОВИЙ ТИП"
+  "loc_add_new_theme": "ДОДАТИ НОВУ ТЕМУ",
+  "loc_add_new_type": "ДОДАТИ НОВИЙ ТИП",
+  "loc_tutorial_types": "Типи / Категорії",
+  "loc_tutorial_themes": "Теми",
+  "loc_tutorial_dist_types": "Тип Розподілу",
+  "loc_add_new_dist_type": "ДОДАТИ НОВИЙ ТИП"б
+  "loc_languages": "Мови",
+  "loc_add_new_language": "ДОДАТИ НОВУ МОВУ"
 }

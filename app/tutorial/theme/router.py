@@ -1,6 +1,7 @@
 from typing import Annotated, List
 from fastapi import APIRouter, Depends, Form, Path
-from ...common.responses import ResponseSchema
+from starlette import status
+from starlette.responses import RedirectResponse, Response
 from ...db import DBSession
 from ...dictionary.schemas import DictWordCode, ValidDictValue
 from ...language.schemas import LangCode
@@ -11,65 +12,71 @@ from ...tutorial.type.schemas import TypeCode
 from ...user.auth import is_admin
 
 
-theme_router = APIRouter(prefix="/theme", tags=["tutorial theme"])
+theme_router = APIRouter(prefix="", tags=["tutorial theme"])
 
 
-@theme_router.post("/add", dependencies=[Depends(is_admin)])
+@theme_router.post("/{ui_lang_code}/theme/add", dependencies=[Depends(is_admin)])
 @parameter_checker()
 async def add__theme(
         lang_code: Annotated[LangCode, Form()],
-        dict_value: Annotated[ValidDictValue, Form()],
+        theme_value: Annotated[ValidDictValue, Form()],
         type_code: Annotated[TypeCode, Form()],
+        ui_lang_code: Annotated[LangCode, Path()],
         db_session: DBSession,
         word_code: DictWordCode | None = Form(None),
-) -> ResponseSchema:
+) -> Response:
 
-    return await add_theme(
+    if await add_theme(
         ThemeSchema(
             word_code=word_code,
             lang_code=lang_code,
-            dict_value=dict_value,
+            dict_value=theme_value,
             type_code=type_code,
         ),
         db_session=db_session
-    )
+    ):
+        return RedirectResponse(url=f"/{ui_lang_code}/admin", status_code=status.HTTP_302_FOUND)
 
 
-@theme_router.post("/{theme_code}/edit", dependencies=[Depends(is_admin)])
+@theme_router.post("/{ui_lang_code}/theme/{theme_code}/edit", dependencies=[Depends(is_admin)])
 @parameter_checker()
 async def edit__theme(
         theme_code: Annotated[ThemeCode, Path()],
         lang_code: Annotated[LangCode, Form()],
-        dict_value: Annotated[ValidDictValue, Form()],
+        theme_value: Annotated[ValidDictValue, Form()],
         type_code: Annotated[TypeCode, Form()],
+        ui_lang_code: Annotated[LangCode, Path()],
         db_session: DBSession,
-) -> ResponseSchema:
+) -> Response:
 
-    return await edit_theme(
+    if await edit_theme(
         ThemeSchema(
             theme_code=theme_code,
             lang_code=lang_code,
-            dict_value=dict_value,
+            dict_value=theme_value,
             type_code=type_code,
         ),
         db_session=db_session
-    )
+    ):
+        return RedirectResponse(url=f"/{ui_lang_code}/admin", status_code=status.HTTP_302_FOUND)
 
 
-@theme_router.post("/{theme_code}/del", dependencies=[Depends(is_admin)])
+@theme_router.post("/{ui_lang_code}/theme/{theme_code}/del", dependencies=[Depends(is_admin)])
 @parameter_checker()
 async def delete__theme(
         theme_code: Annotated[ThemeCode, Path()],
+        ui_lang_code: Annotated[LangCode, Path()],
         db_session: DBSession,
-) -> ResponseSchema:
+) -> Response:
 
-    return await delete_theme(
+    if await delete_theme(
         theme_code=theme_code,
         db_session=db_session
-    )
+    ):
+        return RedirectResponse(url=f"/{ui_lang_code}/admin", status_code=status.HTTP_302_FOUND)
 
 
-@theme_router.get("/{theme_code}/{ui_lang_code}", response_model_exclude_none=True)
+@theme_router.get("/{ui_lang_code}/theme/{theme_code}/", response_model_exclude_none=True)
 @parameter_checker()
 async def get__theme(
         theme_code: Annotated[ThemeCode, Path()],
@@ -84,7 +91,7 @@ async def get__theme(
     )
 
 
-@theme_router.get("/", response_model_exclude_none=True)
+@theme_router.get("/{ui_lang_code}/theme", response_model_exclude_none=True)
 @parameter_checker()
 async def get__all_themes(
         ui_lang_code: Annotated[LangCode, Path()],
