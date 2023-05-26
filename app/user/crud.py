@@ -1,4 +1,6 @@
-from typing import List
+from typing import Annotated, List
+
+from fastapi import Form
 from sqlalchemy import Result, Row, select, update
 
 from .exceptions import UserExceptions
@@ -7,7 +9,7 @@ from ..common.exceptions import CommonExceptions
 from ..db import DBSession
 from ..tools import db_checker
 from ..user.auth import Credential, get_hashed_password
-from ..user.schemas import UserSchema, UserID
+from ..user.schemas import IsActive, UserSchema, UserID
 from ..user.models import UserModel
 
 
@@ -33,6 +35,26 @@ async def edit_user(user: UserSchema, db_session: DBSession) -> bool:
             name=user.name,
             email=user.email,
             hashed_password=get_hashed_password(user.password.get_secret_value())
+        )
+    )
+    await db_session.commit()
+    return True
+
+
+@db_checker()
+async def update_user_status(
+        user_id: UserID,
+        is_active: IsActive,
+        credential: Credential,
+        db_session: DBSession
+) -> bool:
+
+    await db_session.execute(
+        update(UserModel)
+        .where(UserModel.id == user_id)
+        .values(
+            is_active=is_active,
+            credential=credential,
         )
     )
     await db_session.commit()
@@ -94,13 +116,15 @@ async def get_all_users(db_session: DBSession) -> List[UserSchema]:
 
     users: List[UserSchema] = []
     for usr in result.all():
-        if not usr.is_active: continue
+        # if not usr.is_active: continue
         users.append(
             UserSchema(
                 id=usr.id,
                 name=usr.name,
+                credential=usr.credential,
                 decoded_credential=DecodedCredential(Credential(usr.credential).name),
                 rating=usr.rating,
+                is_active=usr.is_active,
             )
         )
     if not users: raise CommonExceptions.NOTHING_FOUND

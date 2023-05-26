@@ -288,7 +288,65 @@
 
     </details>
 
-    <br>
+    <br><br>
+
+    <div>
+        <div>
+            <div style="font-size: 20px; font-weight: bold;">{{ loc_users }}</div>
+        </div>
+
+        <div style="display: flex; flex-direction: row; justify-items: center;">
+            <div style="width: 5%; margin-top: 5px;" class="text-link" id="selector-user-sorting-by-name" title="{{ loc_sort }}"
+                 onclick="sortUsersBy(this.id, {{ ui_lang_code }})">&#9660;</div>
+            <div style="width: 45%; margin-top: 5px;" class="text-link" id="selector-user-sorting-by-credential" title="{{ loc_sort }}"
+                 onclick="sortUsersBy(this.id, {{ ui_lang_code }})">&#9660;</div>
+            <div style="width: 22%; margin-top: 5px;" class="text-link" id="selector-user-sorting-by-status" title="{{ loc_sort }}"
+                 onclick="sortUsersBy(this.id, {{ ui_lang_code }})">&#9660;</div>
+            <div style="width: 27%; display: flex; justify-content: right">
+<!--                <input id="submit-all-users-button" type="submit" class="button foil pulse" name="submit" value="{{ loc_batch_save }}">-->
+            </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; justify-content: center; padding-top: 10px;">
+            {% for user in users %}
+            <form id="user-editor-form-{{ user.id }}" action="/{{ ui_lang_code }}/user/{{ user.id }}/update-status" method="post">
+                <div style="display: flex; flex-direction: row; justify-content: center;">
+                    <input id="user-{{ user.id }}" type="hidden" name="id" value="{{ user.id }}" required>
+
+                    <div style="padding-top: 5px; width: 5%;">
+                        <input id="user-status-{{ user.id }}" name="is_active" type="hidden" value="{{ user.is_active }}">
+                        <div id="user-status-image-{{ user.id }}" class="user-status{% if user.is_active != True %} inactive{% endif %}" onclick="toggleUserStatus(this.id)" title="{{ loc_user_delete }}">&#9679;</div>
+                    </div>
+
+                    <div style="width: 42%; overflow: hidden; text-align: left; padding: 5px 5px 0 5px;" title="{{ user.name }}">{{ user.name }}</div>
+
+                    <input id="user-credential-{{ user.id }}" type="hidden" name="credential" value="{{ user.credential }}" required>
+                    <div class="dropdown" style="width: 25%; margin: 5px 0 5px 0;" id="user-credential-dropdown-{{ user.id }}">
+                        <div id="user-credential-value-{{ user.id }}" class="text-link" onclick=setDropdown("user-credential-dropdown-{{ user.id }}") style="font-size: 16px;">
+                            {{ user.decoded_credential }}
+                        </div>
+                        <div class="content" style="width: 90%; transform: translate(1.5%, 0) scale(1)">
+                            <div class="text-link" id="selector-user-credential-{{ user.id }}-{{ credential.user }}"
+                                 onclick="changeUserCredential(this.id)">{{ decoded_credential.user }}
+                            </div>
+                            <div class="text-link" id="selector-user-credential-{{ user.id }}-{{ credential.moderator }}"
+                                 onclick="changeUserCredential(this.id)">{{ decoded_credential.moderator }}
+                            </div>
+                            <div class="text-link" id="selector-user-credential-{{ user.id }}-{{ credential.admin }}"
+                                 onclick="changeUserCredential(this.id)">{{ decoded_credential.admin }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="width: 27%;">
+                        <input id="submit-user-button-{{ user.id }}" type="submit" class="button foil pulse" name="submit" value="{{ loc_save }}">
+                    </div>
+
+                </div>
+            </form>
+            {% endfor %}
+        </div>
+    </div>
 
     <!--     common buffer-->
     <div style="display: none">

@@ -1,11 +1,9 @@
-function Test() {
-    let fdata = new FormData(document.forms.namedItem("type-editor-form-26"))
-    alert(document.getElementById("type-editor-form-26").action)
-    // alert(fdata.get("word_code"))
-    // alert(fdata.get("type_code"))
-    // alert(fdata.get("lang_code"))
-    // alert(fdata.get("type_value"))
-}
+// function Test() {
+//     let fdata = new FormData(document.forms.namedItem("user-editor-form-52"))
+//     // alert(document.getElementById("user-editor-form-52").action)
+//     alert(fdata.get("is_active"))
+//     alert(fdata.get("credential"))
+// }
 
 function addNewTType() {
     document.getElementById("t-type-value").innerText = document.getElementById("t-type-new").innerText.trim();
@@ -286,4 +284,25 @@ function checkAbility(elem_id) {
         return false
     }
     return true
+}
+
+function toggleUserStatus(elem_id) {
+    let user_id = elem_id.split("-").pop();
+    if (document.getElementById(elem_id).classList[1]) {
+        document.getElementById(elem_id).classList.remove("inactive");
+        document.getElementById("user-status-" + user_id).value = "True";
+    }
+    else {
+        document.getElementById(elem_id).classList.add("inactive");
+        document.getElementById("user-status-" + user_id).value = "False";
+    }
+}
+
+function changeUserCredential(elem_id) {
+    let user_id = elem_id.split("-")[3];
+    let credential = elem_id.split("-").pop();
+    document.getElementById("user-credential-value-" + user_id).innerText =
+        document.getElementById(elem_id).innerText.trim();
+    document.getElementById("user-credential-" + user_id).value = credential;
+    document.getElementById("user-credential-dropdown-" + user_id).classList.remove("active");
 }

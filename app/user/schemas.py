@@ -50,17 +50,23 @@ class EmailSchema(BaseModel):
 EMail = Annotated[EmailStr, EmailSchema]
 
 
+class IsActiveSchema(BaseModel):
+    is_active: bool | None = None
+
+IsActive = Annotated[bool, EmailSchema]
+
+
 class UserSchema(
     IDSchema,
     UserNameSchema,
     PasswordSchema,
     EmailSchema,
     RatingSchema,
+    IsActiveSchema,
 ):
 
     credential: Credential | None = None
     decoded_credential: DecodedCredential | None = None
-    is_active: bool | None = None
 
 
 class TokenDataSchema(

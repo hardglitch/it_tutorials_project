@@ -5,14 +5,14 @@ from pydantic import SecretStr
 from starlette import status
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, RedirectResponse, Response
-from ..common.constants import AccessToken, PageVars
+from ..common.constants import AccessToken, Credential, PageVars
 from ..db import DBSession
 from ..language.crud import UILangCode
 from ..templates.render import render_template
 from ..tools import parameter_checker
-from ..user.auth import Token, authenticate_user, create_access_token, is_me_or_admin, get_token
-from ..user.crud import add_user, delete_user, edit_user, get_user
-from ..user.schemas import EMail, Password, UserID, UserSchema, ValidUserName
+from ..user.auth import Token, authenticate_user, create_access_token, is_admin, is_me_or_admin, get_token
+from ..user.crud import add_user, delete_user, edit_user, get_user, update_user_status
+from ..user.schemas import EMail, IsActive, Password, UserID, UserSchema, ValidUserName
 
 
 user_router = APIRouter(prefix="", tags=["user"])
@@ -112,6 +112,44 @@ async def edit__user(
         return RedirectResponse(url=f"/{ui_lang_code}/user/{user_id}", status_code=status.HTTP_303_SEE_OTHER)
 
 
+@user_router.post("/{ui_lang_code}/user/{user_id}/update-status", dependencies=[Depends(is_admin)])
+@parameter_checker()
+async def update__user_status(
+        user_id: UserID,
+        is_active: Annotated[IsActive, Form()],
+        credential: Annotated[Credential, Form()],
+        ui_lang_code: UILangCode,
+        db_session: DBSession,
+) -> Response:
+
+    if await update_user_status(
+        user_id=user_id,
+        is_active=is_active,
+        credential=credential,
+        db_session=db_session
+    ):
+        return RedirectResponse(url=f"/{ui_lang_code}/admin", status_code=status.HTTP_302_FOUND)
+
+
+@user_router.post("/{ui_lang_code}/user/update-status", dependencies=[Depends(is_admin)])
+@parameter_checker()
+async def update__user_status(
+        user_id: UserID,
+        is_active: Annotated[IsActive, Form()],
+        credential: Annotated[Credential, Form()],
+        ui_lang_code: UILangCode,
+        db_session: DBSession,
+) -> Response:
+
+    if await update_user_status(
+        user_id=user_id,
+        is_active=is_active,
+        credential=credential,
+        db_session=db_session
+    ):
+        return RedirectResponse(url=f"/{ui_lang_code}/admin", status_code=status.HTTP_302_FOUND)
+
+
 @user_router.post("/{ui_lang_code}/user/{user_id}/del", dependencies=[Depends(is_me_or_admin)])
 @parameter_checker()
 async def delete__user(
@@ -170,6 +208,7 @@ async def get__user(
         db_session=db_session,
         page_vars=page_vars,
     )
+
 
 # @user_router.get("/{ui_lang_code}/user/", response_model_exclude_none=True)
 # @parameter_checker()
