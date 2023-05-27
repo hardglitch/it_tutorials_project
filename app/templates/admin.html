@@ -295,17 +295,17 @@
             <div style="font-size: 20px; font-weight: bold;">{{ loc_users }}</div>
         </div>
 
-        <div style="display: flex; flex-direction: row; justify-items: center;">
-            <div style="width: 5%; margin-top: 5px;" class="text-link" id="selector-user-sorting-by-name" title="{{ loc_sort }}"
-                 onclick="sortUsersBy(this.id, {{ ui_lang_code }})">&#9660;</div>
-            <div style="width: 45%; margin-top: 5px;" class="text-link" id="selector-user-sorting-by-credential" title="{{ loc_sort }}"
-                 onclick="sortUsersBy(this.id, {{ ui_lang_code }})">&#9660;</div>
-            <div style="width: 22%; margin-top: 5px;" class="text-link" id="selector-user-sorting-by-status" title="{{ loc_sort }}"
-                 onclick="sortUsersBy(this.id, {{ ui_lang_code }})">&#9660;</div>
-            <div style="width: 27%; display: flex; justify-content: right">
+<!--        <div style="display: flex; flex-direction: row; justify-items: center;">-->
+<!--            <div style="width: 5%; margin-top: 5px;" class="text-link" id="selector-user-sorting-by-name" title="{{ loc_sort }}"-->
+<!--                 onclick="sortUsersBy(this.id, {{ ui_lang_code }})">&#9660;</div>-->
+<!--            <div style="width: 45%; margin-top: 5px;" class="text-link" id="selector-user-sorting-by-credential" title="{{ loc_sort }}"-->
+<!--                 onclick="sortUsersBy(this.id, {{ ui_lang_code }})">&#9660;</div>-->
+<!--            <div style="width: 22%; margin-top: 5px;" class="text-link" id="selector-user-sorting-by-status" title="{{ loc_sort }}"-->
+<!--                 onclick="sortUsersBy(this.id, {{ ui_lang_code }})">&#9660;</div>-->
+<!--            <div style="width: 27%; display: flex; justify-content: right">-->
 <!--                <input id="submit-all-users-button" type="submit" class="button foil pulse" name="submit" value="{{ loc_batch_save }}">-->
-            </div>
-        </div>
+<!--            </div>-->
+<!--        </div>-->
 
         <div style="display: flex; flex-direction: column; justify-content: center; padding-top: 10px;">
             {% for user in users %}
