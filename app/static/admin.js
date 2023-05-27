@@ -1,10 +1,3 @@
-// function Test() {
-//     let fdata = new FormData(document.forms.namedItem("user-editor-form-52"))
-//     // alert(document.getElementById("user-editor-form-52").action)
-//     alert(fdata.get("is_active"))
-//     alert(fdata.get("credential"))
-// }
-
 function addNewTType() {
     document.getElementById("t-type-value").innerText = document.getElementById("t-type-new").innerText.trim();
     document.getElementById("tutor-types-dropdown").classList.remove("active");

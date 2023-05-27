@@ -18,6 +18,7 @@ from app.user.auth import is_admin
 from app.user.crud import get_all_users
 from app.user.schemas import UserSchema
 
+
 admin_router = APIRouter(prefix="", tags=["ADMIN"])
 
 

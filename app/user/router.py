@@ -131,25 +131,6 @@ async def update__user_status(
         return RedirectResponse(url=f"/{ui_lang_code}/admin", status_code=status.HTTP_302_FOUND)
 
 
-@user_router.post("/{ui_lang_code}/user/update-status", dependencies=[Depends(is_admin)])
-@parameter_checker()
-async def update__user_status(
-        user_id: UserID,
-        is_active: Annotated[IsActive, Form()],
-        credential: Annotated[Credential, Form()],
-        ui_lang_code: UILangCode,
-        db_session: DBSession,
-) -> Response:
-
-    if await update_user_status(
-        user_id=user_id,
-        is_active=is_active,
-        credential=credential,
-        db_session=db_session
-    ):
-        return RedirectResponse(url=f"/{ui_lang_code}/admin", status_code=status.HTTP_302_FOUND)
-
-
 @user_router.post("/{ui_lang_code}/user/{user_id}/del", dependencies=[Depends(is_me_or_admin)])
 @parameter_checker()
 async def delete__user(
@@ -208,21 +189,3 @@ async def get__user(
         db_session=db_session,
         page_vars=page_vars,
     )
-
-
-# @user_router.get("/{ui_lang_code}/user/", response_model_exclude_none=True)
-# @parameter_checker()
-# async def get__all_users(ui_lang_code: UILangCode, db_session: DBSession) -> List[UserSchema]:
-#     users = await get_all_users(db_session=db_session)
-#
-#     return templates.TemplateResponse(
-#         name="profile.html",
-#         context={
-#             "request": request,
-#             "ui_lang_code": ui_lang_code,
-#             "auth": auth,
-#             "current_user": current_user_data,
-#             "userdata": userdata
-#         }
-#     )
-#
