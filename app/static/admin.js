@@ -1,12 +1,3 @@
-function Test() {
-    let fdata = new FormData(document.forms.namedItem("type-editor-form-26"))
-    alert(document.getElementById("type-editor-form-26").action)
-    // alert(fdata.get("word_code"))
-    // alert(fdata.get("type_code"))
-    // alert(fdata.get("lang_code"))
-    // alert(fdata.get("type_value"))
-}
-
 function addNewTType() {
     document.getElementById("t-type-value").innerText = document.getElementById("t-type-new").innerText.trim();
     document.getElementById("tutor-types-dropdown").classList.remove("active");
@@ -58,7 +49,7 @@ function changeTTypeAdmin(elem_id, ui_lang_code) {
                 : document.getElementById("add-new-button-value").innerText.trim()
 
         document.getElementById("type-editor-form-" + lang_code).action =
-            "/" + ui_lang_code + "/type/" + type_code + "/edit";
+            "/tp/" + ui_lang_code + "/" + type_code + "/edit";
 
         document.getElementById("t-lang-code-" + lang_code).value = lang_code;
 
@@ -71,7 +62,7 @@ function changeTTypeAdmin(elem_id, ui_lang_code) {
         document.getElementById("tutor-types-dropdown").classList.remove("active");
         document.getElementById("delete-type-button").style.display = "block";
         document.getElementById("type-editor-form-deleter").action =
-            "/" + ui_lang_code + "/type/" + type_code + "/del";
+            "/tp/" + ui_lang_code + "/" + type_code + "/del";
     }
 }
 
@@ -132,7 +123,7 @@ function changeTThemeAdmin(elem_id, ui_lang_code, type_code) {
                 : document.getElementById("add-new-button-value").innerText.trim()
 
         document.getElementById("theme-editor-form-" + lang_code).action =
-            "/" + ui_lang_code + "/theme/" + theme_code + "/edit";
+            "/th/" + ui_lang_code + "/" + theme_code + "/edit";
 
         document.getElementById("theme-lang-code-" + lang_code).value = lang_code;
 
@@ -148,7 +139,7 @@ function changeTThemeAdmin(elem_id, ui_lang_code, type_code) {
         document.getElementById("tutor-themes-dropdown").classList.remove("active");
         document.getElementById("delete-theme-button").style.display = "block";
         document.getElementById("theme-editor-form-deleter").action =
-            "/" + ui_lang_code + "/theme/" + theme_code + "/del";
+            "/th/" + ui_lang_code + "/" + theme_code + "/del";
         document.getElementById("bounded-t-type-code-" + lang_code).value = type_code;
     }
     try {
@@ -200,7 +191,7 @@ function changeTDistTypeAdmin(elem_id, ui_lang_code) {
                 : document.getElementById("add-new-button-value").innerText.trim()
 
         document.getElementById("dist-type-editor-form-" + lang_code).action =
-            "/" + ui_lang_code + "/dist-type/" + dist_type_code + "/edit"
+            "/dt/" + ui_lang_code + "/" + dist_type_code + "/edit"
 
         document.getElementById("dist-type-lang-code-" + lang_code).value = lang_code;
 
@@ -217,7 +208,7 @@ function changeTDistTypeAdmin(elem_id, ui_lang_code) {
         document.getElementById("tutor-dist-types-dropdown").classList.remove("active");
         document.getElementById("delete-dist-type-button").style.display = "block";
         document.getElementById("dist-type-editor-form-deleter").action =
-            "/" + ui_lang_code + "/dist-type/" + dist_type_code + "/del";
+            "/dt/" + ui_lang_code + "/" + dist_type_code + "/del";
     }
 }
 
@@ -232,6 +223,8 @@ function addNewTLanguage() {
     document.getElementById("lang-editor-form").action =
         document.getElementById("lang-editor-form-default-value").value;
     document.getElementById("lang-editor-form-deleter").action = "";
+    document.getElementById("is-ui-lang").checked = false;
+    document.getElementById("ui-lang-ability-error").classList.remove("active");
 }
 
 function changeTLanguageAdmin(elem_id, ui_lang_code) {
@@ -242,9 +235,67 @@ function changeTLanguageAdmin(elem_id, ui_lang_code) {
     document.getElementById("submit-lang-button").value =
             document.getElementById("save-button-value").innerText.trim();
     document.getElementById("lang-editor-form").action =
-        "/" + ui_lang_code + "/lang/" + lang_code + "/edit";
+        "/lng/" + ui_lang_code + "/" + lang_code + "/edit";
     document.getElementById("tutorial-langs-dropdown").classList.remove("active");
     document.getElementById("delete-lang-button").style.display = "block";
     document.getElementById("lang-editor-form-deleter").action =
-        "/" + ui_lang_code + "/lang/" + lang_code + "/del";
+        "/lng/" + ui_lang_code + "/" + lang_code + "/del";
+
+    document.getElementById("is-ui-lang").checked =
+        document.getElementById("is-ui-lang-" + lang_code).innerText.trim() === "True";
+
+    let check = checkAbility();
+    document.getElementById("is-ui-lang").disabled = !check;
+    if (!check) {
+        document.getElementById("ui-lang-ability-error").classList.add("active");
+    } else {
+        document.getElementById("ui-lang-ability-error").classList.remove("active");
+    }
+}
+
+function checkAbility(elem_id) {
+    let lang_code = document.getElementById("tutorial-lang-code").value;
+
+    try {
+        let types = document.querySelectorAll('[id^="selector-t-type-"]');
+        for (i=0; i<types.length; i++) {
+            document.getElementById("type-value-" + lang_code + "-" +
+                types[i].id.split("-").pop()).innerText.trim();
+        }
+        let themes = document.querySelectorAll('[id^="selector-t-theme-"]');
+        for (i=0; i<themes.length; i++) {
+            document.getElementById("theme-value-" + lang_code + "-" +
+                themes[i].id.split("-").pop()).innerText.trim();
+        }
+        let dist_types = document.querySelectorAll('[id^="selector-t-dist-type-"]');
+        for (i=0; i<dist_types.length; i++) {
+            document.getElementById("dist-type-value-" + lang_code + "-" +
+                dist_types[i].id.split("-").pop()).innerText.trim();
+        }
+    }
+    catch (TypeError) {
+        return false
+    }
+    return true
+}
+
+function toggleUserStatus(elem_id) {
+    let user_id = elem_id.split("-").pop();
+    if (document.getElementById(elem_id).classList[1]) {
+        document.getElementById(elem_id).classList.remove("inactive");
+        document.getElementById("user-status-" + user_id).value = "True";
+    }
+    else {
+        document.getElementById(elem_id).classList.add("inactive");
+        document.getElementById("user-status-" + user_id).value = "False";
+    }
+}
+
+function changeUserCredential(elem_id) {
+    let user_id = elem_id.split("-")[3];
+    let credential = elem_id.split("-").pop();
+    document.getElementById("user-credential-value-" + user_id).innerText =
+        document.getElementById(elem_id).innerText.trim();
+    document.getElementById("user-credential-" + user_id).value = credential;
+    document.getElementById("user-credential-dropdown-" + user_id).classList.remove("active");
 }

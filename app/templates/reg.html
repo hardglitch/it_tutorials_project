@@ -1,10 +1,10 @@
 <div class="reg">
-  <form action="/{{ ui_lang_code }}/user/add" method="post">
+  <form action="/usr/{{ ui_lang_code }}/add" method="post">
 
     <div>
 
       <label>
-        <input class="input-field" style="width: 90%" name="name" type="text" placeholder="Your_Name (1-256, {{ loc_no_spaces }})" required>
+        <input class="input-field" style="width: 90%" name="name" type="text" pattern="[a-zA-Z0-9_]*" placeholder="Your_Name (1-256, {{ loc_no_spaces }})" required>
       </label><br>
 
       <label>

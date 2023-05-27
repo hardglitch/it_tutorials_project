@@ -4,34 +4,26 @@ from pydantic import HttpUrl
 from starlette import status
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, RedirectResponse, Response
-from .dist_type.crud import get_all_dist_types
-from .theme.crud import get_all_allowed_themes, get_all_themes
-from .type.crud import get_all_types
-from ..common.constants import PageVars
+from ..common.constants import PAGINATION_OFFSET, PageVars
 from ..db import DBSession
-from ..language.crud import UILangCode, get_all_langs
-from ..language.schemas import LangCode, LanguageSchema
+from ..language.crud import UILangCode
+from ..language.schemas import LangCode
 from ..templates.render import render_template
 from ..tools import parameter_checker
 from ..tutorial.crud import add_tutorial, delete_tutorial, edit_tutorial, get_all_tutorials, get_tutorial, tutorial_page
-from ..tutorial.dist_type.router import dist_type_router
-from ..tutorial.dist_type.schemas import DistTypeCode, DistTypeSchema
-from ..tutorial.schemas import TutorialID, TutorialSchema, DecodedTutorialSchema, ValidDescription, ValidTitle
-from ..tutorial.theme.router import theme_router
-from ..tutorial.theme.schemas import ThemeCode, ThemeSchema
-from ..tutorial.type.router import type_router
-from ..tutorial.type.schemas import TypeCode, TypeSchema
+from ..tutorial.dist_type.schemas import DistTypeCode
+from ..tutorial.schemas import Pagination, TutorialID, TutorialListSchema, TutorialSchema, DecodedTutorialSchema, \
+    ValidDescription, ValidTitle
+from ..tutorial.theme.schemas import ThemeCode
+from ..tutorial.type.schemas import TypeCode
 from ..user.auth import decode_access_token, get_token, is_tutorial_editor
 
 
-tutorial_router = APIRouter(prefix="", tags=["tutorial"])
-tutorial_router.include_router(dist_type_router)
-tutorial_router.include_router(theme_router)
-tutorial_router.include_router(type_router)
+tutorial_router = APIRouter(prefix="/tt", tags=["Tutorial"])
 
 
-@tutorial_router.get("/{ui_lang_code}/tutorial/addp"
-    , response_model_exclude_none=True, response_class=HTMLResponse, dependencies=[Depends(get_token)])
+@tutorial_router.get("/{ui_lang_code}/addp",
+                     response_model_exclude_none=True, response_class=HTMLResponse, dependencies=[Depends(get_token)])
 @parameter_checker()
 async def add_tutorial_page(
         ui_lang_code: UILangCode,
@@ -46,7 +38,7 @@ async def add_tutorial_page(
     )
 
 
-@tutorial_router.post("/{ui_lang_code}/tutorial/add", response_model_exclude_none=True, dependencies=[Depends(get_token)])
+@tutorial_router.post("/{ui_lang_code}/add", response_model_exclude_none=True, dependencies=[Depends(get_token)])
 @parameter_checker()
 async def add__tutorial(
         title: Annotated[ValidTitle, Form()],
@@ -74,10 +66,10 @@ async def add__tutorial(
         ),
         db_session=db_session
     ):
-        return RedirectResponse(url=f"/{ui_lang_code}/tutorial/{tutor_id}", status_code=status.HTTP_303_SEE_OTHER)
+        return RedirectResponse(url=f"/tt/{ui_lang_code}/{tutor_id}", status_code=status.HTTP_303_SEE_OTHER)
 
 
-@tutorial_router.get("/{ui_lang_code}/tutorial/{tutor_id}/editp", response_model_exclude_none=True)
+@tutorial_router.get("/{ui_lang_code}/{tutor_id}/editp", response_model_exclude_none=True)
 @parameter_checker()
 async def edit_tutorial_page(
         tutor_id: Annotated[TutorialID, Depends(is_tutorial_editor)],
@@ -93,7 +85,7 @@ async def edit_tutorial_page(
     )
 
 
-@tutorial_router.post("/{ui_lang_code}/tutorial/{tutor_id}/edit", response_model_exclude_none=True)
+@tutorial_router.post("/{ui_lang_code}/{tutor_id}/edit", response_model_exclude_none=True)
 @parameter_checker()
 async def edit__tutorial(
         tutor_id: Annotated[TutorialID, Depends(is_tutorial_editor)],
@@ -121,10 +113,10 @@ async def edit__tutorial(
         ),
         db_session=db_session
     ):
-        return RedirectResponse(url=f"/{ui_lang_code}/tutorial/{tutor_id}", status_code=status.HTTP_303_SEE_OTHER)
+        return RedirectResponse(url=f"/tt/{ui_lang_code}/{tutor_id}", status_code=status.HTTP_303_SEE_OTHER)
 
 
-@tutorial_router.post("/{ui_lang_code}/tutorial/{tutor_id}/del")
+@tutorial_router.post("/{ui_lang_code}/{tutor_id}/del")
 @parameter_checker()
 async def delete__tutorial(
         tutor_id: Annotated[TutorialID, Depends(is_tutorial_editor)],
@@ -136,10 +128,10 @@ async def delete__tutorial(
         tutor_id=tutor_id,
         db_session=db_session
     ):
-        return RedirectResponse(url=f"/{ui_lang_code}", status_code=status.HTTP_302_FOUND)
+        return RedirectResponse(url=f"/tt/{ui_lang_code}", status_code=status.HTTP_302_FOUND)
 
 
-@tutorial_router.get("/{ui_lang_code}/tutorial/{tutor_id}", response_class=HTMLResponse, response_model_exclude_none=True)
+@tutorial_router.get("/{ui_lang_code}/{tutor_id}", response_class=HTMLResponse, response_model_exclude_none=True)
 @parameter_checker()
 async def get__tutorial(
         request: Request,
@@ -181,25 +173,29 @@ async def get__all_tutorials(
         request: Request,
         db_session: DBSession,
         ui_lang_code: UILangCode,
+        page: Pagination = 1,
         type_code: TypeCode | None = None,
         theme_code: ThemeCode | None = None,
         dist_type_code: DistTypeCode | None = None,
         tutor_lang_code: LangCode | None = None,
 ) -> Response:
 
-    tutors_list: List[DecodedTutorialSchema] = \
+    tutors_list: TutorialListSchema = \
         await get_all_tutorials(
             ui_lang_code=ui_lang_code,
             type_code=type_code,
             theme_code=theme_code,
             dist_type_code=dist_type_code,
             tutor_lang_code=tutor_lang_code,
+            page=page,
             db_session=db_session,
         )
     page_vars = {
         PageVars.page: PageVars.Page.main,
         PageVars.ui_lang_code: ui_lang_code,
-        "tutors": tutors_list,
+        "tutors": tutors_list.tutorials,
+        "current_page": page,
+        "is_next_page": True if (tutors_list.total_count / PAGINATION_OFFSET) - page > 0 else False,
     }
     return await render_template(
         request=request,

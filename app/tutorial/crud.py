@@ -1,10 +1,10 @@
 from typing import List
 from fastapi_cache.decorator import cache
 from pydantic import HttpUrl, parse_obj_as
-from sqlalchemy import ScalarResult, delete, select, update
+from sqlalchemy import ScalarResult, delete, func, select, update
 from starlette.requests import Request
 from starlette.responses import Response
-from ..common.constants import PageVars
+from ..common.constants import PAGINATION_OFFSET, PageVars
 from ..common.responses import CommonResponses, ResponseSchema
 from ..db import DBSession
 from ..language.crud import UILangCode, get_all_langs, get_lang
@@ -15,7 +15,7 @@ from ..tutorial.dist_type.crud import get_all_dist_types, get_dist_type
 from ..tutorial.dist_type.schemas import DistTypeCode, DistTypeSchema
 from ..tutorial.exceptions import TutorialExceptions
 from ..tutorial.models import TutorialModel
-from ..tutorial.schemas import DecodedTutorialSchema, TutorialID, TutorialSchema
+from ..tutorial.schemas import DecodedTutorialSchema, Pagination, TutorialID, TutorialListSchema, TutorialSchema
 from ..tutorial.theme.crud import get_all_themes, get_theme
 from ..tutorial.theme.schemas import ThemeCode, ThemeSchema
 from ..tutorial.type.crud import get_all_types, get_type
@@ -141,11 +141,15 @@ async def get_tutorial(
 async def get_all_tutorials(
         ui_lang_code: LangCode,
         db_session: DBSession,
+        page: Pagination,
         type_code: TypeCode | None = None,
         theme_code: ThemeCode | None = None,
         dist_type_code: DistTypeCode | None = None,
         tutor_lang_code: LangCode | None = None,
-) -> List[DecodedTutorialSchema]:
+) -> TutorialListSchema:
+
+    result: ScalarResult = await db_session.execute(select(func.count(TutorialModel.id)))
+    total_tutors: int = result.first()[0]
 
     if type_code:
         result: ScalarResult = await db_session.scalars(
@@ -168,7 +172,11 @@ async def get_all_tutorials(
             .where(TutorialModel.lang_code == tutor_lang_code)
         )
     else:
-        result: ScalarResult = await db_session.scalars(select(TutorialModel))
+        result: ScalarResult = await db_session.scalars(
+            select(TutorialModel)
+            .offset((page - 1) * PAGINATION_OFFSET)
+            .fetch(PAGINATION_OFFSET)
+        )
 
     tutors_list: List[DecodedTutorialSchema] = []
 
@@ -217,7 +225,10 @@ async def get_all_tutorials(
                 who_added_is_active=decoded_user.is_active,
             )
         )
-    return tutors_list
+    return TutorialListSchema(
+        tutorials=tutors_list,
+        total_count=total_tutors,
+    )
 
 
 @parameter_checker()

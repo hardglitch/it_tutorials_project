@@ -12,10 +12,10 @@ from ...tutorial.type.schemas import TypeCode
 from ...user.auth import is_admin
 
 
-theme_router = APIRouter(prefix="", tags=["tutorial theme"])
+theme_router = APIRouter(prefix="/th", tags=["Tutorial Theme / Topic"])
 
 
-@theme_router.post("/{ui_lang_code}/theme/add", dependencies=[Depends(is_admin)])
+@theme_router.post("/{ui_lang_code}/add", dependencies=[Depends(is_admin)])
 @parameter_checker()
 async def add__theme(
         lang_code: Annotated[LangCode, Form()],
@@ -35,10 +35,10 @@ async def add__theme(
         ),
         db_session=db_session
     ):
-        return RedirectResponse(url=f"/{ui_lang_code}/admin", status_code=status.HTTP_302_FOUND)
+        return RedirectResponse(url=f"/adm/{ui_lang_code}", status_code=status.HTTP_302_FOUND)
 
 
-@theme_router.post("/{ui_lang_code}/theme/{theme_code}/edit", dependencies=[Depends(is_admin)])
+@theme_router.post("/{ui_lang_code}/{theme_code}/edit", dependencies=[Depends(is_admin)])
 @parameter_checker()
 async def edit__theme(
         theme_code: Annotated[ThemeCode, Path()],
@@ -58,10 +58,10 @@ async def edit__theme(
         ),
         db_session=db_session
     ):
-        return RedirectResponse(url=f"/{ui_lang_code}/admin", status_code=status.HTTP_302_FOUND)
+        return RedirectResponse(url=f"/adm/{ui_lang_code}", status_code=status.HTTP_302_FOUND)
 
 
-@theme_router.post("/{ui_lang_code}/theme/{theme_code}/del", dependencies=[Depends(is_admin)])
+@theme_router.post("/{ui_lang_code}/{theme_code}/del", dependencies=[Depends(is_admin)])
 @parameter_checker()
 async def delete__theme(
         theme_code: Annotated[ThemeCode, Path()],
@@ -73,10 +73,10 @@ async def delete__theme(
         theme_code=theme_code,
         db_session=db_session
     ):
-        return RedirectResponse(url=f"/{ui_lang_code}/admin", status_code=status.HTTP_302_FOUND)
+        return RedirectResponse(url=f"/adm/{ui_lang_code}", status_code=status.HTTP_302_FOUND)
 
 
-@theme_router.get("/{ui_lang_code}/theme/{theme_code}/", response_model_exclude_none=True)
+@theme_router.get("/{ui_lang_code}/{theme_code}", response_model_exclude_none=True)
 @parameter_checker()
 async def get__theme(
         theme_code: Annotated[ThemeCode, Path()],
@@ -91,7 +91,7 @@ async def get__theme(
     )
 
 
-@theme_router.get("/{ui_lang_code}/theme", response_model_exclude_none=True)
+@theme_router.get("/{ui_lang_code}", response_model_exclude_none=True)
 @parameter_checker()
 async def get__all_themes(
         ui_lang_code: Annotated[LangCode, Path()],

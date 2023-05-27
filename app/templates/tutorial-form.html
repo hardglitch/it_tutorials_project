@@ -1,6 +1,6 @@
 <div style="padding-top: 10px;">
 
-  <form action="/{{ ui_lang_code }}/tutorial/{% if tutor %}{{ tutor.id }}/edit{% else %}add{% endif %}" method="post">
+  <form action="/tt/{{ ui_lang_code }}/{% if tutor %}{{ tutor.id }}/edit{% else %}add{% endif %}" method="post">
     <div style="display: flex; flex-direction: column">
 
       <label>

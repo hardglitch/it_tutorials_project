@@ -31,12 +31,18 @@
 
   "loc_page_language": "en-US",
   "loc_admin_page": "Admin Page",
-  "loc_add_new_type": "ADD NEW TYPE",
-  "loc_add_new_theme": "ADD NEW THEME",
-  "loc_tutorial_types": "Types / Categories",
-  "loc_tutorial_themes": "Themes",
-  "loc_tutorial_dist_types": "Distribution Type",
+  "loc_add_new_type": "ADD NEW CATEGORY",
+  "loc_add_new_theme": "ADD NEW TOPIC",
+  "loc_tutorial_types": "Categories",
+  "loc_tutorial_themes": "Topics",
+  "loc_tutorial_dist_types": "Distribution Types",
   "loc_add_new_dist_type": "ADD NEW TYPE",
   "loc_languages": "Languages",
-  "loc_add_new_language": "ADD NEW LANGUAGE"
+  "loc_add_new_language": "ADD NEW LANGUAGE",
+  "loc_set_ui_language": "Make it the interface language",
+  "loc_ui_lang_ability_error": "Not all Categories, Topics or Distribution Types are filled in this language!",
+  "loc_users": "USERS",
+  "loc_sort": "Sort",
+  "loc_user_delete": "Deleted / Banned",
+  "loc_batch_save": "Save All"
 }

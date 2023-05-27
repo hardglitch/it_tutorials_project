@@ -176,3 +176,29 @@ input:invalid {
 .button-section {
     padding: 10px 0 10px 0;
 }
+
+.hidden-message {
+    position: relative;
+    display: none;
+}
+
+.hidden-message.active {
+    display: inline-block;
+}
+
+.user-status {
+    font-size: 20px;
+    font-weight: bold;
+    text-shadow: 0 0 5px #202020;
+    transform: translate(0, -3px) scale(1);
+    color: lightseagreen;
+}
+
+.user-status:hover {
+    text-shadow: 0 0 5px cornsilk;
+    cursor: pointer;
+}
+
+.user-status.inactive{
+    color: palevioletred;
+}
