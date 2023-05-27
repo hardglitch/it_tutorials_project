@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated
 from fastapi import APIRouter, Depends, Form
 from pydantic import HttpUrl
 from starlette import status
@@ -8,7 +8,7 @@ from ..common.constants import PAGINATION_OFFSET, PageVars
 from ..db import DBSession
 from ..language.crud import UILangCode
 from ..language.schemas import LangCode
-from ..templates.render import render_template
+from app.render import render_template
 from ..tools import parameter_checker
 from ..tutorial.crud import add_tutorial, delete_tutorial, edit_tutorial, get_all_tutorials, get_tutorial, tutorial_page
 from ..tutorial.dist_type.schemas import DistTypeCode

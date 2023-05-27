@@ -6,7 +6,7 @@ from app.common.exceptions import LocaleExceptions
 from app.db import DBSession
 from app.language.crud import UILangCode, get_all_ui_langs
 from app.language.schemas import LangAbbr, LanguageSchema
-from app.user.auth import Token, decode_access_token, get_token, is_admin, is_this
+from app.user.auth import Token, decode_access_token, get_token, is_this
 from app.user.schemas import TokenDataSchema
 
 
