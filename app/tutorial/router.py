@@ -4,7 +4,7 @@ from pydantic import HttpUrl
 from starlette import status
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, RedirectResponse, Response
-from ..common.constants import PageVars
+from ..common.constants import PAGINATION_OFFSET, PageVars
 from ..db import DBSession
 from ..language.crud import UILangCode
 from ..language.schemas import LangCode
@@ -12,7 +12,8 @@ from ..templates.render import render_template
 from ..tools import parameter_checker
 from ..tutorial.crud import add_tutorial, delete_tutorial, edit_tutorial, get_all_tutorials, get_tutorial, tutorial_page
 from ..tutorial.dist_type.schemas import DistTypeCode
-from ..tutorial.schemas import TutorialID, TutorialSchema, DecodedTutorialSchema, ValidDescription, ValidTitle
+from ..tutorial.schemas import Pagination, TutorialID, TutorialListSchema, TutorialSchema, DecodedTutorialSchema, \
+    ValidDescription, ValidTitle
 from ..tutorial.theme.schemas import ThemeCode
 from ..tutorial.type.schemas import TypeCode
 from ..user.auth import decode_access_token, get_token, is_tutorial_editor
@@ -172,25 +173,29 @@ async def get__all_tutorials(
         request: Request,
         db_session: DBSession,
         ui_lang_code: UILangCode,
+        page: Pagination = 1,
         type_code: TypeCode | None = None,
         theme_code: ThemeCode | None = None,
         dist_type_code: DistTypeCode | None = None,
         tutor_lang_code: LangCode | None = None,
 ) -> Response:
 
-    tutors_list: List[DecodedTutorialSchema] = \
+    tutors_list: TutorialListSchema = \
         await get_all_tutorials(
             ui_lang_code=ui_lang_code,
             type_code=type_code,
             theme_code=theme_code,
             dist_type_code=dist_type_code,
             tutor_lang_code=tutor_lang_code,
+            page=page,
             db_session=db_session,
         )
     page_vars = {
         PageVars.page: PageVars.Page.main,
         PageVars.ui_lang_code: ui_lang_code,
-        "tutors": tutors_list,
+        "tutors": tutors_list.tutorials,
+        "current_page": page,
+        "is_next_page": True if (tutors_list.total_count / PAGINATION_OFFSET) - page > 0 else False,
     }
     return await render_template(
         request=request,

@@ -1,4 +1,6 @@
-from typing import Annotated
+from typing import Annotated, List
+
+from fastapi import Query
 from pydantic import BaseModel, HttpUrl, validator
 from ..dictionary.schemas import DictValue
 from ..language.schemas import LangCode, LangValue
@@ -43,6 +45,12 @@ Description = Annotated[str, DescriptionSchema]
 ValidDescription = Annotated[str, ValidDescriptionSchema]
 
 
+class PaginationSchema(BaseModel):
+    page: int = 1
+
+Pagination = Annotated[int, PaginationSchema]
+
+
 class TutorialSchema(
     TutorialIDSchema,
     TitleSchema,
@@ -65,3 +73,8 @@ class DecodedTutorialSchema(
     language: LangValue
     dist_type: DictValue
     who_added: UserName
+
+
+class TutorialListSchema(BaseModel):
+    tutorials: List[DecodedTutorialSchema]
+    total_count: int
