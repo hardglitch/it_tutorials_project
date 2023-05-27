@@ -12,10 +12,10 @@ from ...tutorial.type.schemas import TypeCode, TypeSchema
 from ...user.auth import is_admin
 
 
-type_router = APIRouter(prefix="", tags=["tutorial type"])
+type_router = APIRouter(prefix="/tp", tags=["Tutorial Type / Category"])
 
 
-@type_router.post("/{ui_lang_code}/type/add", dependencies=[Depends(is_admin)])
+@type_router.post("/{ui_lang_code}/add", dependencies=[Depends(is_admin)])
 @parameter_checker()
 async def add_tutorial_type(
         lang_code: Annotated[LangCode, Form()],
@@ -33,10 +33,10 @@ async def add_tutorial_type(
         ),
         db_session=db_session
     ):
-        return RedirectResponse(url=f"/{ui_lang_code}/admin", status_code=status.HTTP_200_OK)
+        return RedirectResponse(url=f"/adm/{ui_lang_code}", status_code=status.HTTP_200_OK)
 
 
-@type_router.post("/{ui_lang_code}/type/{type_code}/edit", dependencies=[Depends(is_admin)])
+@type_router.post("/{ui_lang_code}/{type_code}/edit", dependencies=[Depends(is_admin)])
 @parameter_checker()
 async def edit_tutorial_type(
         type_code: Annotated[TypeCode, Path()],
@@ -54,10 +54,10 @@ async def edit_tutorial_type(
         ),
         db_session=db_session
     ):
-        return RedirectResponse(url=f"/{ui_lang_code}/admin", status_code=status.HTTP_302_FOUND)
+        return RedirectResponse(url=f"/adm/{ui_lang_code}", status_code=status.HTTP_302_FOUND)
 
 
-@type_router.post("/{ui_lang_code}/type/{type_code}/del", dependencies=[Depends(is_admin)])
+@type_router.post("/{ui_lang_code}/{type_code}/del", dependencies=[Depends(is_admin)])
 @parameter_checker()
 async def delete_tutorial_type(
         type_code: Annotated[TypeCode, Path()],
@@ -69,10 +69,10 @@ async def delete_tutorial_type(
         type_code=type_code,
         db_session=db_session
     ):
-        return RedirectResponse(url=f"/{ui_lang_code}/admin", status_code=status.HTTP_302_FOUND)
+        return RedirectResponse(url=f"/adm/{ui_lang_code}", status_code=status.HTTP_302_FOUND)
 
 
-@type_router.get("/{ui_lang_code}/type/{type_code}", response_model_exclude_none=True)
+@type_router.get("/{ui_lang_code}/{type_code}", response_model_exclude_none=True)
 @parameter_checker()
 async def get_tutorial_type(
         type_code: Annotated[TypeCode, Path()],
@@ -87,7 +87,7 @@ async def get_tutorial_type(
     )
 
 
-@type_router.get("/{ui_lang_code}/type", response_model_exclude_none=True)
+@type_router.get("/{ui_lang_code}", response_model_exclude_none=True)
 @parameter_checker()
 async def get_all_tutorial_types(
     ui_lang_code: UILangCode,

@@ -11,10 +11,10 @@ from ..tools import parameter_checker
 from ..user.auth import is_admin
 
 
-language_router = APIRouter(prefix="", tags=["language"])
+language_router = APIRouter(prefix="/lng", tags=["Language"])
 
 
-@language_router.post("/{ui_lang_code}/lang/add", dependencies=[Depends(is_admin)])
+@language_router.post("/{ui_lang_code}/add", dependencies=[Depends(is_admin)])
 @parameter_checker()
 async def add_language(
         lang_value: Annotated[ValidLangValue, Form(description="Any unicode value")],
@@ -31,10 +31,10 @@ async def add_language(
         ),
         db_session=db_session
     ):
-        return RedirectResponse(url=f"/{ui_lang_code}/admin", status_code=status.HTTP_200_OK)
+        return RedirectResponse(url=f"/adm/{ui_lang_code}", status_code=status.HTTP_200_OK)
 
 
-@language_router.post("/{ui_lang_code}/lang/{lang_code}/edit", dependencies=[Depends(is_admin)])
+@language_router.post("/{ui_lang_code}/{lang_code}/edit", dependencies=[Depends(is_admin)])
 @parameter_checker()
 async def edit_language(
         lang_code: Annotated[LangCode, Path()],
@@ -54,10 +54,10 @@ async def edit_language(
         ),
         db_session=db_session
     ):
-        return RedirectResponse(url=f"/{ui_lang_code}/admin", status_code=status.HTTP_302_FOUND)
+        return RedirectResponse(url=f"/adm/{ui_lang_code}", status_code=status.HTTP_302_FOUND)
 
 
-@language_router.post("/{ui_lang_code}/lang/{lang_code}/del", dependencies=[Depends(is_admin)])
+@language_router.post("/{ui_lang_code}/{lang_code}/del", dependencies=[Depends(is_admin)])
 @parameter_checker()
 async def delete_language(
         lang_code: Annotated[LangCode, Path()],
@@ -66,16 +66,16 @@ async def delete_language(
 ) -> Response:
 
     if await delete_lang(lang_code, db_session):
-        return RedirectResponse(url=f"/{ui_lang_code}/admin", status_code=status.HTTP_200_OK)
+        return RedirectResponse(url=f"/adm/{ui_lang_code}", status_code=status.HTTP_200_OK)
 
 
-@language_router.get("/{ui_lang_code}/lang/{lang_code}", response_model_exclude_none=True)
+@language_router.get("/{ui_lang_code}/{lang_code}", response_model_exclude_none=True)
 @parameter_checker()
 async def get_language(lang_code: Annotated[LangCode, Path()], db_session: DBSession) -> LanguageSchema:
     return await get_lang(lang_code, db_session)
 
 
-@language_router.get("/{ui_lang_code}/lang/", response_model_exclude_none=True)
+@language_router.get("/{ui_lang_code}", response_model_exclude_none=True)
 @parameter_checker()
 async def get_all_languages(db_session: DBSession) -> List[LanguageSchema]:
     return await get_all_langs(db_session)

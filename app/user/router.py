@@ -15,10 +15,10 @@ from ..user.crud import add_user, delete_user, edit_user, get_user, update_user_
 from ..user.schemas import EMail, IsActive, Password, UserID, UserSchema, ValidUserName
 
 
-user_router = APIRouter(prefix="", tags=["user"])
+user_router = APIRouter(prefix="/usr", tags=["User"])
 
 
-@user_router.get("/{ui_lang_code}/user/reg", response_class=HTMLResponse)
+@user_router.get("/{ui_lang_code}/reg", response_class=HTMLResponse)
 @parameter_checker()
 async def reg_page(
         ui_lang_code: UILangCode,
@@ -37,7 +37,7 @@ async def reg_page(
     )
 
 
-@user_router.post("/{ui_lang_code}/user/add", response_model_exclude_none=True)
+@user_router.post("/{ui_lang_code}/add", response_model_exclude_none=True)
 @parameter_checker()
 async def add__user(
         name: Annotated[ValidUserName, Form()],
@@ -55,10 +55,10 @@ async def add__user(
         ),
         db_session=db_session
     ):
-        return RedirectResponse(url=f"/{ui_lang_code}", status_code=status.HTTP_201_CREATED)
+        return RedirectResponse(url=f"/tt/{ui_lang_code}", status_code=status.HTTP_201_CREATED)
 
 
-@user_router.post("/{ui_lang_code}/user/login")
+@user_router.post("/{ui_lang_code}/login")
 @parameter_checker()
 async def login(
         form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
@@ -75,21 +75,21 @@ async def login(
         is_adm=is_adm,
     )
     token: Token = create_access_token(uid=user_id, name=user_name)
-    adm_str = "/admin" if is_adm else ""
-    response = RedirectResponse(url=f"/{ui_lang_code}" + adm_str, status_code=status.HTTP_302_FOUND)
+    adm_str = "/adm" if is_adm else "/tt"
+    response = RedirectResponse(url=f"{adm_str}/{ui_lang_code}", status_code=status.HTTP_302_FOUND)
     response.set_cookie(key=AccessToken.name, value=token, httponly=True, secure=True, max_age=AccessToken.exp_delta)
     return response
 
 
-@user_router.get("/{ui_lang_code}/user/logout", dependencies=[Depends(get_token)])
+@user_router.get("/{ui_lang_code}/logout", dependencies=[Depends(get_token)])
 @parameter_checker()
 async def logout(ui_lang_code: UILangCode) -> Response:
-    response = RedirectResponse(url=f"/{ui_lang_code}", status_code=status.HTTP_302_FOUND)
+    response = RedirectResponse(url=f"/tt/{ui_lang_code}", status_code=status.HTTP_302_FOUND)
     response.delete_cookie(key=AccessToken.name, httponly=True, secure=True)
     return response
 
 
-@user_router.post("/{ui_lang_code}/user/{user_id}/edit", dependencies=[Depends(is_me_or_admin)])
+@user_router.post("/{ui_lang_code}/{user_id}/edit", dependencies=[Depends(is_me_or_admin)])
 @parameter_checker()
 async def edit__user(
         user_id: UserID,
@@ -109,10 +109,10 @@ async def edit__user(
         ),
         db_session=db_session
     ):
-        return RedirectResponse(url=f"/{ui_lang_code}/user/{user_id}", status_code=status.HTTP_303_SEE_OTHER)
+        return RedirectResponse(url=f"/usr/{ui_lang_code}/{user_id}", status_code=status.HTTP_303_SEE_OTHER)
 
 
-@user_router.post("/{ui_lang_code}/user/{user_id}/update-status", dependencies=[Depends(is_admin)])
+@user_router.post("/{ui_lang_code}/{user_id}/upd", dependencies=[Depends(is_admin)])
 @parameter_checker()
 async def update__user_status(
         user_id: UserID,
@@ -128,10 +128,10 @@ async def update__user_status(
         credential=credential,
         db_session=db_session
     ):
-        return RedirectResponse(url=f"/{ui_lang_code}/admin", status_code=status.HTTP_302_FOUND)
+        return RedirectResponse(url=f"/adm/{ui_lang_code}", status_code=status.HTTP_302_FOUND)
 
 
-@user_router.post("/{ui_lang_code}/user/{user_id}/del", dependencies=[Depends(is_me_or_admin)])
+@user_router.post("/{ui_lang_code}/{user_id}/del", dependencies=[Depends(is_me_or_admin)])
 @parameter_checker()
 async def delete__user(
         user_id: UserID,
@@ -140,12 +140,12 @@ async def delete__user(
 ) -> Response:
 
     if await delete_user(user_id=user_id, db_session=db_session):
-        response = RedirectResponse(url=f"/{ui_lang_code}", status_code=status.HTTP_302_FOUND)
+        response = RedirectResponse(url=f"/tt/{ui_lang_code}", status_code=status.HTTP_302_FOUND)
         response.delete_cookie(key=AccessToken.name, secure=True, httponly=True)
         return response
 
 
-@user_router.get("/{ui_lang_code}/user/{user_id}/me", response_class=HTMLResponse, dependencies=[Depends(is_me_or_admin)])
+@user_router.get("/{ui_lang_code}/{user_id}/me", response_class=HTMLResponse, dependencies=[Depends(is_me_or_admin)])
 @parameter_checker()
 async def get__me(
         user_id: UserID,
@@ -168,7 +168,7 @@ async def get__me(
     )
 
 
-@user_router.get("/{ui_lang_code}/user/{user_id}", response_class=HTMLResponse)
+@user_router.get("/{ui_lang_code}/{user_id}", response_class=HTMLResponse)
 @parameter_checker()
 async def get__user(
         user_id: UserID,

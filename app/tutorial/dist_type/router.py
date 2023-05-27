@@ -12,10 +12,10 @@ from ...tutorial.dist_type.schemas import DistTypeCode, DistTypeSchema
 from ...user.auth import is_admin
 
 
-dist_type_router = APIRouter(prefix="", tags=["tutorial distribution type"])
+dist_type_router = APIRouter(prefix="/dt", tags=["Tutorial Distribution Type"])
 
 
-@dist_type_router.post("/{ui_lang_code}/dist-type/add", dependencies=[Depends(is_admin)])
+@dist_type_router.post("/{ui_lang_code}/add", dependencies=[Depends(is_admin)])
 @parameter_checker()
 async def add_distribution_type(
         lang_code: Annotated[LangCode, Form()],
@@ -33,10 +33,10 @@ async def add_distribution_type(
         ),
         db_session=db_session
     ):
-        return RedirectResponse(url=f"/{ui_lang_code}/admin", status_code=status.HTTP_200_OK)
+        return RedirectResponse(url=f"/adm/{ui_lang_code}", status_code=status.HTTP_200_OK)
 
 
-@dist_type_router.post("/{ui_lang_code}/dist-type/{dist_type_code}/edit", dependencies=[Depends(is_admin)])
+@dist_type_router.post("/{ui_lang_code}/{dist_type_code}/edit", dependencies=[Depends(is_admin)])
 @parameter_checker()
 async def edit_distribution_type(
         dist_type_code: Annotated[DistTypeCode, Path()],
@@ -54,10 +54,10 @@ async def edit_distribution_type(
         ),
         db_session=db_session
     ):
-        return RedirectResponse(url=f"/{ui_lang_code}/admin", status_code=status.HTTP_302_FOUND)
+        return RedirectResponse(url=f"/adm/{ui_lang_code}", status_code=status.HTTP_302_FOUND)
 
 
-@dist_type_router.post("/{ui_lang_code}/dist-type/{dist_type_code}/del", dependencies=[Depends(is_admin)])
+@dist_type_router.post("/{ui_lang_code}/{dist_type_code}/del", dependencies=[Depends(is_admin)])
 @parameter_checker()
 async def delete_distribution_type(
         dist_type_code: Annotated[DistTypeCode, Path()],
@@ -69,10 +69,10 @@ async def delete_distribution_type(
         dist_type_code=dist_type_code,
         db_session=db_session
     ):
-        return RedirectResponse(url=f"/{ui_lang_code}/admin", status_code=status.HTTP_302_FOUND)
+        return RedirectResponse(url=f"/adm/{ui_lang_code}", status_code=status.HTTP_302_FOUND)
 
 
-@dist_type_router.get("/{ui_lang_code}/dist-type/{dist_type_code}", response_model_exclude_none=True)
+@dist_type_router.get("/{ui_lang_code}/{dist_type_code}", response_model_exclude_none=True)
 @parameter_checker()
 async def get_distribution_type(
         dist_type_code: Annotated[DistTypeCode, Path()],
@@ -87,7 +87,7 @@ async def get_distribution_type(
     )
 
 
-@dist_type_router.get("/{ui_lang_code}/dist-type", response_model_exclude_none=True)
+@dist_type_router.get("/{ui_lang_code}", response_model_exclude_none=True)
 @parameter_checker()
 async def get_all_distribution_types(
         ui_lang_code: Annotated[LangCode, Path()],

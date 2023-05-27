@@ -98,3 +98,10 @@ class PageVars:
         reg: str = "reg"
         admin: str = "admin"
 
+
+@dataclass
+class QueryParams:
+    count: int
+    pages: int
+    next: str | None
+    prev: str | None

@@ -19,16 +19,16 @@ from app.user.crud import get_all_users
 from app.user.schemas import UserSchema
 
 
-admin_router = APIRouter(prefix="", tags=["ADMIN"])
+admin_router = APIRouter(prefix="/adm", tags=["ADMIN"])
 
 
-@admin_router.get("/admin")
+@admin_router.get("/")
 async def admin_redirect(ui_lang_code: UILangCode) -> Response:
     response = RedirectResponse(url=f"/{ui_lang_code}/admin", status_code=status.HTTP_302_FOUND)
     return response
 
 
-@admin_router.get("/{ui_lang_code}/admin")
+@admin_router.get("/{ui_lang_code}")
 async def admin(ui_lang_code: UILangCode, db_session: DBSession, request: Request) -> Response:
     if await is_admin(request=request, db_session=db_session, safe_mode=True):
         tutor_types: List[TypeSchema] = await get_all_types(

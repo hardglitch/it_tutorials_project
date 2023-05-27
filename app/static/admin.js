@@ -49,7 +49,7 @@ function changeTTypeAdmin(elem_id, ui_lang_code) {
                 : document.getElementById("add-new-button-value").innerText.trim()
 
         document.getElementById("type-editor-form-" + lang_code).action =
-            "/" + ui_lang_code + "/type/" + type_code + "/edit";
+            "/tp/" + ui_lang_code + "/" + type_code + "/edit";
 
         document.getElementById("t-lang-code-" + lang_code).value = lang_code;
 
@@ -62,7 +62,7 @@ function changeTTypeAdmin(elem_id, ui_lang_code) {
         document.getElementById("tutor-types-dropdown").classList.remove("active");
         document.getElementById("delete-type-button").style.display = "block";
         document.getElementById("type-editor-form-deleter").action =
-            "/" + ui_lang_code + "/type/" + type_code + "/del";
+            "/tp/" + ui_lang_code + "/" + type_code + "/del";
     }
 }
 
@@ -123,7 +123,7 @@ function changeTThemeAdmin(elem_id, ui_lang_code, type_code) {
                 : document.getElementById("add-new-button-value").innerText.trim()
 
         document.getElementById("theme-editor-form-" + lang_code).action =
-            "/" + ui_lang_code + "/theme/" + theme_code + "/edit";
+            "/th/" + ui_lang_code + "/" + theme_code + "/edit";
 
         document.getElementById("theme-lang-code-" + lang_code).value = lang_code;
 
@@ -139,7 +139,7 @@ function changeTThemeAdmin(elem_id, ui_lang_code, type_code) {
         document.getElementById("tutor-themes-dropdown").classList.remove("active");
         document.getElementById("delete-theme-button").style.display = "block";
         document.getElementById("theme-editor-form-deleter").action =
-            "/" + ui_lang_code + "/theme/" + theme_code + "/del";
+            "/th/" + ui_lang_code + "/" + theme_code + "/del";
         document.getElementById("bounded-t-type-code-" + lang_code).value = type_code;
     }
     try {
@@ -191,7 +191,7 @@ function changeTDistTypeAdmin(elem_id, ui_lang_code) {
                 : document.getElementById("add-new-button-value").innerText.trim()
 
         document.getElementById("dist-type-editor-form-" + lang_code).action =
-            "/" + ui_lang_code + "/dist-type/" + dist_type_code + "/edit"
+            "/dt/" + ui_lang_code + "/" + dist_type_code + "/edit"
 
         document.getElementById("dist-type-lang-code-" + lang_code).value = lang_code;
 
@@ -208,7 +208,7 @@ function changeTDistTypeAdmin(elem_id, ui_lang_code) {
         document.getElementById("tutor-dist-types-dropdown").classList.remove("active");
         document.getElementById("delete-dist-type-button").style.display = "block";
         document.getElementById("dist-type-editor-form-deleter").action =
-            "/" + ui_lang_code + "/dist-type/" + dist_type_code + "/del";
+            "/dt/" + ui_lang_code + "/" + dist_type_code + "/del";
     }
 }
 
@@ -235,11 +235,11 @@ function changeTLanguageAdmin(elem_id, ui_lang_code) {
     document.getElementById("submit-lang-button").value =
             document.getElementById("save-button-value").innerText.trim();
     document.getElementById("lang-editor-form").action =
-        "/" + ui_lang_code + "/lang/" + lang_code + "/edit";
+        "/lng/" + ui_lang_code + "/" + lang_code + "/edit";
     document.getElementById("tutorial-langs-dropdown").classList.remove("active");
     document.getElementById("delete-lang-button").style.display = "block";
     document.getElementById("lang-editor-form-deleter").action =
-        "/" + ui_lang_code + "/lang/" + lang_code + "/del";
+        "/lng/" + ui_lang_code + "/" + lang_code + "/del";
 
     document.getElementById("is-ui-lang").checked =
         document.getElementById("is-ui-lang-" + lang_code).innerText.trim() === "True";

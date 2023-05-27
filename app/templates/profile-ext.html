@@ -3,11 +3,11 @@
   <b style="color: cornsilk">{{ loc_credentials }}:</b> {{ current_user.decoded_credential }}<br>
   <b style="color: cornsilk">{{ loc_added_tutorials }}:</b> {{ current_user.rating }}<br><br>
 
-  <form action="/{{ ui_lang_code }}/user/{{ current_user.id }}/edit" method="post">
+  <form action="/usr/{{ ui_lang_code }}/{{ current_user.id }}/edit" method="post">
     <div>
 
         <label>
-          <input class="input-field" style="width: 90%" name="name" type="text" placeholder="{{ current_user.name }}" value="{{ current_user.name }}">
+          <input class="input-field" style="width: 90%" name="name" type="text" pattern="[a-zA-Z0-9_]*" placeholder="{{ current_user.name }}" value="{{ current_user.name }}">
         </label>
 
         <label>
