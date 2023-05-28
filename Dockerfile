@@ -10,4 +10,4 @@ COPY ./setup.py .
 RUN python setup.py install
 RUN alembic upgrade heads
 WORKDIR ./app
-ENTRYPOINT gunicorn main:app --workers 1 -worker-class uvicorn.workers.UvicornWorker
+ENTRYPOINT uvicorn main:app --host 0.0.0.0 --port 443
