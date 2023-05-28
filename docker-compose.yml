@@ -28,7 +28,8 @@ services:
 
   uvicorn:
     container_name: "uvicorn-fastapi-ssl"
-    build: .
+    build:
+        dockerfile: ./Dockerfile_local
     depends_on:
       - postgres
       - redis
