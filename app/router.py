@@ -28,6 +28,7 @@ class MainRouter:
 
         origins = [
             "https://localhost",
+            "https://tutorials-project.onrender.com"
         ]
 
         app.add_middleware(
