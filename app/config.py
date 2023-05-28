@@ -15,8 +15,8 @@ try:
 
     SECRET_KEY: str = env.str("SECRET_KEY")
 
-    GOOGLE_OAUTH_CLIENT_ID: str = env.str("GOOGLE_OAUTH_CLIENT_ID")
-    GOOGLE_OAUTH_CLIENT_SECRET: str = env.str("GOOGLE_OAUTH_CLIENT_SECRET")
+    # GOOGLE_OAUTH_CLIENT_ID: str = env.str("GOOGLE_OAUTH_CLIENT_ID")
+    # GOOGLE_OAUTH_CLIENT_SECRET: str = env.str("GOOGLE_OAUTH_CLIENT_SECRET")
 
 except Exception:
     raise

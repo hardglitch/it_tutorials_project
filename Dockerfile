@@ -8,6 +8,6 @@ COPY ./alembic.ini .
 COPY ./.env ./.env
 COPY ./setup.py .
 RUN python setup.py install
-RUN alembic upgrade head
+RUN alembic upgrade heads
 WORKDIR ./app
 ENTRYPOINT gunicorn main:app --workers 1 -worker-class uvicorn.workers.UvicornWorker
