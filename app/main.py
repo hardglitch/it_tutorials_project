@@ -9,7 +9,7 @@ from pydantic import BaseSettings
 
 
 class Settings(BaseSettings):
-    openapi_url: str = "/openapi.json"  # "openapi.json" by default. It's nulled for safety.
+    openapi_url: str = "/openapi.json"  # "/openapi.json" by default. It's nulled for safety.
 
 
 settings = Settings()
