@@ -9,7 +9,7 @@ from ..common.responses import CommonResponses, ResponseSchema
 from ..db import DBSession
 from ..language.crud import UILangCode, get_all_langs, get_lang
 from ..language.schemas import LangCode, LanguageSchema
-from ..templates.render import render_template
+from app.render import render_template
 from ..tools import db_checker, parameter_checker
 from ..tutorial.dist_type.crud import get_all_dist_types, get_dist_type
 from ..tutorial.dist_type.schemas import DistTypeCode, DistTypeSchema

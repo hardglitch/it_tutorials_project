@@ -8,7 +8,7 @@ from starlette.responses import HTMLResponse, RedirectResponse, Response
 from ..common.constants import AccessToken, Credential, PageVars
 from ..db import DBSession
 from ..language.crud import UILangCode
-from ..templates.render import render_template
+from app.render import render_template
 from ..tools import parameter_checker
 from ..user.auth import Token, authenticate_user, create_access_token, is_admin, is_me_or_admin, get_token
 from ..user.crud import add_user, delete_user, edit_user, get_user, update_user_status

@@ -15,7 +15,7 @@ from .common.exceptions import CommonExceptions
 from .db import DBSession
 from .language.crud import UILangCode
 from .language.router import language_router
-from .templates.render import render_template
+from app.render import render_template
 from .tutorial.dist_type.router import dist_type_router
 from .tutorial.router import tutorial_router
 from .tutorial.theme.router import theme_router

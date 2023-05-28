@@ -7,7 +7,7 @@ from app.common.constants import Credential, DecodedCredential, PageVars
 from app.db import DBSession
 from app.language.crud import UILangCode, get_all_langs
 from app.language.schemas import LanguageSchema
-from app.templates.render import render_template
+from app.render import render_template
 from app.tutorial.dist_type.crud import get_all_dist_types
 from app.tutorial.dist_type.schemas import DistTypeSchema
 from app.tutorial.theme.crud import get_all_themes

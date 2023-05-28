@@ -10,9 +10,11 @@
     </div>
     {% endif %}
 
+    {% if current_page > 1 or is_next_page == true %}
     <div style="padding: 0 10px 0 10px;">
-    {{ current_page }}
+        {{ current_page }}
     </div>
+    {% endif %}
 
     {% if is_next_page == true %}
     <div style=" transform: translate(0, -10px) scale(1);">
