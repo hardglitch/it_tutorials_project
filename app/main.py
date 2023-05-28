@@ -1,4 +1,4 @@
-# import uvicorn
+import uvicorn
 from fastapi import FastAPI
 from .router import MainRouter
 from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
@@ -21,5 +21,5 @@ app.add_middleware(GZipMiddleware)
 MainRouter(app=app)
 
 
-# if __name__ == "__main__":
-#     uvicorn.run(app, host="0.0.0.0", port=80, reload=True, root_path="")
+if __name__ == "__main__":
+    uvicorn.run(app="__main__:app", host="0.0.0.0", port=443, reload=True)

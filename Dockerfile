@@ -9,5 +9,4 @@ COPY ./.env ./.env
 COPY ./setup.py .
 RUN python setup.py install
 RUN alembic upgrade heads
-WORKDIR ./app
-ENTRYPOINT uvicorn main:app --host 0.0.0.0 --port 443
+ENTRYPOINT python -m app.main
