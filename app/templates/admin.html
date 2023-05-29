@@ -123,6 +123,7 @@
                     {% for type in tutor_types %}
                         {% if type.lang_code == ui_lang_code %}
                             {{ type.dict_value }}
+                            {{ break }}
                         {% endif %}
                     {% endfor %}
                 </div>
