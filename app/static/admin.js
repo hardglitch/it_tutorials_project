@@ -218,6 +218,7 @@ function addNewTLanguage() {
     document.getElementById("delete-lang-button").style.display = "none";
     document.getElementById("tutorial-lang-code").value = "";
     document.getElementById("tutorial-lang-value").value = "";
+    document.getElementById("tutorial-lang-abbreviation").value = "";
     document.getElementById("submit-lang-button").value =
         document.getElementById("add-new-button-value").innerText.trim();
     document.getElementById("lang-editor-form").action =
@@ -232,6 +233,8 @@ function changeTLanguageAdmin(elem_id, ui_lang_code) {
     document.getElementById("tutorial-lang-code").value = lang_code;
     document.getElementById("tutorial-lang-value").value = document.getElementById(elem_id).innerText.trim();
     document.getElementById("t-lang-value").innerText = document.getElementById(elem_id).innerText.trim();
+    document.getElementById("tutorial-lang-abbreviation").value =
+        document.getElementById("lang-abbr-" + lang_code).innerText.trim();
     document.getElementById("submit-lang-button").value =
             document.getElementById("save-button-value").innerText.trim();
     document.getElementById("lang-editor-form").action =

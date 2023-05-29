@@ -13,7 +13,7 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-app = FastAPI(title="IT Tutorials", lifespan=lifespan, openapi_url=settings.openapi_url)
+app = FastAPI(title="Tutorials Project", lifespan=lifespan, openapi_url=settings.openapi_url)
 
 app.add_middleware(HTTPSRedirectMiddleware)
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=["localhost", "tutorials-project.onrender.com"])  # "example.com", "*.example.com"

@@ -15,5 +15,9 @@ try:
 
     SECRET_KEY: str = env.str("SECRET_KEY")
 
+    ADMIN_NAME: str = env.str("ADMIN_NAME")
+    ADMIN_PASS: str = env.str("ADMIN_PASS")
+    ADMIN_EMAIL: str = env.str("ADMIN_EMAIL")
+
 except Exception:
     raise

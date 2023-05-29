@@ -13,7 +13,8 @@ from ...tutorial.type.schemas import TypeCode, TypeSchema
 
 @db_checker()
 async def add_type(tutor_type: DictionarySchema, db_session: DBSession) -> ResponseSchema:
-    if not tutor_type.word_code:
+    is_word_code: bool = True if tutor_type.word_code else False
+    if not is_word_code:
         result: Result = await db_session.execute(
             select(DictionaryModel.lang_code, DictionaryModel.value)
         )
@@ -32,13 +33,16 @@ async def add_type(tutor_type: DictionarySchema, db_session: DBSession) -> Respo
     )
     db_session.add(new_word)
     await db_session.commit()
-    await db_session.refresh(new_word)
 
-    new_tutor_type = TypeModel(
-        word_code=new_word.word_code
-    )
-    db_session.add(new_tutor_type)
-    await db_session.commit()
+    if not is_word_code:
+        await db_session.refresh(new_word)
+
+        new_tutor_type = TypeModel(
+            word_code=new_word.word_code
+        )
+        db_session.add(new_tutor_type)
+        await db_session.commit()
+
     return CommonResponses.CREATED
 
 
@@ -97,40 +101,33 @@ async def get_type(type_code: TypeCode, ui_lang_code: LangCode, db_session: DBSe
 
 @db_checker()
 async def get_all_types(db_session: DBSession, ui_lang_code: LangCode | None = None) -> List[TypeSchema]:
-    if ui_lang_code:
-        result: Result = await db_session.execute(
-            select(TypeModel.code, DictionaryModel.word_code, DictionaryModel.value)
-            .where(and_(
+    result: Result = await db_session.execute(
+        select(
+            TypeModel.code,
+            DictionaryModel.word_code,
+            DictionaryModel.value,
+            DictionaryModel.lang_code,
+        )
+        .where(
+            and_(
                 TypeModel.word_code == DictionaryModel.word_code,
                 DictionaryModel.lang_code == ui_lang_code
-            ))
-            .order_by(DictionaryModel.value)
+            )
+            if ui_lang_code else
+                TypeModel.word_code == DictionaryModel.word_code
         )
-    else:
-        result: Result = await db_session.execute(
-            select(TypeModel.code, DictionaryModel.lang_code, DictionaryModel.word_code, DictionaryModel.value)
-            .where(TypeModel.word_code == DictionaryModel.word_code)
-            .order_by(DictionaryModel.value)
-        )
+        .order_by(DictionaryModel.value)
+    )
 
     type_list = []
     for row in result.all():
-        if ui_lang_code:
-            type_list.append(
-                TypeSchema(
-                    type_code=row.code,
-                    dict_value=row.value,
-                    word_code=row.word_code,
-                )
+        type_list.append(
+            TypeSchema(
+                type_code=row.code,
+                dict_value=row.value,
+                word_code=row.word_code,
+                lang_code=row.lang_code,
             )
-        else:
-            type_list.append(
-                TypeSchema(
-                    type_code=row.code,
-                    lang_code=row.lang_code,
-                    dict_value=row.value,
-                    word_code=row.word_code,
-                )
-            )
+        )
     if not type_list: raise CommonExceptions.NOTHING_FOUND
     return type_list
