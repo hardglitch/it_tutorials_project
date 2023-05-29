@@ -64,7 +64,7 @@
                     <span id="type-word-code-{{ lang.lang_code }}-{{ type.type_code }}">{{ type.word_code }}</span>
                 {% endfor %}
             {% endfor %}
-            <input type="hidden" id="type-editor-form-default-value" value="/{{ ui_lang_code }}/type/add">
+            <input type="hidden" id="type-editor-form-default-value" value="/tp/{{ ui_lang_code }}/add">
         </div>
 
     </details>
@@ -153,7 +153,7 @@
             {% for theme in tutor_themes %}
                 <span id="theme-value-{{ theme.lang_code }}-{{ theme.theme_code }}">{{ theme.dict_value }}</span>
             {% endfor %}
-            <input type="hidden" id="theme-editor-form-default-value" value="/{{ ui_lang_code }}/theme/add">
+            <input type="hidden" id="theme-editor-form-default-value" value="/th/{{ ui_lang_code }}/add">
             <span id="bounded-t-type-default-value">* {{ loc_add_new_type }} *</span>
         </div>
 
@@ -218,7 +218,7 @@
             {% for dist_type in tutor_dist_types %}
                 <span id="dist-type-value-{{ dist_type.lang_code }}-{{ dist_type.dist_type_code }}">{{ dist_type.dict_value }}</span>
             {% endfor %}
-            <input type="hidden" id="dist-type-editor-form-default-value" value="/{{ ui_lang_code }}/dist-type/add">
+            <input type="hidden" id="dist-type-editor-form-default-value" value="/dt/{{ ui_lang_code }}/add">
         </div>
 
     </details>
@@ -292,7 +292,7 @@
                 <span id="lang-abbr-{{ lang.lang_code }}">{{ lang.abbreviation }}</span>
                 <span id="is-ui-lang-{{ lang.lang_code }}">{{ lang.is_ui_lang }}</span>
             {% endfor %}
-            <input type="hidden" id="lang-editor-form-default-value" value="/{{ ui_lang_code }}/lang/add">
+            <input type="hidden" id="lang-editor-form-default-value" value="/lng/{{ ui_lang_code }}/add">
         </div>
 
     </details>
