@@ -77,7 +77,7 @@ class AccessToken:
     subject: str = "sub"
     user_id: str = "uid"
     expired: str = "exp"
-    exp_delta: int = 3600  # seconds
+    exp_delta: int = 60 * 60 * 24  # seconds
 
 
 @dataclass
