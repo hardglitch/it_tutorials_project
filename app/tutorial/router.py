@@ -66,7 +66,7 @@ async def add__tutorial(
         ),
         db_session=db_session
     ):
-        return RedirectResponse(url=f"/tt/{ui_lang_code}/{tutor_id}", status_code=status.HTTP_303_SEE_OTHER)
+        return RedirectResponse(url=f"/tt/{ui_lang_code}/{tutor_id}", status_code=status.HTTP_302_FOUND)
 
 
 @tutorial_router.get("/{ui_lang_code}/{tutor_id}/editp", response_model_exclude_none=True)
@@ -113,7 +113,7 @@ async def edit__tutorial(
         ),
         db_session=db_session
     ):
-        return RedirectResponse(url=f"/tt/{ui_lang_code}/{tutor_id}", status_code=status.HTTP_303_SEE_OTHER)
+        return RedirectResponse(url=f"/tt/{ui_lang_code}/{tutor_id}", status_code=status.HTTP_302_FOUND)
 
 
 @tutorial_router.post("/{ui_lang_code}/{tutor_id}/del")
