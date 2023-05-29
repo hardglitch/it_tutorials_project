@@ -9,5 +9,5 @@ COPY ./.env ./.env
 COPY ./setup.py .
 RUN python setup.py install
 RUN alembic revision --autogenerate -m "Last"
-RUN alembic upgrade heads
+RUN alembic upgrade head
 ENTRYPOINT python -m app.main
