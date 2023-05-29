@@ -8,5 +8,6 @@ COPY ./alembic.ini .
 COPY ./.env ./.env
 COPY ./setup.py .
 RUN python setup.py install
-RUN alembic upgrade head
+RUN alembic revision --autogenerate -m "Last"
+RUN alembic upgrade heads
 ENTRYPOINT python -m app.main
