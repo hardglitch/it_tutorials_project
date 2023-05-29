@@ -33,7 +33,7 @@ async def add_distribution_type(
         ),
         db_session=db_session
     ):
-        return RedirectResponse(url=f"/adm/{ui_lang_code}", status_code=status.HTTP_200_OK)
+        return RedirectResponse(url=f"/adm/{ui_lang_code}", status_code=status.HTTP_302_FOUND)
 
 
 @dist_type_router.post("/{ui_lang_code}/{dist_type_code}/edit", dependencies=[Depends(is_admin)])

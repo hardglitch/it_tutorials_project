@@ -55,7 +55,7 @@ async def add__user(
         ),
         db_session=db_session
     ):
-        return RedirectResponse(url=f"/tt/{ui_lang_code}", status_code=status.HTTP_201_CREATED)
+        return RedirectResponse(url=f"/tt/{ui_lang_code}", status_code=status.HTTP_302_FOUND)
 
 
 @user_router.post("/{ui_lang_code}/login")
@@ -109,7 +109,7 @@ async def edit__user(
         ),
         db_session=db_session
     ):
-        return RedirectResponse(url=f"/usr/{ui_lang_code}/{user_id}", status_code=status.HTTP_303_SEE_OTHER)
+        return RedirectResponse(url=f"/usr/{ui_lang_code}/{user_id}", status_code=status.HTTP_302_FOUND)
 
 
 @user_router.post("/{ui_lang_code}/{user_id}/upd", dependencies=[Depends(is_admin)])
