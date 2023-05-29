@@ -35,6 +35,7 @@
   "loc_add_new_theme": "ADD NEW TOPIC",
   "loc_tutorial_types": "Categories",
   "loc_tutorial_themes": "Topics",
+  "loc_bind_to": "Bind to",
   "loc_tutorial_dist_types": "Distribution Types",
   "loc_add_new_dist_type": "ADD NEW TYPE",
   "loc_languages": "Languages",

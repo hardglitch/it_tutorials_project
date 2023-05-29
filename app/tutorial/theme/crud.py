@@ -13,7 +13,8 @@ from ...tutorial.theme.schemas import ThemeSchema, ThemeCode
 
 @db_checker()
 async def add_theme(theme: ThemeSchema, db_session: DBSession) -> ResponseSchema:
-    if not theme.word_code:
+    is_word_code: bool = True if theme.word_code else False
+    if not is_word_code:
         result: Result = await db_session.execute(
             select(DictionaryModel.lang_code, DictionaryModel.value)
         )
@@ -32,14 +33,17 @@ async def add_theme(theme: ThemeSchema, db_session: DBSession) -> ResponseSchema
     )
     db_session.add(new_word)
     await db_session.commit()
-    await db_session.refresh(new_word)
 
-    new_dist_type = ThemeModel(
-        word_code=new_word.word_code,
-        type_code=theme.type_code
-    )
-    db_session.add(new_dist_type)
-    await db_session.commit()
+    if not is_word_code:
+        await db_session.refresh(new_word)
+
+        new_theme = ThemeModel(
+            word_code=new_word.word_code,
+            type_code=theme.type_code
+        )
+        db_session.add(new_theme)
+        await db_session.commit()
+
     return CommonResponses.CREATED
 
 
@@ -110,52 +114,36 @@ async def get_theme(theme_code: ThemeCode, ui_lang_code: LangCode, db_session: D
 
 @db_checker()
 async def get_all_themes(db_session: DBSession, ui_lang_code: LangCode | None = None) -> List[ThemeSchema]:
-    if ui_lang_code:
-        result: Result = await db_session.execute(
-            select(
-                ThemeModel.code,
-                ThemeModel.type_code,
-                ThemeModel.word_code,
-                DictionaryModel.value
-            )
-            .where(and_(
+    result: Result = await db_session.execute(
+        select(
+            ThemeModel.code,
+            ThemeModel.type_code,
+            ThemeModel.word_code,
+            DictionaryModel.value,
+            DictionaryModel.lang_code,
+        )
+        .where(
+            and_(
                 ThemeModel.word_code == DictionaryModel.word_code,
                 DictionaryModel.lang_code == ui_lang_code
-            ))
-            .order_by(DictionaryModel.value)
-        )
-    else:
-        result: Result = await db_session.execute(
-            select(
-                ThemeModel.code,
-                ThemeModel.type_code,
-                ThemeModel.word_code,
-                DictionaryModel.lang_code,
-                DictionaryModel.value
             )
-            .where(ThemeModel.word_code == DictionaryModel.word_code)
-            .order_by(DictionaryModel.value)
+            if ui_lang_code else
+                ThemeModel.word_code == DictionaryModel.word_code,
         )
+        .order_by(DictionaryModel.value)
+    )
 
     theme_list = []
     for theme in result.all():
-        if ui_lang_code:
-            theme_list.append(
-                ThemeSchema(
-                    theme_code=theme.code,
-                    dict_value=theme.value,
-                    type_code=theme.type_code,
-                )
+        theme_list.append(
+            ThemeSchema(
+                theme_code=theme.code,
+                dict_value=theme.value,
+                type_code=theme.type_code,
+                word_code=theme.word_code,
+                lang_code=theme.lang_code,
             )
-        else:
-            theme_list.append(
-                ThemeSchema(
-                    theme_code=theme.code,
-                    dict_value=theme.value,
-                    lang_code=theme.lang_code,
-                    type_code=theme.type_code,
-                )
-            )
+        )
     if not theme_list: raise CommonExceptions.NOTHING_FOUND
     return theme_list
 
@@ -184,6 +172,7 @@ async def get_all_allowed_themes(
                 theme_code=theme.code,
                 dict_value=theme.value,
                 type_code=theme.type_code,
+                word_code=theme.word_code,
             )
         )
     if not theme_list: raise CommonExceptions.NOTHING_FOUND

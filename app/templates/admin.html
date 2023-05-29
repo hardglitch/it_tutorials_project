@@ -1,5 +1,6 @@
 <div style="padding-top: 20px">
 
+<!-- types-->
     <details class="tutorial">
         <summary style="padding: 10px 0 10px 0;">
             <span class="text-link" style="font-size: 20px; font-weight: bold;">
@@ -10,11 +11,11 @@
         <div style="display: flex; flex-direction: column">
             <div class="dropdown input-field" style="width: 90%; margin: 0 0 5px 15px;" id="tutor-types-dropdown">
 
-                <div id="t-type-value" class="text-link" onclick=setDropdown("tutor-types-dropdown") style="font-size: 16px">* {{ loc_add_new_type }} *</div>
+                <div id="t-type-value" class="text-link" onclick=setDropdown("tutor-types-dropdown") style="font-size: 16px">* {{ loc_add_new_type.upper() }} *</div>
 
                 <div class="content" style="width: 90%; transform: translate(8px, 0) scale(1)">
                     <div style="padding: 2px 0 2px 0;">
-                        <span class="text-link" id="t-type-new" onclick="addNewTType()">* {{ loc_add_new_type }} *</span><br>
+                        <span class="text-link" id="t-type-new" onclick="addNewTType()">* {{ loc_add_new_type.upper() }} *</span><br>
                     </div>
 
                     {% for type in tutor_types %}
@@ -69,7 +70,7 @@
     </details>
 
     <br>
-
+<!-- themes-->
     <details class="tutorial">
         <summary style="padding: 10px 0 10px 0;">
             <span class="text-link" style="font-size: 20px; font-weight: bold;">
@@ -115,10 +116,16 @@
         </div>
 
         <div style="display: flex; flex-direction: row; justify-content: center; padding-top: 10px;">
-            <div style="padding-top: 5px">Bind to</div>
+            <div style="padding-top: 5px">{{ loc_bind_to }}</div>
             <div class="dropdown input-field" style="width: 60%; margin: 0 5% 5px 5px;" id="bounded-tutor-types-dropdown">
 
-                <div id="bounded-t-type-value" class="text-link" onclick=setDropdown("bounded-tutor-types-dropdown") style="font-size: 16px">{{ tutor_types[0].dict_value }}</div>
+                <div id="bounded-t-type-value" class="text-link" onclick=setDropdown("bounded-tutor-types-dropdown") style="font-size: 16px">
+                    {% for type in tutor_types %}
+                        {% if type.lang_code == ui_lang_code %}
+                            {{ type.dict_value }}
+                        {% endif %}
+                    {% endfor %}
+                </div>
 
                 <div class="content" style="width: 90%; transform: translate(8px, 0) scale(1)">
                     {% for type in tutor_types %}
@@ -153,7 +160,7 @@
     </details>
 
     <br>
-
+<!-- dist-types-->
     <details class="tutorial">
         <summary style="padding: 10px 0 10px 0;">
             <span class="text-link" style="font-size: 20px; font-weight: bold;">
@@ -164,11 +171,11 @@
         <div style="display: flex; flex-direction: column">
             <div class="dropdown input-field" style="width: 90%; margin: 0 0 5px 15px;" id="tutor-dist-types-dropdown">
 
-                <div id="t-dist-type-value" class="text-link" onclick=setDropdown("tutor-dist-types-dropdown") style="font-size: 16px">* {{ loc_add_new_dist_type }} *</div>
+                <div id="t-dist-type-value" class="text-link" onclick=setDropdown("tutor-dist-types-dropdown") style="font-size: 16px">* {{ loc_add_new_dist_type.upper() }} *</div>
 
                 <div class="content" style="width: 90%; transform: translate(8px, 0) scale(1)">
                     <div style="padding: 2px 0 2px 0;">
-                        <span class="text-link" id="t-dist-type-new" onclick="addNewTDistType()">* {{ loc_add_new_dist_type }} *</span><br>
+                        <span class="text-link" id="t-dist-type-new" onclick="addNewTDistType()">* {{ loc_add_new_dist_type.upper() }} *</span><br>
                     </div>
 
                     {% for dist_type in tutor_dist_types %}
@@ -217,7 +224,7 @@
     </details>
 
     <br>
-
+<!-- langs-->
     <details class="tutorial">
         <summary style="padding: 10px 0 10px 0;">
             <span class="text-link" style="font-size: 20px; font-weight: bold;">
@@ -228,11 +235,11 @@
         <div style="display: flex; flex-direction: column">
             <div class="dropdown input-field" style="width: 90%; margin: 0 0 5px 15px;" id="tutorial-langs-dropdown">
 
-                <div id="t-lang-value" class="text-link" onclick=setDropdown("tutorial-langs-dropdown") style="font-size: 16px">* {{ loc_add_new_language }} *</div>
+                <div id="t-lang-value" class="text-link" onclick=setDropdown("tutorial-langs-dropdown") style="font-size: 16px">* {{ loc_add_new_language.upper() }} *</div>
 
                 <div class="content" style="width: 90%; transform: translate(8px, 0) scale(1)">
                     <div style="padding: 2px 0 2px 0;">
-                        <span class="text-link" id="t-lang-new" onclick="addNewTLanguage()">* {{ loc_add_new_language }} *</span><br>
+                        <span class="text-link" id="t-lang-new" onclick="addNewTLanguage()">* {{ loc_add_new_language.upper() }} *</span><br>
                     </div>
 
                     {% for lang in tutor_langs %}
@@ -247,14 +254,16 @@
             <form id="lang-editor-form" action="/lng/{{ ui_lang_code }}/add" method="post">
                   <input id="tutorial-lang-code" type="hidden" name="lang_code" value="" required>
 
-                  <label style="width: 20%;">
+                  <label>
                     {% for lang in tutor_langs %}
                         {% if lang.lang_code == ui_lang_code %}
-                            <input class="input-field" style="width: 60%; text-align: center" name="lang_value" id="tutorial-lang-value"
-                                   type="text" placeholder="{{ lang.dict_value }} (1-100)" value="" required>
+                            <input class="input-field" style="min-width: 30px; width: 20%; text-align: center" name="abbreviation" id="tutorial-lang-abbreviation"
+                                   type="text" placeholder="{{ lang.abbreviation }} (3)" value="" required>
+                            <input class="input-field" style="width: 40%; text-align: center" name="lang_value" id="tutorial-lang-value"
+                                   type="text" placeholder="{{ lang.lang_value }} (1-100)" value="" required>
+                            <input id="submit-lang-button" type="submit" class="button foil pulse" name="submit" value="{{ loc_add_new }}">
                         {% endif %}
                     {% endfor %}
-                    <input id="submit-lang-button" type="submit" class="button foil pulse" name="submit" value="{{ loc_add_new }}">
                   </label><br>
                 <div style="display: flex; flex-direction: row; justify-content: center;">
                     <input id="is-ui-lang" name="is_ui_lang" type="checkbox" style="margin-top: 10px;">
@@ -280,7 +289,7 @@
         <!--        buffer-->
         <div style="display: none">
             {% for lang in tutor_langs %}
-                <span id="lang-value-{{ lang.lang_code }}">{{ lang.dict_value }}</span>
+                <span id="lang-abbr-{{ lang.lang_code }}">{{ lang.abbreviation }}</span>
                 <span id="is-ui-lang-{{ lang.lang_code }}">{{ lang.is_ui_lang }}</span>
             {% endfor %}
             <input type="hidden" id="lang-editor-form-default-value" value="/{{ ui_lang_code }}/lang/add">
@@ -289,7 +298,7 @@
     </details>
 
     <br><br>
-
+<!-- users-->
     <div>
         <div>
             <div style="font-size: 20px; font-weight: bold;">{{ loc_users }}</div>

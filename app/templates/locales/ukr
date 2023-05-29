@@ -35,8 +35,9 @@
   "loc_add_new_type": "ДОДАТИ НОВИЙ ТИП",
   "loc_tutorial_types": "Типи / Категорії",
   "loc_tutorial_themes": "Теми",
+  "loc_bind_to": "З типу",
   "loc_tutorial_dist_types": "Тип Розподілу",
-  "loc_add_new_dist_type": "ДОДАТИ НОВИЙ ТИП"б
+  "loc_add_new_dist_type": "ДОДАТИ НОВИЙ ТИП",
   "loc_languages": "Мови",
   "loc_add_new_language": "ДОДАТИ НОВУ МОВУ",
   "loc_set_ui_language": "Зробіти мовою інтерфейсу",

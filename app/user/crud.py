@@ -11,12 +11,13 @@ from ..user.models import UserModel
 
 
 @db_checker()
-async def add_user(user: UserSchema, db_session: DBSession) -> bool:
+async def add_user(user: UserSchema, db_session: DBSession, is_admin: bool = False) -> bool:
     new_user = UserModel(
         name=user.name,
         email=user.email,
         hashed_password=get_hashed_password(user.password.get_secret_value()),
     )
+    if is_admin: new_user.credential = Credential.admin
 
     db_session.add(new_user)
     await db_session.commit()

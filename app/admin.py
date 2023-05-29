@@ -24,7 +24,7 @@ admin_router = APIRouter(prefix="/adm", tags=["ADMIN"])
 
 @admin_router.get("/")
 async def admin_redirect(ui_lang_code: UILangCode) -> Response:
-    response = RedirectResponse(url=f"/{ui_lang_code}/admin", status_code=status.HTTP_302_FOUND)
+    response = RedirectResponse(url=f"/adm/{ui_lang_code}", status_code=status.HTTP_302_FOUND)
     return response
 
 

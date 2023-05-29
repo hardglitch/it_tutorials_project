@@ -8,7 +8,7 @@ from starlette import status
 from starlette.requests import Request
 from starlette.responses import RedirectResponse, Response
 from starlette.staticfiles import StaticFiles
-from ._initial_values import insert_data
+from ._initial_values import insert_default_data
 from .admin import admin_router
 from .common.constants import PageVars
 from .common.exceptions import CommonExceptions
@@ -87,7 +87,7 @@ class MainRouter:
 
         @app.post("/init_data", tags=["TEST"])
         async def __init_data(db_session: DBSession) -> None:
-            await insert_data(db_session)
+            await insert_default_data(db_session)
 
         @app.get("/redis_test", tags=["TEST"])
         @cache()
