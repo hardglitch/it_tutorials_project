@@ -46,11 +46,15 @@ async def admin(ui_lang_code: UILangCode, db_session: DBSession, request: Reques
         users: List[UserSchema] = await get_all_users(
             db_session=db_session,
         )
+
+        default_bounded_type = [tp.dict_value for tp in tutor_types if tp.lang_code == ui_lang_code][0]
+
         page_vars = {
             PageVars.page: PageVars.Page.admin,
             PageVars.ui_lang_code: ui_lang_code,
             "admin_js": True,
             "tutor_types": tutor_types,
+            "default_bounded_type": default_bounded_type,
             "tutor_themes": tutor_themes,
             "tutor_dist_types": tutor_dist_types,
             "tutor_langs": tutor_langs,

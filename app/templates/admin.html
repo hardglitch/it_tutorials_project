@@ -120,12 +120,7 @@
             <div class="dropdown input-field" style="width: 60%; margin: 0 5% 5px 5px;" id="bounded-tutor-types-dropdown">
 
                 <div id="bounded-t-type-value" class="text-link" onclick=setDropdown("bounded-tutor-types-dropdown") style="font-size: 16px">
-                    {% for type in tutor_types %}
-                        {% if type.lang_code == ui_lang_code %}
-                            {{ type.dict_value }}
-                            {{ break }}
-                        {% endif %}
-                    {% endfor %}
+                    {{ default_bounded_type }}
                 </div>
 
                 <div class="content" style="width: 90%; transform: translate(8px, 0) scale(1)">
@@ -272,7 +267,7 @@
                         <label for="is-ui-lang">{{ loc_set_ui_language }}</label>
                     </div>
                 </div>
-                <div class="hidden-message" id="ui-lang-ability-error" style="padding-top: 10px">
+                <div class="hidden-message" id="ui-language-ability-error" style="padding-top: 10px">
                     {{ loc_ui_lang_ability_error }}
                 </div>
             </form>

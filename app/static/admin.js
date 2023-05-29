@@ -225,7 +225,7 @@ function addNewTLanguage() {
         document.getElementById("lang-editor-form-default-value").value;
     document.getElementById("lang-editor-form-deleter").action = "";
     document.getElementById("is-ui-lang").checked = false;
-    document.getElementById("ui-lang-ability-error").classList.remove("active");
+    document.getElementById("ui-language-ability-error").classList.remove("active");
 }
 
 function changeTLanguageAdmin(elem_id, ui_lang_code) {
@@ -250,9 +250,9 @@ function changeTLanguageAdmin(elem_id, ui_lang_code) {
     let check = checkAbility();
     document.getElementById("is-ui-lang").disabled = !check;
     if (!check) {
-        document.getElementById("ui-lang-ability-error").classList.add("active");
+        document.getElementById("ui-language-ability-error").classList.add("active");
     } else {
-        document.getElementById("ui-lang-ability-error").classList.remove("active");
+        document.getElementById("ui-language-ability-error").classList.remove("active");
     }
 }
 
