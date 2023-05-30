@@ -323,7 +323,7 @@
                         <div id="user-status-image-{{ user.id }}" class="user-status{% if user.is_active != True %} inactive{% endif %}" onclick="toggleUserStatus(this.id)" title="{{ loc_user_delete }}">&#9679;</div>
                     </div>
 
-                    <div style="width: 42%; overflow: hidden; text-align: left; padding: 5px 5px 0 5px;" title="{{ user.name }}">{{ user.name }}</div>
+                    <div style="width: 42%; overflow: hidden; text-align: left; padding: 5px 5px 0 5px;" title="{{ user.name }}"><a href="/usr/{{ ui_lang_code }}/{{ user.id }}">{{ user.name }}</a></div>
 
                     <input id="user-credential-{{ user.id }}" type="hidden" name="credential" value="{{ user.credential }}" required>
                     <div class="dropdown" style="width: 25%; margin: 5px 0 5px 0;" id="user-credential-dropdown-{{ user.id }}">
