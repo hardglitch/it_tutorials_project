@@ -26,9 +26,9 @@ The site also has an admin panel.
 
 Mobile view.
 
-![Screenshot_1685451800](https://github.com/hardglitch/it_tutorials_project/assets/49201692/bda9eff5-56c9-49c2-92cf-d740395c72e4)
+![Screenshot_1685452026](https://github.com/hardglitch/it_tutorials_project/assets/49201692/55987000-81a4-4d47-8148-391bbf2bfcdf)
 
-![Screenshot_1685451803](https://github.com/hardglitch/it_tutorials_project/assets/49201692/bec6b4c6-c746-4f0a-9571-68b2154cf723)
+![Screenshot_1685452031](https://github.com/hardglitch/it_tutorials_project/assets/49201692/78f757e0-bfbd-400a-8493-e4927ec32636)
 
 
 The project is written in Python and is completely asynchronous.
