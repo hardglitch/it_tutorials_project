@@ -39,7 +39,7 @@ class ValidDescriptionSchema(BaseModel):
 
     @validator("description")
     def check_value(cls, value: str):
-        return value if 1 < len(value) <= 1024 else None
+        return value if 1 < len(value := remove_dup_spaces(value)) <= 1024 else None
 
 Description = Annotated[str, DescriptionSchema]
 ValidDescription = Annotated[str, ValidDescriptionSchema]
