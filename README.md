@@ -20,6 +20,12 @@ The site also has an admin panel.
 
 ![Screenshot_3](https://github.com/hardglitch/it_tutorials_project/assets/49201692/6a923a18-40d1-49d0-856d-ce79cfa943be)
 
+Mobile view
+![Screenshot_1685448685](https://github.com/hardglitch/it_tutorials_project/assets/49201692/bee9b357-bf72-47c6-b22d-2977ce485794)
+
+![Screenshot_1685448713](https://github.com/hardglitch/it_tutorials_project/assets/49201692/657fb92d-40f8-4ce6-bead-8621b732e49a)
+
+
 The project is written in Python and is completely asynchronous.
 For the front, Jinja2 and pure JavaScript were used.
 
