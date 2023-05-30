@@ -32,15 +32,14 @@ def db_checker() -> Any:
         async def wrapped(*args: Any, **kwargs: Any) -> Any:
             try:
                 return await func(*args, **kwargs)
-            except: raise
-            # except StopAsyncIteration:
-            #     raise DatabaseExceptions.COMMON_EXCEPTION
-            # except (TypeError, ValueError):
-            #     raise CommonExceptions.INVALID_PARAMETERS
-            # except NoResultFound:
-            #     raise CommonExceptions.NOTHING_FOUND
-            # except IntegrityError:
-            #     raise DatabaseExceptions.DUPLICATED_ENTRY
+            except StopAsyncIteration:
+                raise DatabaseExceptions.COMMON_EXCEPTION
+            except (TypeError, ValueError):
+                raise CommonExceptions.INVALID_PARAMETERS
+            except NoResultFound:
+                raise CommonExceptions.NOTHING_FOUND
+            except IntegrityError:
+                raise DatabaseExceptions.DUPLICATED_ENTRY
         return wrapped
     return wrapper
 
