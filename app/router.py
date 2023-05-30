@@ -28,6 +28,7 @@ class MainRouter:
 
         origins = [
             "https://localhost",
+            "https://10.0.2.2",
             "https://tutorials-project.onrender.com"
         ]
 

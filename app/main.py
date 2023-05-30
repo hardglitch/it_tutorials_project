@@ -16,7 +16,7 @@ settings = Settings()
 app = FastAPI(title="Tutorials Project", lifespan=lifespan, openapi_url=settings.openapi_url)
 
 app.add_middleware(HTTPSRedirectMiddleware)
-app.add_middleware(TrustedHostMiddleware, allowed_hosts=["localhost", "tutorials-project.onrender.com"])  # "example.com", "*.example.com"
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=["localhost", "10.0.2.2", "tutorials-project.onrender.com"])  # "example.com", "*.example.com"
 app.add_middleware(GZipMiddleware)
 MainRouter(app=app)
 
