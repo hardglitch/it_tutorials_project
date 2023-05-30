@@ -4,6 +4,7 @@ There you can find links to useful courses on various topics.
 
 ![Screenshot_1](https://github.com/hardglitch/it_tutorials_project/assets/49201692/74b475b5-3b6a-4471-90f5-f57c0c495a60)
 
+
 If you wish, you can very simply and quickly register and add your own.
 
 ![Screenshot_5](https://github.com/hardglitch/it_tutorials_project/assets/49201692/fbe907de-71fc-4a2b-8db7-dc8569d73f27)
@@ -12,19 +13,22 @@ If you wish, you can very simply and quickly register and add your own.
 
 ![Screenshot_2](https://github.com/hardglitch/it_tutorials_project/assets/49201692/2b331d79-b8eb-4721-9a6c-bffabf77c512)
 
+
 At the moment there are 3 localizations: English, Russian and Ukrainian.
 
 ![Screenshot_6](https://github.com/hardglitch/it_tutorials_project/assets/49201692/550b97e2-3c38-470a-a3d3-f97498b032d8)
+
 
 The site also has an admin panel.
 
 ![Screenshot_3](https://github.com/hardglitch/it_tutorials_project/assets/49201692/6a923a18-40d1-49d0-856d-ce79cfa943be)
 
+
 Mobile view.
 
-![Screenshot_1685448685](https://github.com/hardglitch/it_tutorials_project/assets/49201692/bee9b357-bf72-47c6-b22d-2977ce485794)
+![Screenshot_1685451800](https://github.com/hardglitch/it_tutorials_project/assets/49201692/bda9eff5-56c9-49c2-92cf-d740395c72e4)
 
-![Screenshot_1685448713](https://github.com/hardglitch/it_tutorials_project/assets/49201692/657fb92d-40f8-4ce6-bead-8621b732e49a)
+![Screenshot_1685451803](https://github.com/hardglitch/it_tutorials_project/assets/49201692/bec6b4c6-c746-4f0a-9571-68b2154cf723)
 
 
 The project is written in Python and is completely asynchronous.
