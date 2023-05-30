@@ -1,7 +1,7 @@
 {
-  "loc_tutorials": "Руководства",
+  "loc_tutorials": "Курсы",
   "loc_developer": "Разработчик",
-  "loc_add_tutorial": "Добавить Руководство",
+  "loc_add_tutorial": "Добавить Курс",
   "loc_home": "На главную страницу",
   "loc_profile": "Профиль",
   "loc_sign_out": "Выйти",
@@ -24,7 +24,7 @@
   "loc_no_spaces": "без пробелов",
 
   "loc_credentials": "Права",
-  "loc_added_tutorials": "Добавил Руководств",
+  "loc_added_tutorials": "Добавил Курсов",
 
   "loc_save": "Сохранить",
   "loc_delete": "Удалить",
