@@ -18,7 +18,7 @@ Almost all user interface elements are interactive. Use it!
 ![Screenshot_5](https://github.com/hardglitch/it_tutorials_project/assets/49201692/408434b2-f9e8-46bc-8bc0-58f3b8c137f8)
 
 
-If you wish, you can very simply and quickly register and add your own.
+If you wish, you can very simply and quickly register and add your own tutorial.
 
 ![Screenshot_5](https://github.com/hardglitch/it_tutorials_project/assets/49201692/fbe907de-71fc-4a2b-8db7-dc8569d73f27)
 
