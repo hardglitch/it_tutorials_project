@@ -12,7 +12,7 @@
   "loc_signup": "Новый",
 
   "loc_language": "Язык",
-  "loc_distribution": "Распространение",
+  "loc_distribution": "Раздача",
   "loc_source": "Источник",
   "loc_author": "Кто добавил",
 
@@ -36,12 +36,12 @@
   "loc_tutorial_types": "Типы / Категории",
   "loc_tutorial_themes": "Темы",
   "loc_bind_to": "Из типа",
-  "loc_tutorial_dist_types": "Тип Распространения",
+  "loc_tutorial_dist_types": "Тип Раздачи",
   "loc_add_new_dist_type": "ДОБАВИТЬ НОВЫЙ ТИП",
   "loc_languages": "Языки",
   "loc_add_new_language": "Добавить новый язык",
   "loc_set_ui_language": "Сделать языком интерфейса",
-  "loc_ui_lang_ability_error": "Не все Категории, Темы или Типы Распространения заполнены на этом языке!",
+  "loc_ui_lang_ability_error": "Не все Категории, Темы или Типы Раздачи заполнены на этом языке!",
   "loc_users": "ПОЛЬЗОВАТЕЛИ",
   "loc_sort": "Сортировать",
   "loc_user_delete": "Удалён / Забанен",
