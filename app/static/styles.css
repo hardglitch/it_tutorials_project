@@ -56,6 +56,16 @@ a:hover {
     text-shadow: 0 0 5px cornsilk;
 }
 
+.text-link-hidden {
+    color: lightgrey;
+}
+
+.text-link-hidden:hover {
+    color: lightgrey;
+    cursor: pointer;
+    text-shadow: none;
+}
+
 .pulse:hover {
     animation: pulse 1s infinite;
 }
@@ -150,6 +160,7 @@ input:invalid {
 
 .tutorial .container {
     margin: 10px 10px 20px;
+    z-index: -1;
 }
 
 .exception {
