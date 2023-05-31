@@ -22,19 +22,19 @@ If you wish, you can very simply and quickly register and add your own tutorial.
 
 ![Screenshot_7](https://github.com/hardglitch/it_tutorials_project/assets/49201692/af0198f5-01ab-4f6a-827b-3f09a11de6e7)
 
-![Screenshot_4](https://github.com/hardglitch/it_tutorials_project/assets/49201692/d1e25a83-4d77-4dc3-8eb9-120245a915e8)
+![Screenshot_9](https://github.com/hardglitch/it_tutorials_project/assets/49201692/7e3533d5-ab3d-4e85-a039-e9dabeb047a1)
 
-![Screenshot_2](https://github.com/hardglitch/it_tutorials_project/assets/49201692/2b331d79-b8eb-4721-9a6c-bffabf77c512)
+![Screenshot_10](https://github.com/hardglitch/it_tutorials_project/assets/49201692/b60a06b2-4065-4bfd-9c24-2de00350d1b0)
 
 
 At the moment there are 3 localizations: English, Russian and Ukrainian.
 
-![Screenshot_6](https://github.com/hardglitch/it_tutorials_project/assets/49201692/550b97e2-3c38-470a-a3d3-f97498b032d8)
+![Screenshot_8](https://github.com/hardglitch/it_tutorials_project/assets/49201692/2024281d-af31-4bda-b003-b6358d01c9a4)
 
 
 The site also has an admin panel.
 
-![Screenshot_3](https://github.com/hardglitch/it_tutorials_project/assets/49201692/6a923a18-40d1-49d0-856d-ce79cfa943be)
+![Screenshot_11](https://github.com/hardglitch/it_tutorials_project/assets/49201692/95310a47-1430-42e7-b94d-c472685176f9)
 
 
 Mobile view.
