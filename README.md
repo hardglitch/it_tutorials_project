@@ -2,7 +2,7 @@ Welcome to [my project](https://tutorials-project.onrender.com/tt/1)!
 
 There you can find links to useful courses on various topics.
 
-![Screenshot_1](https://github.com/hardglitch/it_tutorials_project/assets/49201692/74b475b5-3b6a-4471-90f5-f57c0c495a60)
+![Screenshot_6](https://github.com/hardglitch/it_tutorials_project/assets/49201692/19c717db-8ea7-4c0b-990c-cf246ab8280c)
 
 
 You can also sort tutorials by any allowed parameters by clicking on any of them.
@@ -20,7 +20,7 @@ Almost all user interface elements are interactive. Use it!
 
 If you wish, you can very simply and quickly register and add your own tutorial.
 
-![Screenshot_5](https://github.com/hardglitch/it_tutorials_project/assets/49201692/fbe907de-71fc-4a2b-8db7-dc8569d73f27)
+![Screenshot_7](https://github.com/hardglitch/it_tutorials_project/assets/49201692/af0198f5-01ab-4f6a-827b-3f09a11de6e7)
 
 ![Screenshot_4](https://github.com/hardglitch/it_tutorials_project/assets/49201692/d1e25a83-4d77-4dc3-8eb9-120245a915e8)
 
@@ -39,7 +39,7 @@ The site also has an admin panel.
 
 Mobile view.
 
-![Screenshot_1685452031](https://github.com/hardglitch/it_tutorials_project/assets/49201692/78f757e0-bfbd-400a-8493-e4927ec32636)
+![Screenshot_1685528917](https://github.com/hardglitch/it_tutorials_project/assets/49201692/d55bc936-a3a3-458c-9d0d-865937c9ddec)
 
 
 The project is written in Python and is completely asynchronous.
