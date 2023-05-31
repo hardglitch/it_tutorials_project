@@ -7,6 +7,10 @@ body, html {
     margin: 0;
 }
 
+.roboto-font {
+    font-family: Roboto, ui-rounded;
+}
+
 .main-container {
     min-width: 360px;
     max-width: 480px;

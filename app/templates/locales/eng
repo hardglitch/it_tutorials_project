@@ -45,5 +45,8 @@
   "loc_users": "USERS",
   "loc_sort": "Sort",
   "loc_user_delete": "Deleted / Banned",
-  "loc_batch_save": "Save All"
+  "loc_batch_save": "Save All",
+
+  "loc_prev": "prev",
+  "loc_next": "next"
 }

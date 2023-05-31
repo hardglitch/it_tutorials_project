@@ -45,5 +45,8 @@
   "loc_users": "КОРИСТУВАЧІ",
   "loc_sort": "Сортувати",
   "loc_user_delete": "Видалено / Забанений",
-  "loc_batch_save": "Зберегти Все"
+  "loc_batch_save": "Зберегти Все",
+
+  "loc_prev": "поперед",
+  "loc_next": "наступ"
 }

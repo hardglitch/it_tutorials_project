@@ -45,5 +45,8 @@
   "loc_users": "ПОЛЬЗОВАТЕЛИ",
   "loc_sort": "Сортировать",
   "loc_user_delete": "Удалён / Забанен",
-  "loc_batch_save": "Сохранить всё"
+  "loc_batch_save": "Сохранить всё",
+
+  "loc_prev": "пред",
+  "loc_next": "след"
 }
