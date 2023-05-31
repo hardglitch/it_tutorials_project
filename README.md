@@ -5,6 +5,19 @@ There you can find links to useful courses on various topics.
 ![Screenshot_1](https://github.com/hardglitch/it_tutorials_project/assets/49201692/74b475b5-3b6a-4471-90f5-f57c0c495a60)
 
 
+You can also sort tutorials by any allowed parameters by clicking on any of them.
+
+![Screenshot_1](https://github.com/hardglitch/it_tutorials_project/assets/49201692/86452cb8-9cc0-4980-84e9-e1e9e51e1af7)
+![Screenshot_2](https://github.com/hardglitch/it_tutorials_project/assets/49201692/48f207f5-75d4-4731-b8e0-2f23e3dd5208)
+![Screenshot_3](https://github.com/hardglitch/it_tutorials_project/assets/49201692/d8198baa-3e08-4760-9fad-e0fca7702f1d)
+![Screenshot_4](https://github.com/hardglitch/it_tutorials_project/assets/49201692/ce178ccc-95d1-4dd0-82d7-ef0b1b4f8ebb)
+
+
+Almost all user interface elements are interactive. Use it!
+
+![Screenshot_5](https://github.com/hardglitch/it_tutorials_project/assets/49201692/408434b2-f9e8-46bc-8bc0-58f3b8c137f8)
+
+
 If you wish, you can very simply and quickly register and add your own.
 
 ![Screenshot_5](https://github.com/hardglitch/it_tutorials_project/assets/49201692/fbe907de-71fc-4a2b-8db7-dc8569d73f27)
@@ -25,8 +38,6 @@ The site also has an admin panel.
 
 
 Mobile view.
-
-![Screenshot_1685452026](https://github.com/hardglitch/it_tutorials_project/assets/49201692/55987000-81a4-4d47-8148-391bbf2bfcdf)
 
 ![Screenshot_1685452031](https://github.com/hardglitch/it_tutorials_project/assets/49201692/78f757e0-bfbd-400a-8493-e4927ec32636)
 
