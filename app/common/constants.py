@@ -8,7 +8,7 @@ templates_dir = Path(__name__.split(".")[0]).joinpath("templates")
 templates = Jinja2Templates(directory=templates_dir)
 
 DEFAULT_UI_LANGUAGE: str = "eng"
-PAGINATION_OFFSET: int = 20
+PAGINATION_OFFSET: int = 10
 
 
 class Credential(IntEnum):
