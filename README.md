@@ -9,6 +9,10 @@ You can also sort tutorials by any allowed parameters by clicking on any of them
 
 ![2](https://github.com/hardglitch/it_tutorials_project/assets/49201692/e73bb626-b2a9-4fac-8ee4-b07c3b29c047)
 
+![10](https://github.com/hardglitch/it_tutorials_project/assets/49201692/a575660a-aa1d-4553-a443-3bbe64e7cc9d)
+
+![11](https://github.com/hardglitch/it_tutorials_project/assets/49201692/8cef55a4-ae3e-49f1-8be7-164499da1961)
+
 
 Almost all user interface elements are interactive. Use it!
 
