@@ -1,3 +1,45 @@
+<div style="display: flex; flex-direction: row; justify-content: center; align-items: center">
+
+    <div class="dropdown" style="width: 47%; min-height: 18px; margin-left: 15px;" id="tutor-types-dropdown" title="{{ tutor_types[0].dict_value }}">
+
+        <div id="t-type-value" class="text-link" onclick=setDropdown("tutor-types-dropdown") style="font-size: 16px;">
+                {{ tutor_types[0].dict_value }}
+        </div>
+        <input id="t-type-code" type="hidden" value="{{ tutor_types[0].type_code }}">
+
+        <div class="content" style="width: 90%; transform: translate(8px, 0) scale(1)">
+        {% for type in tutor_types %}
+            {% if type.lang_code == ui_lang_code %}
+            <div style="padding: 2px 0 2px 0;">
+                <span class="text-link" id="t-type-{{ type.type_code }}" onclick="changeTType(this.id)">{{ type.dict_value }}</span><br>
+            </div>
+            {% endif %}
+        {% endfor %}
+        </div>
+
+    </div>
+
+    <div style="width: 6%;">>></div>
+
+    <div class="dropdown" style="width: 47%; margin-left: 15px;" id="tutor-themes-dropdown">
+
+        <div id="t-theme-value" class="text-link" onclick=setDropdown("tutor-themes-dropdown") style="font-size: 16px; overflow: hidden"></div>
+        <input id="t-theme-code" type="hidden">
+
+        <div class="content" style="width: 90%; transform: translate(8px, 0) scale(1);">
+        {% for theme in tutor_themes %}
+            {% if theme.lang_code == ui_lang_code %}
+            <div id="inherit-from-type-code-{{ theme.type_code }}-theme-code-{{ theme.theme_code }}" style="padding: 2px 0 2px 0;">
+                <span class="text-link" id="t-theme-{{ theme.theme_code }}" onclick="changeTThemeMain(this.id, {{ ui_lang_code }})">{{ theme.dict_value }}</span><br>
+            </div>
+            {% endif %}
+        {% endfor %}
+        </div>
+
+    </div>
+
+</div>
+
 {% for tutor in tutors %}
     {% include "tutorial.html" %}
 {% endfor %}

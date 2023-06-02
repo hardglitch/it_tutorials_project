@@ -49,19 +49,19 @@ async def add_theme(theme: ThemeSchema, db_session: DBSession) -> ResponseSchema
 
 @db_checker()
 async def edit_theme(theme: ThemeSchema, db_session: DBSession) -> ResponseSchema:
-    result: ScalarResult = await db_session.scalars(
-        select(ThemeModel.word_code).where(theme.theme_code == ThemeModel.code)
+    result: Result = await db_session.execute(
+        select(DictionaryModel)
+        .where(and_(
+            ThemeModel.word_code == DictionaryModel.word_code,
+            ThemeModel.code == theme.theme_code,
+            DictionaryModel.lang_code == theme.lang_code
+        ))
     )
-    word_code: int = result.one()
+    new_value: Row = result.one()
+    new_value.DictionaryModel.value = theme.dict_value
 
     # update word in the 'dictionary' table
-    await db_session.merge(
-        DictionaryModel(
-            word_code=word_code,
-            lang_code=theme.lang_code,
-            value=theme.dict_value,
-        )
-    )
+    await db_session.merge(new_value.DictionaryModel)
 
     # update tutorial type code in the 'theme' table
     if theme.type_code is not None:

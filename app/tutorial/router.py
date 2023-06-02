@@ -1,9 +1,12 @@
-from typing import Annotated
+from typing import Annotated, List
 from fastapi import APIRouter, Depends, Form
 from pydantic import HttpUrl
 from starlette import status
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, RedirectResponse, Response
+
+from .theme.crud import get_all_themes
+from .type.crud import get_all_types
 from ..common.constants import PAGINATION_OFFSET, PageVars
 from ..db import DBSession
 from ..language.crud import UILangCode
@@ -14,8 +17,8 @@ from ..tutorial.crud import add_tutorial, delete_tutorial, edit_tutorial, get_al
 from ..tutorial.dist_type.schemas import DistTypeCode
 from ..tutorial.schemas import Pagination, TutorialID, TutorialListSchema, TutorialSchema, DecodedTutorialSchema, \
     ValidDescription, ValidTitle
-from ..tutorial.theme.schemas import ThemeCode
-from ..tutorial.type.schemas import TypeCode
+from ..tutorial.theme.schemas import ThemeCode, ThemeSchema
+from ..tutorial.type.schemas import TypeCode, TypeSchema
 from ..user.auth import decode_access_token, get_token, is_tutorial_editor
 
 
@@ -190,10 +193,18 @@ async def get__all_tutorials(
             page=page,
             db_session=db_session,
         )
+    tutor_types: List[TypeSchema] = await get_all_types(
+        db_session=db_session,
+    )
+    tutor_themes: List[ThemeSchema] = await get_all_themes(
+        db_session=db_session,
+    )
     page_vars = {
         PageVars.page: PageVars.Page.main,
         PageVars.ui_lang_code: ui_lang_code,
         "tutors": tutors_list.tutorials,
+        "tutor_types": tutor_types,
+        "tutor_themes": tutor_themes,
         "current_page": page,
         "is_next_page": True if (tutors_list.total_count / PAGINATION_OFFSET) - page > 0 else False,
     }

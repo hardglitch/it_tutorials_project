@@ -1,5 +1,5 @@
 from typing import List
-from sqlalchemy import Result, Row, ScalarResult, and_, delete, func, select, update
+from sqlalchemy import Result, Row, ScalarResult, and_, delete, func, select
 from ...common.exceptions import CommonExceptions, DatabaseExceptions
 from ...common.responses import CommonResponses, ResponseSchema
 from ...db import DBSession
@@ -48,17 +48,17 @@ async def add_dist_type(dist_type: DictionarySchema, db_session: DBSession) -> R
 
 @db_checker()
 async def edit_dist_type(dist_type: DistTypeSchema, db_session: DBSession) -> ResponseSchema:
-    result: ScalarResult = await db_session.scalars(
-        select(DistTypeModel.word_code).where(dist_type.dist_type_code == DistTypeModel.code)
+    result: Result = await db_session.execute(
+        select(DictionaryModel)
+        .where(and_(
+            DistTypeModel.word_code == DictionaryModel.word_code,
+            DistTypeModel.code == dist_type.dist_type_code,
+            DictionaryModel.lang_code == dist_type.lang_code
+        ))
     )
-    word_code: int = result.one()
-    await db_session.merge(
-        DictionaryModel(
-            word_code=word_code,
-            lang_code=dist_type.lang_code,
-            value=dist_type.dict_value,
-        )
-    )
+    new_value: Row = result.one()
+    new_value.DictionaryModel.value = dist_type.dict_value
+    await db_session.merge(new_value.DictionaryModel)
     await db_session.commit()
     return CommonResponses.SUCCESS
 

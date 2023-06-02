@@ -77,7 +77,6 @@ function changeBoundedTTypeAdmin(elem_id) {
     document.getElementById("bounded-tutor-types-dropdown").classList.remove("active");
 }
 
-
 function addNewTTheme() {
     document.getElementById("t-theme-value").innerText = document.getElementById("t-theme-new").innerText.trim();
     document.getElementById("tutor-themes-dropdown").classList.remove("active");
