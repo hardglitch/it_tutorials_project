@@ -12,23 +12,30 @@ function onClickOutside(elem_id) {
 
 function changeTType(elem_id) {
     document.getElementById("t-type-value").innerText = document.getElementById(elem_id).innerText.trim();
-    let type_code = elem_id.split("-")[2]
-    document.getElementById("t-type-code").value = type_code
+    let type_code = elem_id.split("-")[2];
+    document.getElementById("t-type-code").value = type_code;
     document.getElementById("tutor-types-dropdown").classList.remove("active");
-    getAllowedThemes(type_code)
+    document.getElementById("tutor-types-dropdown").title = document.getElementById("t-type-value").innerText;
+    getAllowedThemes(type_code);
 }
 
 function changeTTheme(elem_id) {
     document.getElementById("t-theme-value").innerText = document.getElementById(elem_id).innerText.trim();
     document.getElementById("t-theme-code").value = elem_id.split("-").pop();
     document.getElementById("tutor-themes-dropdown").classList.remove("active");
+    document.getElementById("tutor-themes-dropdown").title = document.getElementById("t-theme-value").innerText;
+}
+
+function changeTThemeMain(elem_id, ui_lang_code) {
+    changeTTheme(elem_id);
+    let type_code = document.getElementById("t-type-code").value;
+    let theme_code = document.getElementById("t-theme-code").value
+    window.location = ("/tt/" + ui_lang_code + "?type_code=" + type_code + "&theme_code=" + theme_code)
 }
 
 function getAllowedThemes(type_code = undefined, set_default_theme = true) {
     if (type_code === undefined) {
-        try {
-            type_code = document.getElementById("t-type-code").value.trim()
-        }
+        try { type_code = document.getElementById("t-type-code").value.trim(); }
         catch (TypeError) {}
     }
 

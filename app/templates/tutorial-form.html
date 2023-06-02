@@ -13,7 +13,8 @@
                   required>{% if tutor %}{{ tutor.description }}{% endif %}</textarea>
       </label>
 
-        <div class="dropdown input-field" style="width: 90%; margin-left: 15px" id="tutor-types-dropdown">
+        <div class="dropdown input-field" style="width: 90%; margin-left: 15px" id="tutor-types-dropdown"
+                title="{% if tutor %}{{ tutor.type }}{% else %}{{ tutor_types[0].dict_value }}{% endif %}">
 
             <div id="t-type-value" class="text-link" onclick=setDropdown("tutor-types-dropdown") style="font-size: 16px">
                 {% if tutor %}
@@ -36,7 +37,7 @@
         </div>
 
 
-        <div class="dropdown input-field" style="width: 90%; margin-left: 15px; margin-top: 5px" id="tutor-themes-dropdown">
+        <div class="dropdown input-field" style="width: 90%; margin-left: 15px; margin-top: 5px" id="tutor-themes-dropdown" title="{% if tutor %}{{ tutor.theme }}{% endif %}">
 
             <div id="t-theme-value" class="text-link" onclick=setDropdown("tutor-themes-dropdown") style="font-size: 16px;">
                 {% if tutor %}

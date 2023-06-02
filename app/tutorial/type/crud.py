@@ -48,17 +48,17 @@ async def add_type(tutor_type: DictionarySchema, db_session: DBSession) -> Respo
 
 @db_checker()
 async def edit_type(tutor_type: TypeSchema, db_session: DBSession) -> ResponseSchema:
-    result: ScalarResult = await db_session.scalars(
-        select(TypeModel.word_code).where(tutor_type.type_code == TypeModel.code)
+    result: Result = await db_session.execute(
+        select(DictionaryModel)
+        .where(and_(
+            TypeModel.word_code == DictionaryModel.word_code,
+            TypeModel.code == tutor_type.type_code,
+            DictionaryModel.lang_code == tutor_type.lang_code
+        ))
     )
-    word_code: int = result.one()
-    await db_session.merge(
-        DictionaryModel(
-            word_code=word_code,
-            lang_code=tutor_type.lang_code,
-            value=tutor_type.dict_value,
-        )
-    )
+    new_value: Row = result.one()
+    new_value.DictionaryModel.value = tutor_type.dict_value
+    await db_session.merge(new_value.DictionaryModel)
     await db_session.commit()
     return CommonResponses.SUCCESS
 
